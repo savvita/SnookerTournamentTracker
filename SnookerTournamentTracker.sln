@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32602.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnookerTournamentTracker", "SnookerTournamentTracker\SnookerTournamentTracker.csproj", "{EA9BF11E-9996-43BC-AE9C-EC4501676219}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentLibrary", "TournamentLibrary\TournamentLibrary.csproj", "{0652AFAF-1BB4-4FE3-B9BA-ED3667B18784}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA9BF11E-9996-43BC-AE9C-EC4501676219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA9BF11E-9996-43BC-AE9C-EC4501676219}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA9BF11E-9996-43BC-AE9C-EC4501676219}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA9BF11E-9996-43BC-AE9C-EC4501676219}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0652AFAF-1BB4-4FE3-B9BA-ED3667B18784}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0652AFAF-1BB4-4FE3-B9BA-ED3667B18784}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0652AFAF-1BB4-4FE3-B9BA-ED3667B18784}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0652AFAF-1BB4-4FE3-B9BA-ED3667B18784}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3AE4ABB7-1DF0-482C-BDB5-0D2281E0AEAA}
+	EndGlobalSection
+EndGlobal

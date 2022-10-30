@@ -1,0 +1,28 @@
+﻿<Window x:Class="SnookerTournamentTracker.View.PrizesView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        mc:Ignorable="d"
+        Title="Prizes" Height="450" Width="800">
+    <StackPanel>
+        <ListBox ItemsSource="{Binding Places, Mode=OneTime}">
+        </ListBox>
+        <GroupBox Header="Method">
+            <StackPanel>
+                <RadioButton GroupName="Method" Content="Absolute value" IsChecked="True" />
+                <RadioButton GroupName="Method" Content="Percentage" />
+            </StackPanel>
+        </GroupBox>
+        <Label Content="Prize amount"></Label>
+        <TextBox PreviewTextInput="PrizeAmountTxt_PreviewTextInput" />
+        <Label Content="Total"></Label>
+        <TextBox IsReadOnly="True" />
+        <Label Content="Rest"></Label>
+        <TextBox IsReadOnly="True" />
+        <Label Content="After creating the tournament the prizes cannot be changed" />
+        <Button Content="Ok" />
+        <Button Content="Cancel" />
+    </StackPanel>
+</Window>

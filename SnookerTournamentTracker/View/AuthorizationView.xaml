@@ -1,0 +1,152 @@
+﻿<Window x:Class="SnookerTournamentTracker.View.AuthorizationView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        mc:Ignorable="d"
+        Title="AuthorizationView" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen" >
+    <Window.Resources>
+        <Style x:Key="ValidatedInput" >
+            <Setter Property="Validation.ErrorTemplate">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <DockPanel LastChildFill="True">
+                            <TextBlock DockPanel.Dock="Right" Foreground="Red" FontSize="14" FontWeight="Bold"
+                                                               ToolTip="{Binding ElementName=adornerPlaceholder, 
+                                                                        Path=AdornedElement.(Validation.Errors)[0].ErrorContent}"
+                                                    Text="*"/>
+                            <Border BorderBrush="Green" BorderThickness="1" >
+                                <AdornedElementPlaceholder Name="adornerPlaceholder"  />
+                            </Border>
+                        </DockPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="Control.Foreground" Value="Red"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <TabControl>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction 
+                    Command="{Binding ClearCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <TabItem Header="Sign in">
+                <StackPanel Name="SignIn">
+                    <Label Content="Login" />
+                    <TextBox Style="{StaticResource ValidatedInput}">
+                        <TextBox.Text>
+                            <Binding Path="Login" Mode="TwoWay" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <validation:NotEmptyRule />
+                                    <ExceptionValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <Label Content="Password" />
+                    <local:PasswordUserControl Style="{StaticResource ValidatedInput}">
+                        <local:PasswordUserControl.Password>
+                            <Binding Path="Password" Mode="TwoWay" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <validation:NotEmptyRule />
+                                    <ExceptionValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </local:PasswordUserControl.Password>
+                    </local:PasswordUserControl>
+                    <Button Content="Sign in" Command="{Binding SignInCommand}" PreviewMouseDown="SignInBtn_PreviewMouseDown" />
+                    <Button Content="Cancel" IsCancel="True" Click="CancelBtn_Click" />
+                    <Label Content="{Binding Error}" />
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Sign up">
+                <StackPanel Name="SignUp">
+                    <Label Content="First name" />
+                    <TextBox Style="{StaticResource ValidatedInput}">
+                        <TextBox.Text>
+                            <Binding Path="FirstName" Mode="TwoWay" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <validation:NotEmptyRule />
+                                    <ExceptionValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <Label Content="Second name" />
+                    <TextBox Text="{Binding SecondName, Mode=TwoWay}" />
+                    <Label Content="Last name" />
+                    <TextBox Style="{StaticResource ValidatedInput}">
+                        <TextBox.Text>
+                            <Binding Path="LastName" Mode="TwoWay" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <validation:NotEmptyRule />
+                                    <ExceptionValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <Label Content="Email" />
+                    <TextBox Style="{StaticResource ValidatedInput}">
+                        <TextBox.Text>
+                            <Binding Path="Email" Mode="TwoWay" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <validation:NotEmptyRule />
+                                    <ExceptionValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <Label Content="Phone number" />
+                    <TextBox Text="{Binding PhoneNumber, Mode=TwoWay}" />
+                    <Label Content="Login" />
+                        <TextBox Style="{StaticResource ValidatedInput}">
+                        <TextBox.Text>
+                            <Binding Path="Login" Mode="TwoWay" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <validation:NotEmptyRule />
+                                    <ExceptionValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <Label Content="Password" />
+                        <local:PasswordUserControl Style="{StaticResource ValidatedInput}">
+                        <local:PasswordUserControl.Password>
+                            <Binding Path="Password" Mode="TwoWay" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <validation:NotEmptyRule />
+                                    <ExceptionValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </local:PasswordUserControl.Password>
+                    </local:PasswordUserControl>
+                    <Label Content="Confirm password" />
+                        <local:PasswordUserControl Style="{StaticResource ValidatedInput}">
+                        <local:PasswordUserControl.Password>
+                            <Binding Path="PasswordConfirm" Mode="TwoWay" NotifyOnValidationError="True" >
+                                <Binding.ValidationRules>
+                                    <validation:NotEmptyRule />
+                                    <ExceptionValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </local:PasswordUserControl.Password>
+                    </local:PasswordUserControl>
+                    <Button Content="Sign up" Command="{Binding SignUpCommand}" PreviewMouseDown="SignUpBtn_PreviewMouseDown" />
+                    <Button Content="Cancel" IsCancel="True" Click="CancelBtn_Click" />
+                    <Label Content="{Binding Error}" />
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
