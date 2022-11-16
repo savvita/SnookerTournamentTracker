@@ -1,0 +1,61 @@
+﻿<Window x:Class="SnookerTournamentTracker.View.TournamentInfoView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        mc:Ignorable="d"
+        Title="TournamentInfoView" Height="450" Width="800">
+    <StackPanel>
+        <Label Content="Tournament name" />
+        <TextBox Text="{Binding Tournament.Name, Mode=OneTime}" IsReadOnly="True" />
+        <Label Content="Starts" />
+        <TextBox Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
+        <Label Content="Ends" />
+        <TextBox Text="{Binding Tournament.EndDate, Mode=OneTime}" IsReadOnly="True" />
+        <Label Content="Entree fee" />
+        <TextBox Text="{Binding Tournament.EntryFee, Mode=OneTime}" IsReadOnly="True" />
+        <Label Content="Garantee" />
+        <TextBox Text="{Binding Tournament.Garantee, Mode=OneTime}" IsReadOnly="True" />
+        <TextBox Text="{Binding Private, Mode=OneTime}" IsReadOnly="True" />
+        <Label Content="Prizes" />
+        <Label Content="Prize mode" />
+        <TextBox Text="{Binding Tournament.PrizeMode, Mode=OneTime}" IsReadOnly="True" />
+        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Prizes}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn 
+                    Header="Place"
+                    Width="3.5*" 
+                    Binding="{Binding Path=PlaceName,UpdateSourceTrigger=PropertyChanged}"
+                    IsReadOnly="True" />
+
+                <DataGridTemplateColumn Header="Amount" Width="*" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding PrizeAmount, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" BorderThickness="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Label Content="Rounds" />
+        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Rounds}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn 
+                    Header="Round"
+                    Width="3.5*" 
+                    Binding="{Binding Path=Round,UpdateSourceTrigger=PropertyChanged}"
+                    IsReadOnly="True" />
+
+                <DataGridTemplateColumn Header="Frames" Width="*" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Frames, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" BorderThickness="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Content="Close" Click="CloseBtn_Click" />
+    </StackPanel>
+</Window>

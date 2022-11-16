@@ -4,11 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
+        xmlns:converter="clr-namespace:SnookerTournamentTracker.Converter"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         mc:Ignorable="d"
-        Title="CreateTournamentView" Height="450" Width="800">
+        Title="CreateTournamentView" Height="550" Width="800">
 
     <Window.Resources>
+        <converter:StringToDecimalConverter x:Key="stringToDecimalConverter" />
+        
         <Style TargetType="ListBox">
             <Style.Setters>
                 <Setter Property="ItemTemplate">
@@ -24,13 +27,14 @@
 
             </Style.Setters>
         </Style>
+
     </Window.Resources>
     
     <StackPanel>
         <Label Content="Tournament name" />
         <TextBox>
             <TextBox.Text>
-                <Binding Path="Name" Mode="OneWayToSource" NotifyOnValidationError="True">
+                <Binding Path="Tournament.Name" Mode="OneWayToSource" NotifyOnValidationError="True">
                     <Binding.ValidationRules>
                         <validation:NotEmptyRule />
                         <ExceptionValidationRule/>
@@ -39,13 +43,16 @@
             </TextBox.Text>
         </TextBox>
         <Label Content="Starts" />
-        <DatePicker />
+        <DatePicker SelectedDate="{Binding Tournament.StartDate}" />
         <Label Content="Ends" />
-        <DatePicker />
+        <DatePicker SelectedDate="{Binding Tournament.EndDate}" />
         <Label Content="Entree fee" />
-        <TextBox PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" Text="{Binding EntreeFee, Mode=OneWayToSource}" />
+        <TextBox PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" 
+                 Text="{Binding Tournament.EntryFee, Converter={StaticResource stringToDecimalConverter}}" />
         <Label Content="Garantee" />
-        <TextBox PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" Text="{Binding Garantee, Mode=OneWayToSource}" />
+        <TextBox PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" 
+                 Text="{Binding Tournament.Garantee, Converter={StaticResource stringToDecimalConverter}}" />
+        
         <CheckBox Content="Private" />
         <StackPanel>
             <Label Content="Invited players" />
@@ -57,8 +64,10 @@
             <Button Content="Remove from invite list" Command="{Binding RemoveFromInvitedCommand}" />
             <Button Content="Send invitations" />
         </StackPanel>
-        <Button Content="Create prize model" />
-        <Button Content="Create tournament" Command="{Binding CreateTournamentCommand}" />
+        <Button Content="Create prize model" Click="CreatePrizesBtn_Click" />
+        <Button Content="Create rounds" Click="CreateRoundsBtn_Click" />
+        <Button Content="Create tournament" Click="CreateTournamentBtn_Click" />
         <Button Content="Cancel" IsCancel="True" Click="CancelBtn_Click" />
+        <Label Content="{Binding Error}" />
     </StackPanel>
 </Window>

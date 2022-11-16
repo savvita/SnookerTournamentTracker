@@ -4,25 +4,54 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
+        xmlns:converter="clr-namespace:SnookerTournamentTracker.Converter"
         mc:Ignorable="d"
         Title="Prizes" Height="450" Width="800">
+    <Window.Resources>
+        <converter:RadioBoolToIntConverter x:Key="radioBoolToIntConverter" />
+        <converter:StringToDecimalConverter x:Key="stringToDecimalConverter" />
+        <ControlTemplate x:Key="validationFailed">
+            <StackPanel Orientation="Horizontal">
+                <Border BorderBrush="Violet" BorderThickness="2">
+                    <AdornedElementPlaceholder />
+                </Border>
+                <TextBlock Foreground="Red" FontSize="26" FontWeight="Bold">!</TextBlock>
+            </StackPanel>
+        </ControlTemplate>
+    </Window.Resources>
+
     <StackPanel>
-        <ListBox ItemsSource="{Binding Places, Mode=OneTime}">
+        <ListBox ItemsSource="{Binding Prizes, Mode=TwoWay}" DisplayMemberPath="PlaceName" SelectedItem="{Binding SelectedPrize}">
         </ListBox>
         <GroupBox Header="Method">
             <StackPanel>
-                <RadioButton GroupName="Method" Content="Absolute value" IsChecked="True" />
-                <RadioButton GroupName="Method" Content="Percentage" />
+                <RadioButton GroupName="Method" Content="Absolute value" 
+                             IsChecked="{Binding Path=Mode, Converter={StaticResource radioBoolToIntConverter}, ConverterParameter=0, UpdateSourceTrigger=PropertyChanged}" />
+                <RadioButton GroupName="Method" Content="Percentage" 
+                             IsChecked="{Binding Path=Mode, Converter={StaticResource radioBoolToIntConverter}, ConverterParameter=1, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
         </GroupBox>
-        <Label Content="Prize amount"></Label>
-        <TextBox PreviewTextInput="PrizeAmountTxt_PreviewTextInput" />
-        <Label Content="Total"></Label>
-        <TextBox IsReadOnly="True" />
-        <Label Content="Rest"></Label>
-        <TextBox IsReadOnly="True" />
+        <Label Content="Prize amount" />
+        <TextBox PreviewTextInput="PrizeAmountTxt_PreviewTextInput" 
+                 TextChanged="PrizeAmountTxt_TextChanged"
+                 Text="{Binding SelectedPrize.PrizeAmount, Converter={StaticResource stringToDecimalConverter}, UpdateSourceTrigger=PropertyChanged}"  />
+        <Label Content="Total" />
+        <TextBox IsReadOnly="True" Text="{Binding Total, Mode=OneWay}" />
+        <Label Content="Rest" />
+        <TextBox IsReadOnly="True" Validation.ErrorTemplate="{StaticResource validationFailed}">
+            <TextBox.Text>
+                <Binding Path="Rest" Mode="OneWay" NotifyOnValidationError="True">
+                    <Binding.ValidationRules>
+                        <validation:PositiveOnlyRule ValidatesOnTargetUpdated="True" />
+                        <ExceptionValidationRule/>
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
         <Label Content="After creating the tournament the prizes cannot be changed" />
-        <Button Content="Ok" />
-        <Button Content="Cancel" />
+        <Button Content="Ok" Click="OkBtn_Click" />
+        <Button Content="Cancel" Click="CancelBtn_Click" />
+        <Label Content="{Binding Error}" />
     </StackPanel>
 </Window>

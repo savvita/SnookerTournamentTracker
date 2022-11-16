@@ -16,8 +16,6 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class AuthorizationViewModel : INotifyPropertyChanged
     {
-        private AuthorizationModel model = new AuthorizationModel();
-
         private string? login;
         public string? Login
         {
@@ -144,15 +142,25 @@ namespace SnookerTournamentTracker.ViewModel
             Error = String.Empty;
         }
 
-        private void SignIn()
+        public event Action<PersonModel>? Authorizated;
+
+        private void OnAuthorizated(PersonModel model)
+        {
+            Authorizated?.Invoke(model);
+        }
+
+        private async void SignIn()
         {
             //TODO - Add error handling
             //TODO - Show server responce when failed
             if (Validate())
             {
-                if(model.SignIn(new PersonModel() { Login = Login, Password = Password }, out error))
+                PersonModel person = new PersonModel() { Login = Login, Password = Password };
+                //if (ConnectionClientModel.SignIn(person, out error))
+                if (await ConnectionClientModel.SignIn(person))
                 {
                     //TODO - Add going to the next window
+                    OnAuthorizated(person);
 
                 }
                 else
@@ -175,22 +183,28 @@ namespace SnookerTournamentTracker.ViewModel
             //TODO - Show server responce when failed
             if (Validate(false))
             {
-                if(model.SignUp(new PersonModel()
-                { 
+                PersonModel person = new PersonModel()
+                {
                     FirstName = FirstName,
                     SecondName = SecondName,
                     LastName = LastName,
                     EmailAddress = Email,
                     PhoneNumber = PhoneNumber,
                     Login = Login,
-                    Password = Password },
-                    out error
-                ))
+                    Password = Password
+                };
+
+                if (ConnectionClientModel.SignUp(person, out error))
                 {
                     //TODO - Add going to the next window
                     Password?.Dispose();
                     PasswordConfirm?.Dispose();
+                    OnAuthorizated(person);
 
+                }
+                else
+                {
+                    OnPropertyChanged(nameof(Error));
                 }
             }
         }

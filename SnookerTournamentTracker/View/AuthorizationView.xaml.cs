@@ -13,7 +13,12 @@ namespace SnookerTournamentTracker.View
         public AuthorizationView()
         {
             InitializeComponent();
-            this.DataContext = new AuthorizationViewModel();
+            AuthorizationViewModel model = new AuthorizationViewModel();
+            model.Authorizated += ((person) => { 
+                new MainWindowView(person).Show();
+                this.Close();
+            });
+            this.DataContext = model;
         }
 
         private void CancelBtn_Click(object sender, RoutedEventArgs e)

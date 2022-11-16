@@ -1,0 +1,45 @@
+﻿<Window x:Class="SnookerTournamentTracker.View.CreateRoundsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        mc:Ignorable="d"
+        Title="CreateRoundsView" Height="450" Width="800">
+    <StackPanel>
+        <!--<ListBox ItemsSource="{Binding Rounds}" />
+        <Label Content="Frames" />
+        <TextBox PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" />-->
+
+        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Rounds}" CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn 
+                    Header="Round"
+                    Width="3.5*" 
+                    Binding="{Binding Path=Round,UpdateSourceTrigger=PropertyChanged}"
+                    IsReadOnly="True" />
+
+                <!--<DataGridTextColumn 
+                    Header="Frames"
+                    Width="*"
+                    Binding="{Binding Path=Frames,UpdateSourceTrigger=PropertyChanged}">-->
+                    <DataGridTemplateColumn Header="Frames" Width="*" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Frames, UpdateSourceTrigger=PropertyChanged}" 
+                                         PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" BorderThickness="0" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                <!--</DataGridTextColumn>-->
+
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+        <Button Content="Ok" Click="OkBtn_Click" />
+        <Button Content="Cancel" Click="CancelBtn_Click" />
+        <Label Content="{Binding Error}" />
+    </StackPanel>
+</Window>

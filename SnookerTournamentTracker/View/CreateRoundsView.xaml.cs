@@ -17,32 +17,21 @@ using TournamentLibrary;
 namespace SnookerTournamentTracker.View
 {
     /// <summary>
-    /// Interaction logic for PrizesView.xaml
+    /// Interaction logic for CreateRoundsView.xaml
     /// </summary>
-    public partial class PrizesView : Window
+    public partial class CreateRoundsView : Window
     {
-        private CreatePrizesViewModel? model;
-
-        public List<PrizeModel>? Prizes { get; private set; }
-        public PrizesModeEnum Mode { get; set; }
-        public PrizesView()
+        private CreateRoundsViewModel model;
+        public List<RoundModel>? Rounds { get; set; }
+        public CreateRoundsView()
         {
             InitializeComponent();
         }
 
-        public PrizesView(TournamentModel tournament, List<PrizeModel>? prizes) : this()
+        public CreateRoundsView(List<RoundModel>? rounds) : this()
         {
-            model = new CreatePrizesViewModel(tournament, prizes);
+            model = new CreateRoundsViewModel(rounds);
             this.DataContext = model;
-        }
-
-
-        private void PrizeAmountTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            if(e.Text.Any(ch => !Char.IsDigit(ch) && ch != '.'))
-            {
-                e.Handled = true;
-            }
         }
 
         private void CancelBtn_Click(object sender, RoutedEventArgs e)
@@ -51,18 +40,28 @@ namespace SnookerTournamentTracker.View
             this.Close();
         }
 
-        private void PrizeAmountTxt_TextChanged(object sender, TextChangedEventArgs e)
+        private void OnlyNumbersTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            model?.Refresh();
+            if (e.Text.Any(ch => !Char.IsDigit(ch)))
+            {
+                e.Handled = true;
+            }
         }
 
         private void OkBtn_Click(object sender, RoutedEventArgs e)
         {
-            if(model != null && model.Validate())
+            if(model == null)
             {
-                Prizes = model.Prizes;
-                Mode = model.Mode;
+                this.DialogResult = false;
+                this.Close();
+                return;
+            }
+
+            if(model.Validate())
+            {
+                this.Rounds = model.Rounds;
                 this.DialogResult = true;
+                this.Close();
             }
         }
     }

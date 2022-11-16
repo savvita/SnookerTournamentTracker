@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace TournamentLibrary
 {
-    public class PrizeModel
+    public class RoundModel
     {
         public int? Id { get; set; }
-        public string? PlaceName { get; set; }
-        public double? PrizeAmount { get; set; }
+        public string? Round { get; set; }
+        public int? Frames { get; set; }
     }
 }

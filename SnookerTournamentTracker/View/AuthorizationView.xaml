@@ -7,7 +7,7 @@
         xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        Title="AuthorizationView" Height="450" Width="800"
+        Title="Authorization" Height="450" Width="800"
         WindowStartupLocation="CenterScreen" >
     <Window.Resources>
         <Style x:Key="ValidatedInput" >
@@ -44,7 +44,7 @@
             <TabItem Header="Sign in">
                 <StackPanel Name="SignIn">
                     <Label Content="Login" />
-                    <TextBox Style="{StaticResource ValidatedInput}">
+                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="50">
                         <TextBox.Text>
                             <Binding Path="Login" Mode="TwoWay" NotifyOnValidationError="True">
                                 <Binding.ValidationRules>
@@ -73,7 +73,7 @@
             <TabItem Header="Sign up">
                 <StackPanel Name="SignUp">
                     <Label Content="First name" />
-                    <TextBox Style="{StaticResource ValidatedInput}">
+                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="100">
                         <TextBox.Text>
                             <Binding Path="FirstName" Mode="TwoWay" NotifyOnValidationError="True">
                                 <Binding.ValidationRules>
@@ -84,9 +84,9 @@
                         </TextBox.Text>
                     </TextBox>
                     <Label Content="Second name" />
-                    <TextBox Text="{Binding SecondName, Mode=TwoWay}" />
+                    <TextBox Text="{Binding SecondName, Mode=TwoWay}" MaxLength="100" />
                     <Label Content="Last name" />
-                    <TextBox Style="{StaticResource ValidatedInput}">
+                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="100">
                         <TextBox.Text>
                             <Binding Path="LastName" Mode="TwoWay" NotifyOnValidationError="True">
                                 <Binding.ValidationRules>
@@ -97,7 +97,7 @@
                         </TextBox.Text>
                     </TextBox>
                     <Label Content="Email" />
-                    <TextBox Style="{StaticResource ValidatedInput}">
+                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="255">
                         <TextBox.Text>
                             <Binding Path="Email" Mode="TwoWay" NotifyOnValidationError="True">
                                 <Binding.ValidationRules>
@@ -108,9 +108,9 @@
                         </TextBox.Text>
                     </TextBox>
                     <Label Content="Phone number" />
-                    <TextBox Text="{Binding PhoneNumber, Mode=TwoWay}" />
+                    <TextBox Text="{Binding PhoneNumber, Mode=TwoWay}" MaxLength="20" />
                     <Label Content="Login" />
-                        <TextBox Style="{StaticResource ValidatedInput}">
+                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="50">
                         <TextBox.Text>
                             <Binding Path="Login" Mode="TwoWay" NotifyOnValidationError="True">
                                 <Binding.ValidationRules>
