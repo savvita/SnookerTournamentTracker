@@ -1,0 +1,41 @@
+﻿<Window x:Class="SnookerTournamentTracker.View.MainWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        mc:Ignorable="d"
+        Title="MainWindowView" Height="450" Width="800">
+    <StackPanel>
+        <Label Content="{Binding Name, Mode=OneTime}" />
+        <Button Content="Profile" Click="ProfileBtn_Click" />
+        <DataGrid AutoGenerateColumns="False" SelectionMode="Single"
+                  ItemsSource="{Binding Tournaments, Mode=OneWay}" 
+                  SelectedItem="{Binding SelectedTournament, Mode=OneWayToSource}"
+                  CanUserAddRows="False" CanUserDeleteRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}" />
+                <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay}" />
+                <DataGridTextColumn Header="Entree fee" Binding="{Binding EntryFee, Mode=OneWay}" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <CheckBox Content="Active only" IsChecked="{Binding ActiveOnly}" />
+        <Button Content="Register" />
+        <Button Content="Unegister" />
+        <Button Content="View tournament info" Click="ViewTournamentBtn_Click" />
+        <Button Content="Create new tournament" Click="CreateTournamentBtn_Click" />
+
+        <StackPanel><!-- Short info about the tournament -->
+            <Label Content="Name" />
+            <TextBox IsReadOnly="True" />
+            <Label Content="Date" />
+            <TextBox IsReadOnly="True" />
+            <Label Content="Garantee" />
+            <TextBox IsReadOnly="True" />
+            <Label Content="Entree fee" />
+            <TextBox IsReadOnly="True" />
+        </StackPanel>
+        
+
+    </StackPanel>
+</Window>

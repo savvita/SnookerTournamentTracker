@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnookerTournamentTracker", "SnookerTournamentTracker\SnookerTournamentTracker.csproj", "{EA9BF11E-9996-43BC-AE9C-EC4501676219}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentLibrary", "TournamentLibrary\TournamentLibrary.csproj", "{0652AFAF-1BB4-4FE3-B9BA-ED3667B18784}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TournamentLibrary", "TournamentLibrary\TournamentLibrary.csproj", "{0652AFAF-1BB4-4FE3-B9BA-ED3667B18784}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

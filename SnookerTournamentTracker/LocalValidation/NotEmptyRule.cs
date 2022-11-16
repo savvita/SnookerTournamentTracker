@@ -14,7 +14,7 @@ namespace SnookerTournamentTracker.LocalValidation
         {
             if (value == null)
             {
-                return new ValidationResult(false, "Required field");
+                return new ValidationResult(false, "Fill all the required fields");
             }
             int length = 0;
 
@@ -29,7 +29,7 @@ namespace SnookerTournamentTracker.LocalValidation
 
             if (length == 0)
             {
-                return new ValidationResult(false, "Required field");
+                return new ValidationResult(false, "Fill all the required fields");
             }
             else
             {
