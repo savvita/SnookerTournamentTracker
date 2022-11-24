@@ -27,6 +27,8 @@ namespace SnookerTournamentTracker.ConnectionLibrary
         /// </summary>
         public static Encoding MessageEncoding { get; } = Encoding.Unicode;
 
+        //private static readonly int bufferSize = 255;
+
         public static Message? ReceiveMessage(NetworkStream? stream)
         {
 
@@ -37,15 +39,14 @@ namespace SnookerTournamentTracker.ConnectionLibrary
 
             BinaryReader reader = new BinaryReader(stream);
 
-            //int length = reader.ReadInt32();
+            int length = reader.ReadInt32();
 
-            //byte[] data = new byte[length];
-            //reader.Read(data, 0, length);
+            byte[] data = new byte[length];
+            reader.Read(data, 0, length);
 
-            //string msg = MessageEncoding.GetString(data, 0, length);
+            string msg = MessageEncoding.GetString(data, 0, length);
 
-            //return JsonSerializer.Deserialize<Message>(msg);
-            return null;
+            return JsonSerializer.Deserialize<Message>(msg.ToString());
         }
 
         public static async Task<Message?> ReceiveMessageAsync(NetworkStream? stream)
@@ -56,15 +57,9 @@ namespace SnookerTournamentTracker.ConnectionLibrary
                 throw new NullReferenceException("Stream cannot be null");
             }
 
-            //BinaryReader reader = new BinaryReader(stream);
+            BinaryReader reader = new BinaryReader(stream);
 
-            //int length = reader.ReadInt32();
-
-            //byte[] data = new byte[length];
-            //reader.Read(data, 0, length);
-
-            //string msg = MessageEncoding.GetString(data, 0, length);
-
+            reader.ReadInt32();
             return await JsonSerializer.DeserializeAsync<Message>(stream);
         }
 
@@ -84,36 +79,24 @@ namespace SnookerTournamentTracker.ConnectionLibrary
             writer.Write(data);
         }
 
-        public static async Task SendMessageAsync(NetworkStream? stream, Message message)
-        {
-            if (stream == null)
-            {
-                return;
-            }
 
-            await JsonSerializer.SerializeAsync<Message>(stream, message);
+        //public static async Task SendMessageAsync(NetworkStream? stream, Message message)
+        //{
+        //    if (stream == null)
+        //    {
+        //        return;
+        //    }
 
-            //byte[] data = MessageEncoding.GetBytes(msg);
+        //    await JsonSerializer.SerializeAsync<Message>(stream, message);
 
-            //BinaryWriter writer = new BinaryWriter(stream);
-            //writer.Write(data.Length);
-            //writer.Write(data);
-        }
 
-        public static Message? f()
-        {
-            var listener = new TcpListener(IPAddress.Any, Port);
-            listener.Start();
-            TcpClient tcpClient = listener.AcceptTcpClient();
+        //    //byte[] data = MessageEncoding.GetBytes(msg);
 
-            return ReceiveMessage(tcpClient.GetStream());
-        }
+        //    BinaryWriter writer = new BinaryWriter(stream);
+        //    writer.
+        //    //writer.Write(data.Length);
+        //    //writer.Write(data);
+        //}
 
-        public static void f2()
-        {
-            var tcpClient = new TcpClient();
-            tcpClient.Connect(Host, Port);
-            SendMessage(tcpClient.GetStream(), new Message() { Code = 2, Content = "Some text" });
-        }
     }
 }

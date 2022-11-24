@@ -26,14 +26,18 @@ namespace SnookerTournamentTracker.View
             InitializeComponent();
         }
 
-        public TournamentInfoView(TournamentModel tournament) : this()
+        public TournamentInfoView(PersonModel user, TournamentModel tournament) : this()
         {
-            this.DataContext = new TournamentViewViewModel(tournament);
+            TournamentViewViewModel model = new TournamentViewViewModel(user, tournament);
+            model.RegisteringCompleted += (msg) => MessageBox.Show(msg, "Registration", MessageBoxButton.OK, MessageBoxImage.Information);
+            model.UnregisteringCompleted += (msg) => MessageBox.Show(msg, "Unregistration", MessageBoxButton.OK, MessageBoxImage.Information);
+            this.DataContext = model;
         }
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
+
     }
 }

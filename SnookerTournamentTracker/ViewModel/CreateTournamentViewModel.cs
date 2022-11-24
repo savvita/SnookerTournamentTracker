@@ -44,9 +44,12 @@ namespace SnookerTournamentTracker.ViewModel
         public List<PrizeModel>? Prizes { get; set; }
         public List<RoundModel>? Rounds { get; set; }
 
-        public CreateTournamentViewModel()
+        private int id;
+
+        public CreateTournamentViewModel(int id)
         {
-            Tournament = new TournamentModel();
+            this.id = id;
+            tournament = new TournamentModel();
             Players = new ObservableCollection<PersonModel>(ConnectionClientModel.GetAllPlayers());
             InvitedPlayers = new ObservableCollection<PersonModel>();
         }
@@ -92,26 +95,50 @@ namespace SnookerTournamentTracker.ViewModel
         //    });
         //}
 
+        public event Action? TournamentCreated;
+
         public bool CreateTournament()
         {
-            // TODO add validation
-            // TODO show errors
-            if (Validate())
+            if (Rounds == null)
             {
-                return ConnectionClientModel.CreateTournament(Tournament);
-                //return ConnectionClientModel.CreateTournament(new TournamentModel()
-                //{
-                //    Name = Name,
-                //    EntryFee = Decimal.TryParse(EntreeFee, out decimal amount) ? amount : null,
-                //    Garantee = Decimal.TryParse(EntreeFee, out decimal garantee) ? garantee : null
-                //});
+                Error = "Rounds are required";
+                return false;
             }
 
-            return false;
+            try
+            {
+                if (Validate())
+                {
+                    if (Prizes != null)
+                    {
+                        Tournament.Prizes = Prizes.Where(prize => prize.PrizeAmount != null).ToList();
+                    }
+                    Tournament.RoundModel = Rounds.Where(round => round.Frames != null).ToList();
+                    if (ConnectionClientModel.CreateTournament(id, Tournament))
+                    {
+                        TournamentCreated?.Invoke();
+                        return true;
+                    }
+                    else
+                    {
+                        Error = ConnectionClientModel.LastError;
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                Error = "Cannot connect to the server";
+                return false;
+            }
         }
 
-        private string error = String.Empty;
-        public string Error
+        private string? error = String.Empty;
+        public string? Error
         {
             get => error;
             set

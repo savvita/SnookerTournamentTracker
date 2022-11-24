@@ -9,8 +9,6 @@
         Title="UserProfileView" Height="450" Width="800">
     <StackPanel Name="UserProfile">
         
-        <Label Content="Login:" />
-        <TextBox Text="{Binding User.Login, Mode=OneTime}" IsReadOnly="True" />
         <Label Content="First name:" />
         <TextBox MaxLength="100">
             <TextBox.Text>
@@ -36,16 +34,7 @@
             </TextBox.Text>
         </TextBox>
         <Label Content="Email:" />
-        <TextBox MaxLength="255">
-            <TextBox.Text>
-                <Binding Path="User.EmailAddress" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
-                    <Binding.ValidationRules>
-                        <validation:NotEmptyRule />
-                        <ExceptionValidationRule/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
+        <TextBox Text="{Binding User.EmailAddress, Mode=OneTime}" IsReadOnly="True" />
         <Label Content="Phone number:" />
         <TextBox Text="{Binding User.PhoneNumber, UpdateSourceTrigger=PropertyChanged}" />
         <Button Content="Change password" />

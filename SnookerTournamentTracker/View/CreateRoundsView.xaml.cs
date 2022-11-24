@@ -21,7 +21,7 @@ namespace SnookerTournamentTracker.View
     /// </summary>
     public partial class CreateRoundsView : Window
     {
-        private CreateRoundsViewModel model;
+        private CreateRoundsViewModel? model;
         public List<RoundModel>? Rounds { get; set; }
         public CreateRoundsView()
         {

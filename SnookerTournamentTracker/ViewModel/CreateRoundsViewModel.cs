@@ -17,11 +17,11 @@ namespace SnookerTournamentTracker.ViewModel
 
         public List<RoundModel>? Rounds { get; set; }
 
-        private string error = String.Empty;
-
         public event PropertyChangedEventHandler? PropertyChanged;
+        
+        private string? error = String.Empty;
 
-        public string Error
+        public string? Error
         {
             get => error;
             set
@@ -36,9 +36,6 @@ namespace SnookerTournamentTracker.ViewModel
 
         public CreateRoundsViewModel(List<RoundModel>? rounds)
         {
-            //Rounds = new ObservableCollection<string>(model.GetAllRounds());
-
-
             if (rounds != null)
             {
                 Rounds = rounds;
@@ -47,9 +44,18 @@ namespace SnookerTournamentTracker.ViewModel
             {
                 Rounds = new List<RoundModel>();
 
-                foreach (string round in ConnectionClientModel.GetAllRounds())
+                List<string>? roundNames = ConnectionClientModel.GetAllRounds();
+
+                if (roundNames == null)
                 {
-                    Rounds.Add(new RoundModel() { Round = round });
+                    Error = ConnectionClientModel.LastError;
+                }
+                else
+                {
+                    foreach (string round in roundNames)
+                    {
+                        Rounds.Add(new RoundModel() { Round = round });
+                    }
                 }
             }
         }

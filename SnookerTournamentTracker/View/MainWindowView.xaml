@@ -8,6 +8,7 @@
         Title="MainWindowView" Height="450" Width="800">
     <StackPanel>
         <Label Content="{Binding Name, Mode=OneTime}" />
+        <Button Content="My tournaments" />
         <Button Content="Profile" Click="ProfileBtn_Click" />
         <DataGrid AutoGenerateColumns="False" SelectionMode="Single"
                   ItemsSource="{Binding Tournaments, Mode=OneWay}" 
@@ -20,8 +21,7 @@
             </DataGrid.Columns>
         </DataGrid>
         <CheckBox Content="Active only" IsChecked="{Binding ActiveOnly}" />
-        <Button Content="Register" />
-        <Button Content="Unegister" />
+
         <Button Content="View tournament info" Click="ViewTournamentBtn_Click" />
         <Button Content="Create new tournament" Click="CreateTournamentBtn_Click" />
 

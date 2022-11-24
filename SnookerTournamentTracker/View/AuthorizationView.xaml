@@ -43,10 +43,20 @@
             </i:Interaction.Triggers>
             <TabItem Header="Sign in">
                 <StackPanel Name="SignIn">
-                    <Label Content="Login" />
-                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="50">
+                    <Label Content="Email" />
+                    <!--<TextBox Style="{StaticResource ValidatedInput}" MaxLength="50">
                         <TextBox.Text>
                             <Binding Path="Login" Mode="TwoWay" NotifyOnValidationError="True">
+                                <Binding.ValidationRules>
+                                    <validation:NotEmptyRule />
+                                    <ExceptionValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>-->
+                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="50">
+                        <TextBox.Text>
+                            <Binding Path="Email" Mode="TwoWay" NotifyOnValidationError="True">
                                 <Binding.ValidationRules>
                                     <validation:NotEmptyRule />
                                     <ExceptionValidationRule/>
@@ -109,7 +119,7 @@
                     </TextBox>
                     <Label Content="Phone number" />
                     <TextBox Text="{Binding PhoneNumber, Mode=TwoWay}" MaxLength="20" />
-                    <Label Content="Login" />
+                    <!--<Label Content="Login" />
                     <TextBox Style="{StaticResource ValidatedInput}" MaxLength="50">
                         <TextBox.Text>
                             <Binding Path="Login" Mode="TwoWay" NotifyOnValidationError="True">
@@ -119,7 +129,7 @@
                                 </Binding.ValidationRules>
                             </Binding>
                         </TextBox.Text>
-                    </TextBox>
+                    </TextBox>-->
                     <Label Content="Password" />
                         <local:PasswordUserControl Style="{StaticResource ValidatedInput}">
                         <local:PasswordUserControl.Password>

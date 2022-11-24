@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Folder Include="Model\" />
+    <Folder Include="DBModel\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ConnectionLibrary\ConnectionLibrary.csproj" />
+    <ProjectReference Include="..\TournamentLibrary\TournamentLibrary.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ConnectionLibrary.DBModels;
+namespace SnookerTournamentTrackerServer.DbModel;
 
 public partial class PhoneNumber
 {
@@ -9,7 +10,8 @@ public partial class PhoneNumber
 
     public int UserId { get; set; }
 
-    public string PhoneNumber1 { get; set; } = null!;
+    [Column("PhoneNumber")]
+    public string Number { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
 }

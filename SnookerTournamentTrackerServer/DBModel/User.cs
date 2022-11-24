@@ -1,31 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace ConnectionLibrary.DBModels;
+namespace SnookerTournamentTrackerServer.DbModel;
 
 public partial class User
 {
+    // TODO - add min max length
     public int Id { get; set; }
 
-    public string Login { get; set; } = null!;
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = null!;
 
+    [Required]
     public string Password { get; set; } = null!;
 
+    [Required]
     public string FirstName { get; set; } = null!;
 
     public string? SecondName { get; set; }
 
+    [Required]
     public string LastName { get; set; } = null!;
 
     public int UserRoleId { get; set; }
 
     public virtual ICollection<Administrator> Administrators { get; } = new List<Administrator>();
 
-    public virtual ICollection<Email> Emails { get; } = new List<Email>();
-
     public virtual ICollection<FrameEntity> FrameEntities { get; } = new List<FrameEntity>();
 
     public virtual ICollection<Frame> Frames { get; } = new List<Frame>();
+
+    public virtual ICollection<Invitation> Invitations { get; } = new List<Invitation>();
 
     public virtual ICollection<Match> Matches { get; } = new List<Match>();
 

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ConnectionLibrary.DBModels;
+namespace SnookerTournamentTrackerServer.DbModel;
 
 public partial class Place
 {
     public int Id { get; set; }
 
-    public string Place1 { get; set; } = null!;
+    public string PlaceName { get; set; } = null!;
 
     public virtual ICollection<Prize> Prizes { get; } = new List<Prize>();
 }

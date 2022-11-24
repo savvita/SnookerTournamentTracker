@@ -4,8 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        xmlns:converter="clr-namespace:SnookerTournamentTracker.Converter"
         mc:Ignorable="d"
-        Title="TournamentInfoView" Height="450" Width="800">
+        Title="TournamentInfoView" Height="550" Width="800">
+
+    <Window.Resources>
+        <converter:PersonToStringConverter x:Key="personToStringConverter" />
+    </Window.Resources>
+    
     <StackPanel>
         <Label Content="Tournament name" />
         <TextBox Text="{Binding Tournament.Name, Mode=OneTime}" IsReadOnly="True" />
@@ -21,7 +27,7 @@
         <Label Content="Prizes" />
         <Label Content="Prize mode" />
         <TextBox Text="{Binding Tournament.PrizeMode, Mode=OneTime}" IsReadOnly="True" />
-        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Prizes}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Tournament.Prizes}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn 
                     Header="Place"
@@ -39,7 +45,7 @@
             </DataGrid.Columns>
         </DataGrid>
         <Label Content="Rounds" />
-        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Rounds}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Tournament.RoundModel}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn 
                     Header="Round"
@@ -56,6 +62,16 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
+        <Label Content="Players" />
+        <ListBox ItemsSource="{Binding Players}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Label Content="{Binding Converter={StaticResource personToStringConverter}}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Content="Register" Command="{Binding RegisterCmd}" />
+        <Button Content="Unegister" Command="{Binding UnregisterCmd}" />
         <Button Content="Close" Click="CloseBtn_Click" />
     </StackPanel>
 </Window>

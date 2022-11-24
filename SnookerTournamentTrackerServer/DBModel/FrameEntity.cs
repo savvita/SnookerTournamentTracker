@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ConnectionLibrary.DBModels;
+namespace SnookerTournamentTrackerServer.DbModel;
 
 public partial class FrameEntity
 {

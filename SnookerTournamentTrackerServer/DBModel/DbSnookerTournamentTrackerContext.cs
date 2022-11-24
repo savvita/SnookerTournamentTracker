@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 
-namespace ConnectionLibrary.DBModels;
+namespace SnookerTournamentTrackerServer.DbModel;
 
 public partial class DbSnookerTournamentTrackerContext : DbContext
 {
@@ -19,8 +19,6 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
     public virtual DbSet<Administrator> Administrators { get; set; }
 
     public virtual DbSet<Brake> Brakes { get; set; }
-
-    public virtual DbSet<Email> Emails { get; set; }
 
     public virtual DbSet<Frame> Frames { get; set; }
 
@@ -59,7 +57,7 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
     {
         modelBuilder.Entity<Administrator>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Administ__3214EC07CCDF9DD5");
+            entity.HasKey(e => e.Id).HasName("PK__Administ__3214EC07C1B30E60");
 
             entity.HasOne(d => d.Tournament).WithMany(p => p.Administrators)
                 .HasForeignKey(d => d.TournamentId)
@@ -74,7 +72,7 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
         modelBuilder.Entity<Brake>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Brakes__3214EC076C18EEBB");
+            entity.HasKey(e => e.Id).HasName("PK__Brakes__3214EC07F7612AEA");
 
             entity.HasOne(d => d.Frame).WithMany(p => p.Brakes)
                 .HasForeignKey(d => d.FrameId)
@@ -82,24 +80,9 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
                 .HasConstraintName("FK__Brakes__FrameId__5AEE82B9");
         });
 
-        modelBuilder.Entity<Email>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Emails__3214EC07951E4780");
-
-            entity.Property(e => e.Email1)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("Email");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Emails)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Emails__UserId__619B8048");
-        });
-
         modelBuilder.Entity<Frame>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Frames__3214EC07008E5CB5");
+            entity.HasKey(e => e.Id).HasName("PK__Frames__3214EC0768CFA24D");
 
             entity.HasOne(d => d.Match).WithMany(p => p.Frames)
                 .HasForeignKey(d => d.MatchId)
@@ -113,7 +96,7 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
         modelBuilder.Entity<FrameEntity>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__FrameEnt__3214EC078FF74DB1");
+            entity.HasKey(e => e.Id).HasName("PK__FrameEnt__3214EC0765F98F89");
 
             entity.HasOne(d => d.Frame).WithMany(p => p.FrameEntities)
                 .HasForeignKey(d => d.FrameId)
@@ -128,26 +111,26 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
         modelBuilder.Entity<Invitation>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Invitati__3214EC07DD53967F");
+            entity.HasKey(e => e.Id).HasName("PK__Invitati__3214EC071F548459");
 
             entity.Property(e => e.Date)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
 
-            entity.HasOne(d => d.Email).WithMany(p => p.Invitations)
-                .HasForeignKey(d => d.EmailId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Invitatio__Email__6754599E");
-
             entity.HasOne(d => d.Tournament).WithMany(p => p.Invitations)
                 .HasForeignKey(d => d.Tournamentid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Invitatio__Tourn__68487DD7");
+                .HasConstraintName("FK__Invitatio__Tourn__656C112C");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Invitations)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Invitatio__UserI__6477ECF3");
         });
 
         modelBuilder.Entity<Match>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Matches__3214EC07A80BA547");
+            entity.HasKey(e => e.Id).HasName("PK__Matches__3214EC07E4CCBE7D");
 
             entity.HasOne(d => d.ParentMatchUp).WithMany(p => p.InverseParentMatchUp)
                 .HasForeignKey(d => d.ParentMatchUpId)
@@ -170,9 +153,9 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
         modelBuilder.Entity<PhoneNumber>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PhoneNum__3214EC078FADE3C8");
+            entity.HasKey(e => e.Id).HasName("PK__PhoneNum__3214EC079CAD4DA0");
 
-            entity.Property(e => e.PhoneNumber1)
+            entity.Property(e => e.Number)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("PhoneNumber");
@@ -180,21 +163,19 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.PhoneNumbers)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__PhoneNumb__UserI__6477ECF3");
+                .HasConstraintName("FK__PhoneNumb__UserI__619B8048");
         });
 
         modelBuilder.Entity<Place>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Places__3214EC07987A6B25");
+            entity.HasKey(e => e.Id).HasName("PK__Places__3214EC0748161CB2");
 
-            entity.Property(e => e.Place1)
-                .HasMaxLength(20)
-                .HasColumnName("Place");
+            entity.Property(e => e.PlaceName).HasMaxLength(20);
         });
 
         modelBuilder.Entity<Prize>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Prizes__3214EC07AA459AF4");
+            entity.HasKey(e => e.Id).HasName("PK__Prizes__3214EC0739F68832");
 
             entity.Property(e => e.Amount).HasColumnType("money");
 
@@ -211,7 +192,7 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
         modelBuilder.Entity<RegistrationStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Registra__3214EC07D0223359");
+            entity.HasKey(e => e.Id).HasName("PK__Registra__3214EC072441627C");
 
             entity.ToTable("RegistrationStatus");
 
@@ -220,16 +201,14 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
         modelBuilder.Entity<Round>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Rounds__3214EC07CE17987D");
+            entity.HasKey(e => e.Id).HasName("PK__Rounds__3214EC07EFAA043E");
 
-            entity.Property(e => e.Round1)
-                .HasMaxLength(30)
-                .HasColumnName("Round");
+            entity.Property(e => e.RoundName).HasMaxLength(30);
         });
 
         modelBuilder.Entity<Tournament>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Tourname__3214EC07173AEB01");
+            entity.HasKey(e => e.Id).HasName("PK__Tourname__3214EC070CC0F32D");
 
             entity.Property(e => e.EndDate).HasColumnType("date");
             entity.Property(e => e.EntreeFee).HasColumnType("money");
@@ -247,7 +226,7 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
         modelBuilder.Entity<TournamentStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Tourname__3214EC07D49037DA");
+            entity.HasKey(e => e.Id).HasName("PK__Tourname__3214EC07AA80D7B5");
 
             entity.ToTable("TournamentStatus");
 
@@ -256,27 +235,27 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
         modelBuilder.Entity<TournamentsPlayer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Tourname__3214EC077225F865");
+            entity.HasKey(e => e.Id).HasName("PK__Tourname__3214EC0720BBD064");
 
             entity.HasOne(d => d.RegistrationStatus).WithMany(p => p.TournamentsPlayers)
                 .HasForeignKey(d => d.RegistrationStatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Tournamen__Regis__6FE99F9F");
+                .HasConstraintName("FK__Tournamen__Regis__6D0D32F4");
 
             entity.HasOne(d => d.Tournament).WithMany(p => p.TournamentsPlayers)
                 .HasForeignKey(d => d.TournamentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Tournamen__Tourn__6E01572D");
+                .HasConstraintName("FK__Tournamen__Tourn__6B24EA82");
 
             entity.HasOne(d => d.User).WithMany(p => p.TournamentsPlayers)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Tournamen__UserI__6EF57B66");
+                .HasConstraintName("FK__Tournamen__UserI__6C190EBB");
         });
 
         modelBuilder.Entity<TournamentsRound>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Tourname__3214EC07C549F0F6");
+            entity.HasKey(e => e.Id).HasName("PK__Tourname__3214EC0769B45C6C");
 
             entity.HasOne(d => d.Round).WithMany(p => p.TournamentsRounds)
                 .HasForeignKey(d => d.RoundId)
@@ -291,11 +270,13 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Users__3214EC072C1128D9");
+            entity.HasKey(e => e.Id).HasName("PK__Users__3214EC07618A56AF");
 
+            entity.Property(e => e.Email)
+                .HasMaxLength(255)
+                .IsUnicode(false);
             entity.Property(e => e.FirstName).HasMaxLength(100);
             entity.Property(e => e.LastName).HasMaxLength(100);
-            entity.Property(e => e.Login).HasMaxLength(50);
             entity.Property(e => e.Password).HasMaxLength(100);
             entity.Property(e => e.SecondName).HasMaxLength(100);
 
@@ -307,7 +288,7 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
         modelBuilder.Entity<UserRole>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UserRole__3214EC07417E991A");
+            entity.HasKey(e => e.Id).HasName("PK__UserRole__3214EC076CD9BC59");
 
             entity.ToTable("UserRole");
 
