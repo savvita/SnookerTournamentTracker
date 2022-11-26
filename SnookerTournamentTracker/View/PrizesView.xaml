@@ -7,7 +7,7 @@
         xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
         xmlns:converter="clr-namespace:SnookerTournamentTracker.Converter"
         mc:Ignorable="d"
-        Title="Prizes" Height="450" Width="800">
+        Title="Prizes Model" Height="450" Width="800" ResizeMode="NoResize">
     <Window.Resources>
         <converter:RadioBoolToIntConverter x:Key="radioBoolToIntConverter" />
         <converter:StringToDecimalConverter x:Key="stringToDecimalConverter" />
@@ -21,37 +21,55 @@
         </ControlTemplate>
     </Window.Resources>
 
-    <StackPanel>
-        <ListBox ItemsSource="{Binding Prizes, Mode=TwoWay}" DisplayMemberPath="PlaceName" SelectedItem="{Binding SelectedPrize}">
-        </ListBox>
-        <GroupBox Header="Method">
-            <StackPanel>
-                <RadioButton GroupName="Method" Content="Absolute value" 
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.Column="0">
+            <ListBox ItemsSource="{Binding Prizes, Mode=TwoWay}" DisplayMemberPath="PlaceName" SelectedItem="{Binding SelectedPrize}" />
+
+            <GroupBox Header="Method">
+                <StackPanel>
+                    <RadioButton GroupName="Method" Content="Absolute value" 
                              IsChecked="{Binding Path=Mode, Converter={StaticResource radioBoolToIntConverter}, ConverterParameter=0, UpdateSourceTrigger=PropertyChanged}" />
-                <RadioButton GroupName="Method" Content="Percentage" 
+                    <RadioButton GroupName="Method" Content="Percentage" 
                              IsChecked="{Binding Path=Mode, Converter={StaticResource radioBoolToIntConverter}, ConverterParameter=1, UpdateSourceTrigger=PropertyChanged}" />
-            </StackPanel>
-        </GroupBox>
-        <Label Content="Prize amount" />
-        <TextBox PreviewTextInput="PrizeAmountTxt_PreviewTextInput" 
+                </StackPanel>
+            </GroupBox>
+            <Label Content="Prize amount" />
+            <TextBox PreviewTextInput="PrizeAmountTxt_PreviewTextInput" 
                  TextChanged="PrizeAmountTxt_TextChanged"
                  Text="{Binding SelectedPrize.PrizeAmount, Converter={StaticResource stringToDecimalConverter}, UpdateSourceTrigger=PropertyChanged}"  />
-        <Label Content="Total" />
-        <TextBox IsReadOnly="True" Text="{Binding Total, Mode=OneWay}" />
-        <Label Content="Rest" />
-        <TextBox IsReadOnly="True" Validation.ErrorTemplate="{StaticResource validationFailed}">
-            <TextBox.Text>
-                <Binding Path="Rest" Mode="OneWay" NotifyOnValidationError="True">
-                    <Binding.ValidationRules>
-                        <validation:PositiveOnlyRule ValidatesOnTargetUpdated="True" />
-                        <ExceptionValidationRule/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <Label Content="After creating the tournament the prizes cannot be changed" />
-        <Button Content="Ok" Click="OkBtn_Click" />
-        <Button Content="Cancel" Click="CancelBtn_Click" />
-        <Label Content="{Binding Error}" />
-    </StackPanel>
+            <Label Content="Total" />
+            <TextBox IsReadOnly="True" Text="{Binding Total, Mode=OneWay}" />
+            <Label Content="Rest" />
+            <TextBox IsReadOnly="True" Validation.ErrorTemplate="{StaticResource validationFailed}">
+                <TextBox.Text>
+                    <Binding Path="Rest" Mode="OneWay" NotifyOnValidationError="True">
+                        <Binding.ValidationRules>
+                            <validation:PositiveOnlyRule ValidatesOnTargetUpdated="True" />
+                            <ExceptionValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="1">
+            <Button Content="Ok" Click="OkBtn_Click" />
+            <Button Content="Cancel" Click="CancelBtn_Click" />
+        </StackPanel>
+
+        <Label Grid.Row="1" Grid.ColumnSpan="2" Content="After creating the tournament the prizes cannot be changed" />
+
+        <Label Grid.Row="2" Grid.ColumnSpan="2" Content="{Binding Error}" />
+    </Grid>
 </Window>

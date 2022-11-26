@@ -6,72 +6,150 @@
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         xmlns:converter="clr-namespace:SnookerTournamentTracker.Converter"
         mc:Ignorable="d"
-        Title="TournamentInfoView" Height="550" Width="800">
+        Title="Tournament Info" Height="550" Width="800" WindowStartupLocation="CenterOwner">
 
     <Window.Resources>
         <converter:PersonToStringConverter x:Key="personToStringConverter" />
     </Window.Resources>
-    
-    <StackPanel>
-        <Label Content="Tournament name" />
-        <TextBox Text="{Binding Tournament.Name, Mode=OneTime}" IsReadOnly="True" />
-        <Label Content="Starts" />
-        <TextBox Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
-        <Label Content="Ends" />
-        <TextBox Text="{Binding Tournament.EndDate, Mode=OneTime}" IsReadOnly="True" />
-        <Label Content="Entree fee" />
-        <TextBox Text="{Binding Tournament.EntryFee, Mode=OneTime}" IsReadOnly="True" />
-        <Label Content="Garantee" />
-        <TextBox Text="{Binding Tournament.Garantee, Mode=OneTime}" IsReadOnly="True" />
-        <TextBox Text="{Binding Private, Mode=OneTime}" IsReadOnly="True" />
-        <Label Content="Prizes" />
-        <Label Content="Prize mode" />
-        <TextBox Text="{Binding Tournament.PrizeMode, Mode=OneTime}" IsReadOnly="True" />
-        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Tournament.Prizes}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn 
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" Content="Tournament name" />
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Tournament.Name, Mode=OneTime}" IsReadOnly="True" />
+
+                <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Private, Mode=OneTime}" IsReadOnly="True" />
+
+                <Label Grid.Row="1" Grid.Column="0" Content="Starts" />
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
+
+                <Label Grid.Row="2" Grid.Column="0" Content="Ends" />
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Tournament.EndDate, Mode=OneTime}" IsReadOnly="True" />
+
+                <Label Grid.Row="3" Grid.Column="0" Content="Entree fee" />
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Tournament.EntryFee, Mode=OneTime}" IsReadOnly="True" />
+
+                <Label Grid.Row="4" Grid.Column="0" Content="Garantee" />
+                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Tournament.Garantee, Mode=OneTime}" IsReadOnly="True" />
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Content="Prizes" />
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <Label Content="Prize mode" />
+                        <TextBox Text="{Binding Tournament.PrizeMode, Mode=OneTime}" IsReadOnly="True" />
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="2" AutoGenerateColumns="False" ItemsSource="{Binding Tournament.Prizes}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn 
                     Header="Place"
                     Width="3.5*" 
                     Binding="{Binding Path=PlaceName,UpdateSourceTrigger=PropertyChanged}"
                     IsReadOnly="True" />
 
-                <DataGridTemplateColumn Header="Amount" Width="*" >
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBox Text="{Binding PrizeAmount, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" BorderThickness="0" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-        <Label Content="Rounds" />
-        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Tournament.RoundModel}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn 
+                            <DataGridTemplateColumn Header="Amount" Width="*" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding PrizeAmount, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" BorderThickness="0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+
+                <Separator Grid.Row="1" />
+
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+
+                    <Label Grid.Row="0" Content="Rounds" />
+
+                    <DataGrid Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding Tournament.RoundModel}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn 
                     Header="Round"
                     Width="3.5*" 
                     Binding="{Binding Path=Round,UpdateSourceTrigger=PropertyChanged}"
                     IsReadOnly="True" />
 
-                <DataGridTemplateColumn Header="Frames" Width="*" >
-                    <DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn Header="Frames" Width="*" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Frames, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" BorderThickness="0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+
+            </Grid>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                
+                <Label Grid.Row="0" Content="Players" />
+                <ListBox Grid.Row="1" ItemsSource="{Binding Players}">
+                    <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding Frames, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" BorderThickness="0" />
+                            <Label Content="{Binding Converter={StaticResource personToStringConverter}}" />
                         </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-        <Label Content="Players" />
-        <ListBox ItemsSource="{Binding Players}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Label Content="{Binding Converter={StaticResource personToStringConverter}}" />
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <Button Content="Register" Command="{Binding RegisterCmd}" />
-        <Button Content="Unegister" Command="{Binding UnregisterCmd}" />
-        <Button Content="Close" Click="CloseBtn_Click" />
-    </StackPanel>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Grid>
+        <StackPanel Grid.Column="1">
+            <Button Content="Register" Command="{Binding RegisterCmd}" />
+            <Button Content="Unegister" Command="{Binding UnregisterCmd}" />
+            <Button Content="Close" Click="CloseBtn_Click" />
+        </StackPanel>
+    </Grid>
+    
 </Window>

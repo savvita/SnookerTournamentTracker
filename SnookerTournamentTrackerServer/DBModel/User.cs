@@ -6,22 +6,26 @@ namespace SnookerTournamentTrackerServer.DbModel;
 
 public partial class User
 {
-    // TODO - add min max length
     public int Id { get; set; }
 
     [Required]
     [EmailAddress]
+    [StringLength(255)]
     public string Email { get; set; } = null!;
 
     [Required]
+    [StringLength(100)]
     public string Password { get; set; } = null!;
 
     [Required]
+    [StringLength(100)]
     public string FirstName { get; set; } = null!;
 
+    [StringLength(100)]
     public string? SecondName { get; set; }
 
     [Required]
+    [StringLength(100)]
     public string LastName { get; set; } = null!;
 
     public int UserRoleId { get; set; }

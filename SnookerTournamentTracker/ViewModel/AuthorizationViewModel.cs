@@ -16,17 +16,6 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class AuthorizationViewModel : INotifyPropertyChanged
     {
-        //private string? login;
-        //public string? Login
-        //{
-        //    get => login;
-        //    set
-        //    {
-        //        login = value;
-        //        OnPropertyChanged(nameof(Login));
-        //    }
-        //}
-
         private SecureString? password;
         public SecureString? Password
         {
@@ -131,7 +120,6 @@ namespace SnookerTournamentTracker.ViewModel
 
         private void Clear()
         {
-            //Login = null;
             Password = null;
             PasswordConfirm = null;
             FirstName = null;
@@ -155,7 +143,6 @@ namespace SnookerTournamentTracker.ViewModel
             {
                 if (Validate())
                 {
-                    //PersonModel person = new PersonModel() { Login = Login, OpenPassword = SecureStringToString(Password) };
                     PersonModel person = new PersonModel() { EmailAddress = Email, OpenPassword = SecureStringToString(Password) };
 
                     if (await ConnectionClientModel.SignIn(person))
@@ -201,7 +188,6 @@ namespace SnookerTournamentTracker.ViewModel
                         LastName = LastName,
                         EmailAddress = Email,
                         PhoneNumber = PhoneNumber,
-                        //Login = Login,
                         OpenPassword = SecureStringToString(Password)
                     };
 
@@ -227,7 +213,6 @@ namespace SnookerTournamentTracker.ViewModel
         {
             Error = String.Empty;
 
-            //if (string.IsNullOrEmpty(Login) || Password == null || Password.Length == 0)
             if (string.IsNullOrEmpty(Email) || Password == null || Password.Length == 0)
             {
                 Error = "Fill all the required fields";

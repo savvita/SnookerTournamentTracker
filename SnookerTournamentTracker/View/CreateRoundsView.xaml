@@ -5,13 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         mc:Ignorable="d"
-        Title="CreateRoundsView" Height="450" Width="800">
-    <StackPanel>
-        <!--<ListBox ItemsSource="{Binding Rounds}" />
-        <Label Content="Frames" />
-        <TextBox PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" />-->
-
-        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Rounds}" CanUserAddRows="False">
+        Title="Create Rounds" Height="300" Width="500"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+      
+        <DataGrid Grid.Row="0" Grid.Column="0" AutoGenerateColumns="False" ItemsSource="{Binding Rounds}" CanUserAddRows="False">
             <DataGrid.Columns>
                 <DataGridTextColumn 
                     Header="Round"
@@ -19,27 +26,23 @@
                     Binding="{Binding Path=Round,UpdateSourceTrigger=PropertyChanged}"
                     IsReadOnly="True" />
 
-                <!--<DataGridTextColumn 
-                    Header="Frames"
-                    Width="*"
-                    Binding="{Binding Path=Frames,UpdateSourceTrigger=PropertyChanged}">-->
-                    <DataGridTemplateColumn Header="Frames" Width="*" >
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBox Text="{Binding Frames, UpdateSourceTrigger=PropertyChanged}" 
+                <DataGridTemplateColumn Header="Frames" Width="*" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Frames, UpdateSourceTrigger=PropertyChanged}" 
                                          PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" BorderThickness="0" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-
-                <!--</DataGridTextColumn>-->
-
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
 
         </DataGrid>
 
-        <Button Content="Ok" Click="OkBtn_Click" />
-        <Button Content="Cancel" Click="CancelBtn_Click" />
-        <Label Content="{Binding Error}" />
-    </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="1">
+            <Button Content="Ok" Click="OkBtn_Click" />
+            <Button Content="Cancel" Click="CancelBtn_Click" />
+        </StackPanel>
+        
+        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Error}" />
+    </Grid>
 </Window>

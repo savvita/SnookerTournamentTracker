@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace SnookerTournamentTrackerServer.DbModel;
 
@@ -11,6 +12,8 @@ public partial class TournamentsRound
 
     public int RoundId { get; set; }
 
+    [Required]
+    [Range(1, int.MaxValue)]
     public int FrameCount { get; set; }
 
     public virtual ICollection<Match> Matches { get; } = new List<Match>();

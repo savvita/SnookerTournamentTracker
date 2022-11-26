@@ -68,6 +68,7 @@ namespace SnookerTournamentTracker.View
 
         private void ViewTournamentBtn_Click(object sender, RoutedEventArgs e)
         {
+            //TODO open this on dbl click
             if(user == null || model == null || model.SelectedTournament == null)
             {
                 return;

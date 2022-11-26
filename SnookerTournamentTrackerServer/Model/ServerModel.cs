@@ -122,7 +122,39 @@ namespace SnookerTournamentTrackerServer.Model
                 return null;
             }
 
+            var validationResult = ValidateObject<T>(obj);
+
+            if (validationResult.Count > 0)
+            {
+                response = GetValidationErrorMessage(validationResult);
+                return null;
+            }
+
             return obj;
+        }
+
+        private List<ValidationResult> ValidateObject<T>(T obj)
+        {
+            if(obj == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            var context = new ValidationContext(obj);
+            var validationResult = new List<ValidationResult>();
+
+            Validator.TryValidateObject(obj, context, validationResult);
+
+            return validationResult;
+        }
+
+        private Message GetValidationErrorMessage(List<ValidationResult> result)
+        {
+            return new Message()
+            {
+                Code = ConnectionCode.Error,
+                Content = String.Join(Environment.NewLine, result)
+            };
         }
         
         private Message SignIn(Message request)
@@ -155,15 +187,6 @@ namespace SnookerTournamentTrackerServer.Model
                 return response!;
             }
 
-            if (user.FirstName == null || user.LastName == null || user.EmailAddress == null || user.OpenPassword == null)
-            {
-                return new Message()
-                {
-                    Code = ConnectionCode.Error,
-                    Content = "Not all the required fields are filled"
-                };
-            }
-
             if (db.Users.Count() > 0)
             {
 
@@ -181,24 +204,19 @@ namespace SnookerTournamentTrackerServer.Model
 
             User newUser = new User()
             {
-                FirstName = user.FirstName,
+                FirstName = user.FirstName!,
                 SecondName = user.SecondName,
-                LastName = user.LastName,
-                Email = user.EmailAddress,
-                Password = HashPassword(user.OpenPassword),
+                LastName = user.LastName!,
+                Email = user.EmailAddress!,
+                Password = HashPassword(user.OpenPassword!),
                 UserRoleId = 1
             };
 
-            var context = new ValidationContext(newUser);
-            var validationResult = new List<ValidationResult>();
+            var validationResult = ValidateObject<User>(newUser);
 
-            if(!Validator.TryValidateObject(newUser, context, validationResult))
+            if(validationResult.Count > 0)
             {
-                return new Message()
-                {
-                    Code = ConnectionCode.Error,
-                    Content = String.Join(Environment.NewLine, validationResult)
-                };
+                return GetValidationErrorMessage(validationResult);
             }
 
             db.Users.Add(newUser);
@@ -289,6 +307,14 @@ namespace SnookerTournamentTrackerServer.Model
 
         private Message CreateTournament(Message request)
         {
+            if(request.Sender == null)
+            {
+                return new Message()
+                {
+                    Code = ConnectionCode.Error,
+                    Content = "Administartor of the tournament cannot be null"
+                };
+            }
             TournamentModel? tournament = GetObjectFromMessage<TournamentModel>(request, out Message? response);
 
             if (tournament == null)
@@ -296,22 +322,11 @@ namespace SnookerTournamentTrackerServer.Model
                 return response!;
             }
 
-            if (tournament.Name == null)
-            {
-                return new Message()
-                {
-                    Code = ConnectionCode.Error,
-                    Content = "Not all the required fields are filled"
-                };
-            }
-
-
-            // TODO save roundmodel
-            // TODO save prizes
+            // TODO check saving
 
             Tournament newTourney = new Tournament()
             {
-                Name = tournament.Name,
+                Name = tournament.Name!,
                 StartDate = tournament.StartDate,
                 EndDate = tournament.EndDate,
                 Garantee = tournament.Garantee,
@@ -323,41 +338,63 @@ namespace SnookerTournamentTrackerServer.Model
             db.Tournaments.Add(newTourney);
             db.SaveChanges();
 
-            newTourney.Administrators.Add(db.Users.Where(u => u.Id == request.Sender).Select(u => new Administrator()
-            {
-                TournamentId = newTourney.Id,
-                UserId = u.Id
-            }).First());
+            SaveAdministrator(newTourney, (int)request.Sender);
 
             if (tournament.Prizes != null)
             {
-                tournament.Prizes.ForEach(prize => 
-                { 
-                    if (prize.PrizeAmount != null) 
-                    {
-                        newTourney.Prizes.Add(new Prize()
-                        {
-                            Amount = (decimal)prize.PrizeAmount,
-                            PlaceId = db.Places.Where(place => place.PlaceName.Equals(prize.PlaceName)).Select(place => place.Id).First()
-                        });
-                    }
-                });
+                SavePrizes(newTourney, tournament.Prizes);
             }
 
-            //tournament.RoundModel.ForEach(round => newTourney.TournamentsRounds.Add(new TournamentsRound()
-            //{
-            //    Round = db.Rounds.Where(r => r.RoundName.Equals(round.Round).First())
-            //}));
+            SaveRoundModel(newTourney, tournament.RoundModel);
 
-            //db.SaveChanges();
+            db.SaveChanges();
 
             return new Message() { Content = JsonSerializer.Serialize<TournamentModel>(new TournamentModel() { Id = newTourney.Id }) };
         }
 
+        private void SaveAdministrator(Tournament tourney, int administratorId)
+        {
+            tourney.Administrators.Add(db.Users.Where(u => u.Id == administratorId).Select(u => new Administrator()
+            {
+                TournamentId = tourney.Id,
+                UserId = u.Id
+            }).First());
+        }
+
+        private void SavePrizes(Tournament tourney, List<PrizeModel> prizes)
+        {
+            prizes.ForEach(prize =>
+            {
+                if (prize.PrizeAmount != null)
+                {
+                    tourney.Prizes.Add(new Prize()
+                    {
+                        Amount = (decimal)prize.PrizeAmount,
+                        PlaceId = db.Places.Where(place => place.PlaceName.Equals(prize.PlaceName)).Select(place => place.Id).First()
+                    });
+                }
+            });
+        }
+
+        private void SaveRoundModel(Tournament tourney, List<RoundModel> rounds)
+        {
+            rounds.ForEach(round =>
+            {
+                if (round.Frames != null)
+                {
+                    tourney.TournamentsRounds.Add(new TournamentsRound()
+                    {
+                        Round = db.Rounds.Where(r => r.RoundName.Equals(round.Round)).First(),
+                        FrameCount = (int)round.Frames
+                    });
+                }
+            });
+        }
+
         private Message GetAllTournaments(Message request)
         {
-            //TODO - IsActive
-            //TODO - RoundModel
+            //TODO - check this
+            // TODO - load rounds and prizes separatly by request from the view
             var tournaments = db.Tournaments.Select(t => new TournamentModel()
             {
                 Id = t.Id,
@@ -366,7 +403,7 @@ namespace SnookerTournamentTrackerServer.Model
                 EntryFee = t.EntreeFee,
                 StartDate = t.StartDate,
                 EndDate = t.EndDate,
-                IsActive = true
+                IsActive = !t.Equals("Finished")
             }).ToList();
 
             return new Message() { Code = ConnectionCode.Ok, Content = JsonSerializer.Serialize<List<TournamentModel>>(tournaments) };
@@ -490,15 +527,6 @@ namespace SnookerTournamentTrackerServer.Model
                 return response!;
             }
 
-            if (user.FirstName == null || user.LastName == null)
-            {
-                return new Message()
-                {
-                    Code = ConnectionCode.Error,
-                    Content = "Not all the required fields are filled"
-                };
-            }
-
             User? dbUser = db.Users.Where(user => user.Id == request.Sender).FirstOrDefault();
 
             if(dbUser == null)
@@ -510,9 +538,9 @@ namespace SnookerTournamentTrackerServer.Model
                 };
             }
 
-            dbUser.FirstName = user.FirstName;
+            dbUser.FirstName = user.FirstName!;
             dbUser.SecondName = user.SecondName;
-            dbUser.LastName = user.LastName;
+            dbUser.LastName = user.LastName!;
 
             if (user.PhoneNumber != null)
             {

@@ -5,37 +5,88 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         mc:Ignorable="d"
-        Title="MainWindowView" Height="450" Width="800">
-    <StackPanel>
-        <Label Content="{Binding Name, Mode=OneTime}" />
-        <Button Content="My tournaments" />
-        <Button Content="Profile" Click="ProfileBtn_Click" />
-        <DataGrid AutoGenerateColumns="False" SelectionMode="Single"
+        Title="Snooker Tournament Tracker" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <DockPanel Grid.Row="0" LastChildFill="False">
+                <Label DockPanel.Dock="Right" Content="{Binding Name, Mode=OneTime}" />
+            </DockPanel>
+
+            <StackPanel Grid.Row="1" HorizontalAlignment="Right">
+                <Button Content="My tournaments" />
+                <Button Content="Profile" Click="ProfileBtn_Click" />
+            </StackPanel>
+        </Grid>
+ 
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <DockPanel Grid.Row="0" LastChildFill="False">
+                    <Label DockPanel.Dock="Left" Content="Tournaments" />
+                    <CheckBox DockPanel.Dock="Right" Grid.Row="2" Content="Active only" IsChecked="{Binding ActiveOnly}" />
+
+                </DockPanel>
+
+                <DataGrid Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Single"
                   ItemsSource="{Binding Tournaments, Mode=OneWay}" 
                   SelectedItem="{Binding SelectedTournament, Mode=OneWayToSource}"
                   CanUserAddRows="False" CanUserDeleteRows="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}" />
-                <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay}" />
-                <DataGridTextColumn Header="Entree fee" Binding="{Binding EntryFee, Mode=OneWay}" />
-            </DataGrid.Columns>
-        </DataGrid>
-        <CheckBox Content="Active only" IsChecked="{Binding ActiveOnly}" />
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}"  />
+                        <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay}" />
+                        <DataGridTextColumn Header="Entree fee" Binding="{Binding EntryFee, Mode=OneWay}" />
+                    </DataGrid.Columns>
+                </DataGrid>
 
-        <Button Content="View tournament info" Click="ViewTournamentBtn_Click" />
-        <Button Content="Create new tournament" Click="CreateTournamentBtn_Click" />
+            </Grid>
+            <StackPanel Grid.Column="1">
 
-        <StackPanel><!-- Short info about the tournament -->
-            <Label Content="Name" />
-            <TextBox IsReadOnly="True" />
-            <Label Content="Date" />
-            <TextBox IsReadOnly="True" />
-            <Label Content="Garantee" />
-            <TextBox IsReadOnly="True" />
-            <Label Content="Entree fee" />
-            <TextBox IsReadOnly="True" />
-        </StackPanel>
-        
+                <Button Content="View tournament info" Click="ViewTournamentBtn_Click" />
+                <Button Content="Create new tournament" Click="CreateTournamentBtn_Click" />
 
-    </StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- TODO fill this -->
+                    <Label Grid.Row="0" Grid.Column="0" Content="Name" />
+                    <Label Grid.Row="0" Grid.Column="1" Content="{Binding SelectedTournament.Name}" />
+                    <Label Grid.Row="1" Grid.Column="0" Content="Starts" />
+                    <Label Grid.Row="1" Grid.Column="1" Content="{Binding SelectedTournament.StartDate}" />
+                    <Label Grid.Row="2" Grid.Column="0" Content="Garantee" />
+                    <Label Grid.Row="2" Grid.Column="1" Content="{Binding SelectedTournament.Garantee}" />
+                    <Label Grid.Row="3" Grid.Column="0" Content="Entree fee" />
+                    <Label Grid.Row="3" Grid.Column="1" Content="{Binding SelectedTournament.EntreeFee}" />
+                </Grid>
+            </StackPanel>
+        </Grid>
+    </Grid>
 </Window>

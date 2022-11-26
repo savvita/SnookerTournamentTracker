@@ -292,7 +292,7 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
             entity.ToTable("UserRole");
 
-            entity.Property(e => e.UserRole1)
+            entity.Property(e => e.Role)
                 .HasMaxLength(50)
                 .HasColumnName("UserRole");
         });

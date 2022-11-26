@@ -1,10 +1,19 @@
-﻿namespace TournamentLibrary
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TournamentLibrary
 {
     public class TournamentModel
     {
         public int? Id { get; set; }
+
+        [Required]
+        [StringLength(50)]
         public string? Name { get; set; }
+
+        [Range(0, double.MaxValue)]
         public decimal? EntryFee { get; set; }
+
+        [Range(0, double.MaxValue)]
         public decimal? Garantee { get; set; }
         public PrizesModeEnum PrizeMode { get; set; }
         public List<PrizeModel>? Prizes { get; set; }
