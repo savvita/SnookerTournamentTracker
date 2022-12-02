@@ -21,13 +21,21 @@ namespace SnookerTournamentTracker.View
     /// </summary>
     public partial class CreateTournamentView : Window
     {
-        private CreateTournamentViewModel model;
+        private CreateTournamentViewModel? model;
 
         public CreateTournamentView()
         {
             InitializeComponent();
-            model = new CreateTournamentViewModel();
-            this.DataContext = model;
+        }
+
+        public CreateTournamentView(PersonModel user) : this()
+        {
+            if(user.Id != null)
+            {
+                model = new CreateTournamentViewModel((int)user.Id!);
+                this.DataContext = model;
+            }
+
         }
 
         private void CancelBtn_Click(object sender, RoutedEventArgs e)
@@ -46,6 +54,11 @@ namespace SnookerTournamentTracker.View
 
         private void CreatePrizesBtn_Click(object sender, RoutedEventArgs e)
         {
+            if(model == null)
+            {
+                return;
+            }
+
             PrizesView view = new PrizesView(model.Tournament, model.Prizes);
             view.ShowDialog();
 
@@ -58,6 +71,11 @@ namespace SnookerTournamentTracker.View
 
         private void CreateTournamentBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (model == null)
+            {
+                return;
+            }
+
             if (model.CreateTournament())
             {
                 this.DialogResult = true;
@@ -67,6 +85,11 @@ namespace SnookerTournamentTracker.View
 
         private void CreateRoundsBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (model == null)
+            {
+                return;
+            }
+
             CreateRoundsView view = new CreateRoundsView(model.Rounds);
             view.ShowDialog();
 

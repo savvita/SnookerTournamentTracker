@@ -21,7 +21,8 @@ namespace SnookerTournamentTracker.View
     /// </summary>
     public partial class CreateRoundsView : Window
     {
-        private CreateRoundsViewModel model;
+        // TODO add new round field whem prev is filled until rounds ends
+        private CreateRoundsViewModel? model;
         public List<RoundModel>? Rounds { get; set; }
         public CreateRoundsView()
         {

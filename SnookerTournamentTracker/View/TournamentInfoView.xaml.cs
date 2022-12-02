@@ -21,19 +21,26 @@ namespace SnookerTournamentTracker.View
     /// </summary>
     public partial class TournamentInfoView : Window
     {
+        // TODO register/unregister - show only one of them
+        // TODO tournament name in xaml - add wrapping text
         public TournamentInfoView()
         {
             InitializeComponent();
         }
 
-        public TournamentInfoView(TournamentModel tournament) : this()
+        public TournamentInfoView(PersonModel user, TournamentModel tournament) : this()
         {
-            this.DataContext = new TournamentViewViewModel(tournament);
+            TournamentViewViewModel model = new TournamentViewViewModel(user, tournament);
+            this.Title = tournament.Name;
+            model.RegisteringCompleted += (msg) => MessageBox.Show(msg, "Registration", MessageBoxButton.OK, MessageBoxImage.Information);
+            model.UnregisteringCompleted += (msg) => MessageBox.Show(msg, "Unregistration", MessageBoxButton.OK, MessageBoxImage.Information);
+            this.DataContext = model;
         }
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
+
     }
 }

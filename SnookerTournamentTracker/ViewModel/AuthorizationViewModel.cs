@@ -16,17 +16,6 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class AuthorizationViewModel : INotifyPropertyChanged
     {
-        private string? login;
-        public string? Login
-        {
-            get => login;
-            set
-            {
-                login = value;
-                OnPropertyChanged(nameof(Login));
-            }
-        }
-
         private SecureString? password;
         public SecureString? Password
         {
@@ -104,8 +93,8 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        private string error = String.Empty;
-        public string Error
+        private string? error = String.Empty;
+        public string? Error
         {
             get => error;
             set
@@ -119,7 +108,7 @@ namespace SnookerTournamentTracker.ViewModel
 
         public RelayCommand SignInCommand
         {
-            get => signInCommand ?? new RelayCommand(SignIn);
+            get => signInCommand ?? new RelayCommand(async () => await SignIn());
         }
 
         private RelayCommand? clearCommand;
@@ -131,7 +120,6 @@ namespace SnookerTournamentTracker.ViewModel
 
         private void Clear()
         {
-            Login = null;
             Password = null;
             PasswordConfirm = null;
             FirstName = null;
@@ -149,24 +137,34 @@ namespace SnookerTournamentTracker.ViewModel
             Authorizated?.Invoke(model);
         }
 
-        private async void SignIn()
+        private async Task SignIn()
         {
-            //TODO - Add error handling
-            //TODO - Show server responce when failed
-            if (Validate())
+            try
             {
-                PersonModel person = new PersonModel() { Login = Login, Password = Password };
-                //if (ConnectionClientModel.SignIn(person, out error))
-                if (await ConnectionClientModel.SignIn(person))
+                if (Validate())
                 {
-                    //TODO - Add going to the next window
-                    OnAuthorizated(person);
+                    PersonModel person = new PersonModel() { EmailAddress = Email, OpenPassword = SecureStringToString(Password) };
 
+                    if (await ConnectionClientModel.SignIn(person))
+                    {
+                        OnAuthorizated(person);
+                    }
+                    else
+                    {
+                        Error = ConnectionClientModel.LastError;
+                    }
+
+                    if (person.OpenPassword != null)
+                    {
+                        int gen = GC.GetGeneration(person.OpenPassword);
+                        person.OpenPassword = null;
+                        GC.Collect(gen);
+                    }
                 }
-                else
-                {
-                    OnPropertyChanged(nameof(Error));
-                }
+            }
+            catch
+            {
+                Error = "Cannot connect to the server";
             }
         }
 
@@ -177,35 +175,37 @@ namespace SnookerTournamentTracker.ViewModel
             get => signUpCommand ?? new RelayCommand(SignUp);
         }
 
-        private void SignUp()
+        private async void SignUp()
         {
-            //TODO - Add error handling
-            //TODO - Show server responce when failed
-            if (Validate(false))
+            try
             {
-                PersonModel person = new PersonModel()
+                if (Validate(false))
                 {
-                    FirstName = FirstName,
-                    SecondName = SecondName,
-                    LastName = LastName,
-                    EmailAddress = Email,
-                    PhoneNumber = PhoneNumber,
-                    Login = Login,
-                    Password = Password
-                };
+                    PersonModel person = new PersonModel()
+                    {
+                        FirstName = FirstName,
+                        SecondName = SecondName,
+                        LastName = LastName,
+                        EmailAddress = Email,
+                        PhoneNumber = PhoneNumber,
+                        OpenPassword = SecureStringToString(Password)
+                    };
 
-                if (ConnectionClientModel.SignUp(person, out error))
-                {
-                    //TODO - Add going to the next window
-                    Password?.Dispose();
-                    PasswordConfirm?.Dispose();
-                    OnAuthorizated(person);
-
+                    if (await ConnectionClientModel.SignUp(person))
+                    {
+                        Password?.Dispose();
+                        PasswordConfirm?.Dispose();
+                        OnAuthorizated(person);
+                    }
+                    else
+                    {
+                        Error = ConnectionClientModel.LastError;
+                    }
                 }
-                else
-                {
-                    OnPropertyChanged(nameof(Error));
-                }
+            }
+            catch
+            {
+                Error = "Cannot connect to the server";
             }
         }
 
@@ -213,7 +213,7 @@ namespace SnookerTournamentTracker.ViewModel
         {
             Error = String.Empty;
 
-            if (string.IsNullOrEmpty(Login) || Password == null || Password.Length == 0)
+            if (string.IsNullOrEmpty(Email) || Password == null || Password.Length == 0)
             {
                 Error = "Fill all the required fields";
                 return false;
@@ -233,12 +233,17 @@ namespace SnookerTournamentTracker.ViewModel
                 if (pass != passConf)
                 {
                     Error += "Passwords do not match";
+                    pass = null;
+                    passConf = null;
                     return false;
                 }
 
                 if (pass != null)
                 {
-                    GC.Collect(GC.GetGeneration(pass));
+                    int gen = GC.GetGeneration(pass);
+                    pass = null;
+                    passConf = null;
+                    GC.Collect(gen);
                 }
             }
 

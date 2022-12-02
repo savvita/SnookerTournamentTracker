@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SnookerTournamentTracker.ConnectionLibrary;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,86 +14,74 @@ namespace SnookerTournamentTracker.Model
 {
     internal static class ConnectionClientModel
     {
-        //private static ClientModel client = new ClientModel();
-        //public static async Task<bool> SignIn(PersonModel user, out string error)
+        private static ClientModel client = new ClientModel();
+
+        public static string? LastError = String.Empty;
         public static async Task<bool> SignIn(PersonModel user)
         {
-            // TODO - Add request to the server
-            //TODO - Add error text
+            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.SignIn, Content = JsonSerializer.Serialize<PersonModel>(user) });
 
-            //error = "Error";
-            user.FirstName = "John";
-            user.SecondName = "Ivanovich";
-            user.LastName = "Smith";
-            user.EmailAddress = "Smith@gmail.com";
-            user.PhoneNumber = "0123456789";
-            user.Id = 1;
+            if (response == null)
+            {
+                LastError = "Server does not response";
+                return false;
+            }
 
-            //client.SendMessage(new Message() { Sender = user.Id, Code = 2, Content = "Some text" });
+            if (response.Code == ConnectionCode.Error || response.Content == null)
+            {
+                LastError = response.Content ?? "Server does not response";
+                return false;
+            }
+
+            PersonModel? receivedUser = JsonSerializer.Deserialize<PersonModel>(response.Content);
+
+            if (receivedUser == null)
+            {
+                LastError = "Server answer is damages";
+                return false;
+            }
+
+            LastError = String.Empty;
+
+            user.Id = receivedUser.Id;
+            user.FirstName = receivedUser.FirstName;
+            user.SecondName = receivedUser.SecondName;
+            user.LastName = receivedUser.LastName;
+            user.EmailAddress = receivedUser.EmailAddress;
+            user.PhoneNumber = receivedUser.PhoneNumber;
+
             return true;
-
-
-            //error = "Error";
-            //if (!File.Exists("users.json"))
-            //{
-            //    return false;
-            //}
-
-            //string json = File.ReadAllText("users.json");
-
-            //List<PersonModel>? players = JsonSerializer.Deserialize<List<PersonModel>>(json);
-            //if(players == null)
-            //{
-            //    return false;
-            //}
-
-            //return players.FindIndex(player => {
-            //    if(player == null || player.Login == null)
-            //    {
-            //        return false;
-            //    }
-            //    return player.Login.Equals(user.Login);
-            //}) != -1;
         }
 
-        public static bool SignUp(PersonModel user, out string error)
+        public static async Task<bool> SignUp(PersonModel user)
         {
-            // TODO - Add request to the server
-            //TODO - Add error text
-            error = "Error";
-            user.Id = 2;
+            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.SignUp, Content = JsonSerializer.Serialize<PersonModel>(user) });
+
+            if (response == null)
+            {
+                LastError = "Server does not response";
+                return false;
+            }
+
+            if (response.Code == ConnectionCode.Error || response.Content == null)
+            {
+                LastError = response.Content ?? "Server does not response";
+                return false;
+            }
+
+            PersonModel? receivedUser = JsonSerializer.Deserialize<PersonModel>(response.Content);
+
+            if (receivedUser == null)
+            {
+                LastError = "Server answer is damages";
+                return false;
+            }
+
+            LastError = String.Empty;
+
+            user.Id = receivedUser.Id;
 
             return true;
-            //if (!File.Exists("users.json"))
-            //{
-            //    File.Create("users.json");
-            //}
-
-            //string json = File.ReadAllText("users.json");
-
-
-            //List<PersonModel>? players = new List<PersonModel>();
-
-            //try
-            //{
-            //    players = JsonSerializer.Deserialize<List<PersonModel>>(json);
-            //}
-            //catch
-            //{
-            //}
-
-            //if(players == null)
-            //{
-            //    players = new List<PersonModel>();
-            //}
-
-            //players.Add(user);
-
-            //json = JsonSerializer.Serialize<List<PersonModel>>(players);
-            //File.WriteAllText("users.json", json);
-
-            ////TODO - Add checks
-            //return true;
         }
 
         private static string? SecureStringToString(SecureString value)
@@ -109,75 +98,195 @@ namespace SnookerTournamentTracker.Model
             }
         }
 
-        public static List<PrizeModel> GetAllPlaces()
+        public static List<PrizeModel>? GetAllPlaces()
         {
-            //TODO - Load from DB
-            List<PrizeModel> places = new List<PrizeModel>();
-            places.Add(new PrizeModel() { PlaceName = "Winner" });
-            places.Add(new PrizeModel() { PlaceName = "Round Up" });
-            places.Add(new PrizeModel() { PlaceName = "Semi final" });
-            places.Add(new PrizeModel() { PlaceName = "Quarter final" });
-            places.Add(new PrizeModel() { PlaceName = "Last 16" });
-            places.Add(new PrizeModel() { PlaceName = "Last 32" });
-            places.Add(new PrizeModel() { PlaceName = "Last 64" });
-            places.Add(new PrizeModel() { PlaceName = "Last 128" });
-            places.Add(new PrizeModel() { PlaceName = "Rest" });
+            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.AllPlaces });
+
+            if (response == null)
+            {
+                LastError = "Server does not response";
+                return null;
+            }
+
+            if (response.Code == ConnectionCode.Error || response.Content == null)
+            {
+                LastError = response.Content ?? "Server does not response";
+                return null;
+            }
+
+            List<PrizeModel>? places = JsonSerializer.Deserialize<List<PrizeModel>>(response.Content);
+
+            if (places == null)
+            {
+                LastError = "Server answer is damages";
+                return null;
+            }
+
+            LastError = String.Empty;
 
             return places;
         }
 
-        public static List<string> GetAllRounds()
+        public static List<string>? GetAllRounds()
         {
-            //TODO - Load from DB
-            List<string> rounds = new List<string>();
+            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.AllRounds });
 
-            rounds.Add("Final");
-            rounds.Add("Semi final");
-            rounds.Add("Quarter final");
-            rounds.Add("Last 16");
-            rounds.Add("Last 32");
-            rounds.Add("Last 64");
-            rounds.Add("Last 128");
-            rounds.Add("Rest");
+            if (response == null)
+            {
+                LastError = "Server does not response";
+                return null;
+            }
+
+            if (response.Code == ConnectionCode.Error || response.Content == null)
+            {
+                LastError = response.Content ?? "Server does not response";
+                return null;
+            }
+
+            List<string>? rounds = JsonSerializer.Deserialize<List<string>>(response.Content);
+
+            if (rounds == null)
+            {
+                LastError = "Server answer is damages";
+                return null;
+            }
+
+            LastError = String.Empty;
+
             return rounds;
         }
 
-        public static List<PersonModel> GetAllPlayers()
+        public static List<PersonModel>? GetAllPlayers()
         {
-            //TODO - Load from DB
-            List<PersonModel> players = new List<PersonModel>();
+            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.AllPlayers });
 
-            players.Add(new PersonModel()
+            if (response == null)
             {
-                FirstName = "John",
-                SecondName = "J.",
-                LastName = "Smith",
-                EmailAddress = "smith@mail.com"
-            });
+                LastError = "Server does not response";
+                return null;
+            }
 
-            players.Add(new PersonModel()
+            if (response.Code == ConnectionCode.Error || response.Content == null)
             {
-                FirstName = "Ivan",
-                SecondName = "Ivanovich",
-                LastName = "Petrov",
-                EmailAddress = "petrov@mail.com"
-            });
+                LastError = response.Content ?? "Server does not response";
+                return null;
+            }
 
-            players.Add(new PersonModel()
+            List<PersonModel>? players = JsonSerializer.Deserialize<List<PersonModel>>(response.Content);
+
+            if (players == null)
             {
-                FirstName = "John",
-                LastName = "Doe"
-            });
+                LastError = "Server answer is damages";
+                return null;
+            }
+
+            LastError = String.Empty;
+
             return players;
         }
 
-        public static bool CreateTournament(TournamentModel tournament)
+        public static bool CreateTournament(int senderId, TournamentModel tournament)
         {
             //TODO add creation and creation rounds
-            tournaments.Add(tournament);
-            tournament.Id = tournaments.Count;
+            //Save prizes
+            //Save rounds
+            //Save invites
+            //Save tournament
+
+            //TODO Remove this
+            //tournaments.Add(tournament);
+            //tournament.Id = tournaments.Count;
+            //
+
+            Message? response = client.GetResponse(new Message() { Sender = senderId, Code = ConnectionCode.CreateTournament, Content = JsonSerializer.Serialize<TournamentModel>(tournament) });
+
+            if (response == null)
+            {
+                LastError = "Server does not response";
+                return false;
+            }
+
+            if (response.Code == ConnectionCode.Error || response.Content == null)
+            {
+                LastError = response.Content ?? "Server does not response";
+                return false;
+            }
+
+            TournamentModel? receivedTournament = JsonSerializer.Deserialize<TournamentModel>(response.Content);
+
+            if (receivedTournament == null)
+            {
+                LastError = "Server answer is damages";
+                return false;
+            }
+
+            LastError = String.Empty;
+
+            tournament.Id = receivedTournament.Id;
+
             return true;
         }
+
+        // Finish this
+        private static List<PersonModel> RandomizePlayers(List<PersonModel> players)
+        {
+            return players.OrderBy(player => Guid.NewGuid()).ToList();
+        }
+
+        private static int GetNumberOfRounds(int playerCount)
+        {
+            int rounds = 0;
+
+            int curr = 2;
+
+            while(curr < playerCount)
+            {
+                rounds++;
+                curr *= 2;
+            }
+
+            return rounds;
+        }
+
+        private static int GetNumberOfByes(int rounds, int playerCount)
+        {
+            int totalPlayers = 1;
+
+            for (int i = 0; i < rounds; i++)
+            {
+                totalPlayers *= 2;
+            }
+
+            return totalPlayers - playerCount;
+        }
+
+        private static List<MatchUpModel> CreateFirstRound(List<PersonModel> players, int byes)
+        {
+            List<MatchUpModel> matchups = new List<MatchUpModel>();
+
+            MatchUpModel curr = new MatchUpModel();
+
+            foreach(PersonModel player in players)
+            {
+                curr.Players.Add(player);
+
+                if(byes > 0 || curr.Players.Count > 1)
+                {
+                    //curr.MatchUpRound = 1;
+                    matchups.Add(curr);
+                    curr = new MatchUpModel();
+
+                    if(byes > 0)
+                    {
+                        byes--;
+                    }
+                }
+            }
+
+            return matchups;
+        }
+
+        //=======================
 
         public static List<PrizeModel>? GetPrizes(int? id)
         {
@@ -186,25 +295,31 @@ namespace SnookerTournamentTracker.Model
                 return null;
             }
 
-            //TODO load from db
-            return new List<PrizeModel>()
+            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.PrizesByTournamentId, Content = id.ToString() });
+
+            if (response == null)
             {
-                new PrizeModel()
-                {
-                    PlaceName = "Winner",
-                    PrizeAmount = 60
-                },
-                new PrizeModel()
-                {
-                    PlaceName = "Round Up",
-                    PrizeAmount = 40
-                },
-                new PrizeModel()
-                {
-                    PlaceName = "Semi final",
-                    PrizeAmount = 20
-                }
-            };
+                LastError = "Server does not response";
+                return null;
+            }
+
+            if (response.Code == ConnectionCode.Error || response.Content == null)
+            {
+                LastError = response.Content ?? "Server does not response";
+                return null;
+            }
+
+            List<PrizeModel>? prizes = JsonSerializer.Deserialize<List<PrizeModel>>(response.Content);
+
+            if (prizes == null)
+            {
+                LastError = "Server answer is damages";
+                return null;
+            }
+
+            LastError = String.Empty;
+
+            return prizes;
         }
 
         public static List<RoundModel>? GetRounds(int? id)
@@ -214,30 +329,31 @@ namespace SnookerTournamentTracker.Model
                 return null;
             }
 
-            //TODO load from db
-            return new List<RoundModel>()
+            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.RoundsByTournamentId, Content = id.ToString() });
+
+            if (response == null)
             {
-                new RoundModel()
-                {
-                    Round = "Final",
-                    Frames = 15
-                },
-                new RoundModel()
-                {
-                    Round = "Semi final",
-                    Frames = 13
-                },
-                new RoundModel()
-                {
-                    Round = "Quarter final",
-                    Frames = 13
-                },
-                 new RoundModel()
-                {
-                    Round = "Last 16",
-                    Frames = 11
-                }
-            };
+                LastError = "Server does not response";
+                return null;
+            }
+
+            if (response.Code == ConnectionCode.Error || response.Content == null)
+            {
+                LastError = response.Content ?? "Server does not response";
+                return null;
+            }
+
+            List<RoundModel>? rounds = JsonSerializer.Deserialize<List<RoundModel>>(response.Content);
+
+            if (rounds == null)
+            {
+                LastError = "Server answer is damages";
+                return null;
+            }
+
+            LastError = String.Empty;
+
+            return rounds;
         }
 
         //TODO Remove this
@@ -275,48 +391,53 @@ namespace SnookerTournamentTracker.Model
                 }
             };
 
-        public static List<TournamentModel> GetAllTournaments(bool activeOnly = true)
+        public static List<TournamentModel>? GetAllTournaments(bool activeOnly = true)
         {
-            // TODO load from db
+            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.AllTournaments });
+
+            if (response == null)
+            {
+                LastError = "Server does not response";
+                return null;
+            }
+
+            if (response.Code == ConnectionCode.Error || response.Content == null)
+            {
+                LastError = response.Content ?? "Server does not response";
+                return null;
+            }
+
+            List<TournamentModel>? tournaments = JsonSerializer.Deserialize<List<TournamentModel>>(response.Content);
+
+            if (tournaments == null)
+            {
+                LastError = "Server answer is damages";
+                return null;
+            }
+
+            LastError = String.Empty;
 
             return tournaments;
-
-            //return new List<TournamentModel>()
-            //{
-            //    new TournamentModel()
-            //    {
-            //        Id = 1,
-            //        Name = "Champion of Champions",
-            //        IsActive = false,
-            //        EntryFee = 20,
-            //        Garantee = 200000,
-            //        Rounds = new List<List<MatchUpModel>>(),
-            //        Players = new List<PersonModel>()
-            //    },
-            //    new TournamentModel()
-            //    {
-            //        Id = 2,
-            //        Name = "UK Championship",
-            //        IsActive = true,
-            //        EntryFee = 200,
-            //        Garantee = 250000,
-            //        Rounds = new List<List<MatchUpModel>>(),
-            //        Players = new List<PersonModel>()
-            //    },
-            //    new TournamentModel()
-            //    {
-            //        Id = 3,
-            //        Name = "Welsh Open",
-            //        IsActive = true,
-            //        Rounds = new List<List<MatchUpModel>>(),
-            //        Players = new List<PersonModel>()
-            //    }
-            //};
         }
 
         public static bool UpdateProfile(PersonModel person)
         {
-            // TODO add request to the server
+            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.UpdateProfile, Content = JsonSerializer.Serialize<PersonModel>(person) });
+
+            if (response == null)
+            {
+                LastError = "Server does not response";
+                return false;
+            }
+
+            if (response.Code == ConnectionCode.Error)
+            {
+                LastError = response.Content ?? "Cannot update the profile";
+                return false;
+            }
+
+            LastError = String.Empty;
+
             return true;
         }
     }

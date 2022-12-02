@@ -37,7 +37,12 @@ namespace SnookerTournamentTracker.View
 
         private void CreateTournamentBtn_Click(object sender, RoutedEventArgs e)
         {
-            CreateTournamentView view = new CreateTournamentView();
+            if(user == null)
+            {
+                return;
+            }
+
+            CreateTournamentView view = new CreateTournamentView(user);
             view.ShowDialog();
 
             if(view.DialogResult == true)
@@ -63,12 +68,13 @@ namespace SnookerTournamentTracker.View
 
         private void ViewTournamentBtn_Click(object sender, RoutedEventArgs e)
         {
-            if(model == null || model.SelectedTournament == null)
+            //TODO open this on dbl click
+            if(user == null || model == null || model.SelectedTournament == null)
             {
                 return;
             }
 
-            TournamentInfoView view = new TournamentInfoView(model.SelectedTournament);
+            TournamentInfoView view = new TournamentInfoView(user, model.SelectedTournament);
             view.ShowDialog();
         }
     }
