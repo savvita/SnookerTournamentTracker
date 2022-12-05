@@ -10,8 +10,8 @@ public partial class UserRole
     public int Id { get; set; }
 
     [Column("UserRole")]
-    [Required]
-    [StringLength(50)]
+    [Required(ErrorMessage = "A user role is required")]
+    [StringLength(50, ErrorMessage = "Maximum length for an user role is 50 chars")]
     public string Role { get; set; } = null!;
 
     public virtual ICollection<User> Users { get; } = new List<User>();

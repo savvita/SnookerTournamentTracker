@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace SnookerTournamentTrackerServer.DbModel;
 
@@ -7,9 +8,10 @@ public partial class Match
 {
     public int Id { get; set; }
 
-    public int TournamentId { get; set; }
+    [Required(ErrorMessage = "A match number is required")]
+    public int MatchNumber { get; set; }
 
-    public int? ParentMatchUpId { get; set; }
+    public int TournamentId { get; set; }
 
     public int RoundId { get; set; }
 
@@ -17,9 +19,9 @@ public partial class Match
 
     public virtual ICollection<Frame> Frames { get; } = new List<Frame>();
 
-    public virtual ICollection<Match> InverseParentMatchUp { get; } = new List<Match>();
+    public virtual ICollection<MatchUpEntry> MatchUpEntries { get; } = new List<MatchUpEntry>();
 
-    public virtual Match? ParentMatchUp { get; set; }
+    public virtual ICollection<MatchUpEntry> ParentMatchUpEntries { get; } = new List<MatchUpEntry>();
 
     public virtual TournamentsRound Round { get; set; } = null!;
 

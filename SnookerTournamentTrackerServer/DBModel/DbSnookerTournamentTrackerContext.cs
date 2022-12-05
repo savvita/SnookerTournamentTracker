@@ -28,6 +28,8 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
     public virtual DbSet<Match> Matches { get; set; }
 
+    public virtual DbSet<MatchUpEntry> MatchUpEntries { get; set; }
+
     public virtual DbSet<PhoneNumber> PhoneNumbers { get; set; }
 
     public virtual DbSet<Place> Places { get; set; }
@@ -132,10 +134,6 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Matches__3214EC07E4CCBE7D");
 
-            entity.HasOne(d => d.ParentMatchUp).WithMany(p => p.InverseParentMatchUp)
-                .HasForeignKey(d => d.ParentMatchUpId)
-                .HasConstraintName("FK__Matches__ParentM__5070F446");
-
             entity.HasOne(d => d.Round).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.RoundId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -149,6 +147,25 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
             entity.HasOne(d => d.Winner).WithMany(p => p.Matches)
                 .HasForeignKey(d => d.WinnerId)
                 .HasConstraintName("FK__Matches__WinnerI__4F7CD00D");
+        });
+
+        modelBuilder.Entity<MatchUpEntry>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__MatchUpE__3214EC0704CC7198");
+
+            entity.HasOne(d => d.User).WithMany(p => p.MatchUpEntries)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__MatchUpEn__UserI__02FC7413");
+
+            entity.HasOne(d => d.Match).WithMany(p => p.MatchUpEntries)
+                .HasForeignKey(d => d.MatchId)
+                .HasConstraintName("FK__MatchUpEn__Match__03F0984C");
+
+            entity.HasOne(d => d.ParentMatch).WithMany(p => p.ParentMatchUpEntries)
+                .HasForeignKey(d => d.ParentMatchId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__MatchUpEn__Paren__04E4BC85");
         });
 
         modelBuilder.Entity<PhoneNumber>(entity =>

@@ -84,7 +84,7 @@ namespace SnookerTournamentTracker.ViewModel
             }
             else
             {
-                Prizes = ConnectionClientModel.GetAllPlaces();
+                Prizes = ServerConnection.GetAllPlaces();
                 Mode = PrizesModeEnum.Absolute;
             }
 

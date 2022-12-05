@@ -77,5 +77,16 @@ namespace SnookerTournamentTracker.View
             TournamentInfoView view = new TournamentInfoView(user, model.SelectedTournament);
             view.ShowDialog();
         }
+
+        private void MyTournamentsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (user == null)
+            {
+                return;
+            }
+
+            MyTournamentsView view = new MyTournamentsView(user);
+            view.ShowDialog();
+        }
     }
 }

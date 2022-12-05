@@ -4,6 +4,8 @@
     {
         public int Id { get; set; }
         public List<FrameEntryModel> Entries { get; set; } = new List<FrameEntryModel>();
-        public PersonModel? Winner { get; set; }
+        public int? WinnerId { get; set; }
+
+        public int MatchId { get; set; }
     }
 }

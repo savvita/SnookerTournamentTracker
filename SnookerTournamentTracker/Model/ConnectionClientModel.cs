@@ -14,220 +14,51 @@ namespace SnookerTournamentTracker.Model
 {
     internal static class ConnectionClientModel
     {
-        private static ClientModel client = new ClientModel();
-
-        public static string? LastError = String.Empty;
-        public static async Task<bool> SignIn(PersonModel user)
+        public static void CloseTournamentRegistration(int administratorId, TournamentModel tournament)
         {
-            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.SignIn, Content = JsonSerializer.Serialize<PersonModel>(user) });
+            // TODO
+            // create other rounds
+            // save to bd
+            // send emails
+            var players = RandomizePlayers(tournament.Players);
+            int rounds = GetNumberOfRounds(players.Count);
 
-            if (response == null)
+            if (rounds > tournament.RoundModel.Count)
             {
-                LastError = "Server does not response";
-                return false;
+                AddTournamentRounds(administratorId, tournament, rounds);
             }
 
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return false;
-            }
+            int byes = GetNumberOfByes(rounds, players.Count);
 
-            PersonModel? receivedUser = JsonSerializer.Deserialize<PersonModel>(response.Content);
+            tournament.Rounds.Add(CreateFirstRound(players, byes, tournament.RoundModel.Last()));
+            CreateOtherRounds(tournament, rounds);
 
-            if (receivedUser == null)
-            {
-                LastError = "Server answer is damages";
-                return false;
-            }
-
-            LastError = String.Empty;
-
-            user.Id = receivedUser.Id;
-            user.FirstName = receivedUser.FirstName;
-            user.SecondName = receivedUser.SecondName;
-            user.LastName = receivedUser.LastName;
-            user.EmailAddress = receivedUser.EmailAddress;
-            user.PhoneNumber = receivedUser.PhoneNumber;
-
-            return true;
+            ServerConnection.SaveTournamentDraw(administratorId, tournament);
         }
 
-        public static async Task<bool> SignUp(PersonModel user)
+        private static void AddTournamentRounds(int administratorId, TournamentModel tournament, int roundCount)
         {
-            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.SignUp, Content = JsonSerializer.Serialize<PersonModel>(user) });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return false;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return false;
-            }
-
-            PersonModel? receivedUser = JsonSerializer.Deserialize<PersonModel>(response.Content);
-
-            if (receivedUser == null)
-            {
-                LastError = "Server answer is damages";
-                return false;
-            }
-
-            LastError = String.Empty;
-
-            user.Id = receivedUser.Id;
-
-            return true;
-        }
-
-        private static string? SecureStringToString(SecureString value)
-        {
-            IntPtr valuePtr = IntPtr.Zero;
-            try
-            {
-                valuePtr = Marshal.SecureStringToGlobalAllocUnicode(value);
-                return Marshal.PtrToStringUni(valuePtr);
-            }
-            finally
-            {
-                Marshal.ZeroFreeGlobalAllocUnicode(valuePtr);
-            }
-        }
-
-        public static List<PrizeModel>? GetAllPlaces()
-        {
-            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.AllPlaces });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<PrizeModel>? places = JsonSerializer.Deserialize<List<PrizeModel>>(response.Content);
-
-            if (places == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return places;
-        }
-
-        public static List<string>? GetAllRounds()
-        {
-            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.AllRounds });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<string>? rounds = JsonSerializer.Deserialize<List<string>>(response.Content);
+            RoundModel lastRound = tournament.RoundModel[tournament.RoundModel.Count - 1];
+            List<string>? rounds = ServerConnection.GetAllRounds();
 
             if (rounds == null)
             {
-                LastError = "Server answer is damages";
-                return null;
+                return;
             }
 
-            LastError = String.Empty;
+            while (tournament.RoundModel.Count < roundCount && tournament.RoundModel.Count < rounds.Count)
+            {
+                tournament.RoundModel.Add(new RoundModel()
+                {
+                    Frames = lastRound.Frames,
+                    Round = rounds[tournament.RoundModel.Count]
+                });
+            }
 
-            return rounds;
+            ServerConnection.AddTournamentRounds(administratorId, tournament);
         }
 
-        public static List<PersonModel>? GetAllPlayers()
-        {
-            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.AllPlayers });
 
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<PersonModel>? players = JsonSerializer.Deserialize<List<PersonModel>>(response.Content);
-
-            if (players == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return players;
-        }
-
-        public static bool CreateTournament(int senderId, TournamentModel tournament)
-        {
-            //TODO add creation and creation rounds
-            //Save prizes
-            //Save rounds
-            //Save invites
-            //Save tournament
-
-            //TODO Remove this
-            //tournaments.Add(tournament);
-            //tournament.Id = tournaments.Count;
-            //
-
-            Message? response = client.GetResponse(new Message() { Sender = senderId, Code = ConnectionCode.CreateTournament, Content = JsonSerializer.Serialize<TournamentModel>(tournament) });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return false;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return false;
-            }
-
-            TournamentModel? receivedTournament = JsonSerializer.Deserialize<TournamentModel>(response.Content);
-
-            if (receivedTournament == null)
-            {
-                LastError = "Server answer is damages";
-                return false;
-            }
-
-            LastError = String.Empty;
-
-            tournament.Id = receivedTournament.Id;
-
-            return true;
-        }
-
-        // Finish this
         private static List<PersonModel> RandomizePlayers(List<PersonModel> players)
         {
             return players.OrderBy(player => Guid.NewGuid()).ToList();
@@ -235,11 +66,11 @@ namespace SnookerTournamentTracker.Model
 
         private static int GetNumberOfRounds(int playerCount)
         {
-            int rounds = 0;
+            int rounds = 1;
 
             int curr = 2;
 
-            while(curr < playerCount)
+            while (curr < playerCount)
             {
                 rounds++;
                 curr *= 2;
@@ -260,185 +91,73 @@ namespace SnookerTournamentTracker.Model
             return totalPlayers - playerCount;
         }
 
-        private static List<MatchUpModel> CreateFirstRound(List<PersonModel> players, int byes)
+        private static List<MatchUpModel> CreateFirstRound(List<PersonModel> players, int byes, RoundModel round)
         {
             List<MatchUpModel> matchups = new List<MatchUpModel>();
 
             MatchUpModel curr = new MatchUpModel();
+            int currNumber = 1;
 
-            foreach(PersonModel player in players)
+            foreach (PersonModel player in players)
             {
-                curr.Players.Add(player);
+                curr.Entries.Add(new MatchUpEntryModel() { Player = player });
 
-                if(byes > 0 || curr.Players.Count > 1)
+                if (byes > 0 || curr.Entries.Count > 1)
                 {
-                    //curr.MatchUpRound = 1;
+                    curr.MatchNumber = currNumber;
+                    curr.MatchUpRound = round;
                     matchups.Add(curr);
                     curr = new MatchUpModel();
 
-                    if(byes > 0)
+                    if (byes > 0)
                     {
+                        curr.Winner = player;
                         byes--;
                     }
+
+                    currNumber++;
                 }
             }
 
             return matchups;
         }
 
-        //=======================
-
-        public static List<PrizeModel>? GetPrizes(int? id)
+        private static void CreateOtherRounds(TournamentModel tournament, int rounds)
         {
-            if(id == null)
+            int round = 2;
+            var prevRound = tournament.Rounds[0];
+            var currRound = new List<MatchUpModel>();
+
+            MatchUpModel currMatch = new MatchUpModel();
+            int currNumber = tournament.Rounds[0].Count + 1;
+
+            while (round <= rounds)
             {
-                return null;
-            }
-
-            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.PrizesByTournamentId, Content = id.ToString() });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<PrizeModel>? prizes = JsonSerializer.Deserialize<List<PrizeModel>>(response.Content);
-
-            if (prizes == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return prizes;
-        }
-
-        public static List<RoundModel>? GetRounds(int? id)
-        {
-            if (id == null)
-            {
-                return null;
-            }
-
-            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.RoundsByTournamentId, Content = id.ToString() });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<RoundModel>? rounds = JsonSerializer.Deserialize<List<RoundModel>>(response.Content);
-
-            if (rounds == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return rounds;
-        }
-
-        //TODO Remove this
-        private static List<TournamentModel> tournaments = new List<TournamentModel>()
-            {
-                new TournamentModel()
+                foreach (MatchUpModel match in prevRound)
                 {
-                    Id = 1,
-                    Name = "Champion of Champions",
-                    IsActive = false,
-                    EntryFee = 20,
-                    Garantee = 200000,
-                    Rounds = new List<List<MatchUpModel>>(),
-                    Players = new List<PersonModel>(),
-                    PrizeMode = PrizesModeEnum.Percentage,
-                    StartDate = DateTime.Now
-                },
-                new TournamentModel()
-                {
-                    Id = 2,
-                    Name = "UK Championship",
-                    IsActive = true,
-                    EntryFee = 200,
-                    Garantee = 250000,
-                    Rounds = new List<List<MatchUpModel>>(),
-                    Players = new List<PersonModel>()
-                },
-                new TournamentModel()
-                {
-                    Id = 3,
-                    Name = "Welsh Open",
-                    IsActive = true,
-                    Rounds = new List<List<MatchUpModel>>(),
-                    Players = new List<PersonModel>()
+                    currMatch.Entries.Add(new MatchUpEntryModel() 
+                    { 
+                        ParentMatchUp = match,
+                        Player = match.Winner
+                    });
+
+                    if (currMatch.Entries.Count > 1)
+                    {
+                        currMatch.MatchNumber = currNumber;
+                        currMatch.MatchUpRound = tournament.RoundModel[tournament.RoundModel.Count - round];
+                        currRound.Add(currMatch);
+                        currMatch = new MatchUpModel();
+
+                        currNumber++;
+                    }
                 }
-            };
 
-        public static List<TournamentModel>? GetAllTournaments(bool activeOnly = true)
-        {
-            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.AllTournaments });
+                tournament.Rounds.Add(currRound);
+                prevRound = currRound;
+                currRound = new List<MatchUpModel>();
 
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
+                round++;
             }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<TournamentModel>? tournaments = JsonSerializer.Deserialize<List<TournamentModel>>(response.Content);
-
-            if (tournaments == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return tournaments;
-        }
-
-        public static bool UpdateProfile(PersonModel person)
-        {
-            Message? response = client.GetResponse(new Message() { Code = ConnectionCode.UpdateProfile, Content = JsonSerializer.Serialize<PersonModel>(person) });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return false;
-            }
-
-            if (response.Code == ConnectionCode.Error)
-            {
-                LastError = response.Content ?? "Cannot update the profile";
-                return false;
-            }
-
-            LastError = String.Empty;
-
-            return true;
         }
     }
 }

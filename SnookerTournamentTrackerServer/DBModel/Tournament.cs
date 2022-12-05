@@ -8,8 +8,8 @@ public partial class Tournament
 {
     public int Id { get; set; }
 
-    [Required]
-    [StringLength(50)]
+    [Required(ErrorMessage = "A tournament name is required")]
+    [StringLength(500, ErrorMessage = "Maximum length for a tournament name is 500 chars")]
     public string Name { get; set; } = null!;
 
     public int TournamentStatusId { get; set; }
@@ -18,10 +18,10 @@ public partial class Tournament
 
     public byte? PrizeMode { get; set; }
 
-    [Range(0, double.MaxValue)]
+    [Range(0, double.MaxValue, ErrorMessage = "Entree fee must be grater than or equal to 0")]
     public decimal? EntreeFee { get; set; }
 
-    [Range(0, double.MaxValue)]
+    [Range(0, double.MaxValue, ErrorMessage = "Garantee must be grater than or equal to 0")]
     public decimal? Garantee { get; set; }
 
     public DateTime? StartDate { get; set; }

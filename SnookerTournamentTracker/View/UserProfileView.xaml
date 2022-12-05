@@ -6,40 +6,73 @@
         xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         mc:Ignorable="d"
-        Title="UserProfileView" Height="450" Width="800">
-    <StackPanel Name="UserProfile">
+        Title="Profile" Height="450" Width="800">
+    
+    <Grid Name="UserProfile">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
         
-        <Label Content="First name:" />
-        <TextBox MaxLength="100">
-            <TextBox.Text>
-                <Binding Path="User.FirstName" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
-                    <Binding.ValidationRules>
-                        <validation:NotEmptyRule />
-                        <ExceptionValidationRule/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <Label Content="Second name:" />
-        <TextBox Text="{Binding User.SecondName, UpdateSourceTrigger=PropertyChanged}" />
-        <Label Content="Last name:" />
-        <TextBox MaxLength="100">
-            <TextBox.Text>
-                <Binding Path="User.LastName" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
-                    <Binding.ValidationRules>
-                        <validation:NotEmptyRule />
-                        <ExceptionValidationRule/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <Label Content="Email:" />
-        <TextBox Text="{Binding User.EmailAddress, Mode=OneTime}" IsReadOnly="True" />
-        <Label Content="Phone number:" />
-        <TextBox Text="{Binding User.PhoneNumber, UpdateSourceTrigger=PropertyChanged}" />
-        <Button Content="Change password" />
-        <Button Content="Ok" Click="OkBtn_Click" />
-        <Button Content="Cancel" Click="CancelBtn_Click" />
-        <Label Name="Error" />
-    </StackPanel>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Content="First name:" />
+            <TextBox Grid.Row="0" Grid.Column="1" MaxLength="100">
+                <TextBox.Text>
+                    <Binding Path="User.FirstName" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <validation:NotEmptyRule />
+                            <ExceptionValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <Label Grid.Row="1" Grid.Column="0" Content="Second name:" />
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding User.SecondName, UpdateSourceTrigger=PropertyChanged}" />
+
+            <Label Grid.Row="2" Grid.Column="0" Content="Last name:" />
+            <TextBox Grid.Row="2" Grid.Column="1" MaxLength="100">
+                <TextBox.Text>
+                    <Binding Path="User.LastName" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <validation:NotEmptyRule />
+                            <ExceptionValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <Label Grid.Row="3" Grid.Column="0" Content="Email:" />
+            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding User.EmailAddress, Mode=OneTime}" IsReadOnly="True" />
+
+            <Label Grid.Row="4" Grid.Column="0" Content="Phone number:" />
+            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding User.PhoneNumber, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
+
+        <StackPanel Grid.Row="0" Grid.Column="1">
+            <Button Content="Ok" Click="OkBtn_Click" />
+            <Button Content="Cancel" Click="CancelBtn_Click" />
+            <Button Content="Change password" />
+        </StackPanel>
+        
+        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="Error" />
+    </Grid>
 </Window>

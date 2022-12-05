@@ -29,45 +29,95 @@
         </Style>
 
     </Window.Resources>
-    
-    <StackPanel>
-        <Label Content="Tournament name" />
-        <TextBox>
-            <TextBox.Text>
-                <Binding Path="Tournament.Name" Mode="OneWayToSource" NotifyOnValidationError="True">
-                    <Binding.ValidationRules>
-                        <validation:NotEmptyRule />
-                        <ExceptionValidationRule/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <Label Content="Starts" />
-        <DatePicker SelectedDate="{Binding Tournament.StartDate}" />
-        <Label Content="Ends" />
-        <DatePicker SelectedDate="{Binding Tournament.EndDate}" />
-        <Label Content="Entree fee" />
-        <TextBox PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" 
-                 Text="{Binding Tournament.EntryFee, Converter={StaticResource stringToDecimalConverter}}" />
-        <Label Content="Garantee" />
-        <TextBox PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" 
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Content="Tournament name" />
+            <TextBox Grid.Row="0" Grid.Column="1">
+                <TextBox.Text>
+                    <Binding Path="Tournament.Name" Mode="OneWayToSource" NotifyOnValidationError="True">
+                        <Binding.ValidationRules>
+                            <validation:NotEmptyRule />
+                            <ExceptionValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <Label Grid.Row="1" Grid.Column="0" Content="Starts" />
+            <DatePicker Grid.Row="1" Grid.Column="1" SelectedDate="{Binding Tournament.StartDate}" />
+
+            <Label Grid.Row="2" Grid.Column="0" Content="Ends" />
+            <DatePicker Grid.Row="2" Grid.Column="1" SelectedDate="{Binding Tournament.EndDate}" />
+
+            <Label Grid.Row="3" Grid.Column="0" Content="Buy-in" />
+            <TextBox Grid.Row="3" Grid.Column="1" PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" 
+                 Text="{Binding Tournament.BuyIn, Converter={StaticResource stringToDecimalConverter}}" />
+
+            <Label Grid.Row="4" Grid.Column="0" Content="Garantee" />
+            <TextBox Grid.Row="4" Grid.Column="1" PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" 
                  Text="{Binding Tournament.Garantee, Converter={StaticResource stringToDecimalConverter}}" />
-        
-        <CheckBox Content="Private" />
-        <StackPanel>
-            <Label Content="Invited players" />
-            <ListBox ItemsSource="{Binding InvitedPlayers}" SelectedItem="{Binding SelectedInvitedPlayer}"></ListBox>
-            <Separator />
-            <Label Content="All players" />
-            <ListBox ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" />
-            <Button Content="Add to invite list" Command="{Binding AddToInvitedCommand}" />
-            <Button Content="Remove from invite list" Command="{Binding RemoveFromInvitedCommand}" />
-            <Button Content="Send invitations" />
+
+            <CheckBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="Private" />
+
+            <Grid Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Row="0" Grid.Column="0" Content="Invited players" />
+                <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding InvitedPlayers}" SelectedItem="{Binding SelectedInvitedPlayer}"></ListBox>
+
+                <Label Grid.Row="0" Grid.Column="1" Content="All players" />
+                <ListBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" />
+
+                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                    <Button Content="Add to invite list" Command="{Binding AddToInvitedCommand}" />
+                    <Button Content="Remove from invite list" Command="{Binding RemoveFromInvitedCommand}" />
+                    <Button Content="Send invitations" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <StackPanel Grid.Row="0" Grid.Column="1">
+            <Button Content="Create prize model" Click="CreatePrizesBtn_Click" />
+            <Button Content="Create rounds" Click="CreateRoundsBtn_Click" />
+            <Button Content="Create tournament" Click="CreateTournamentBtn_Click" />
+            <Button Content="Cancel" IsCancel="True" Click="CancelBtn_Click" />
         </StackPanel>
-        <Button Content="Create prize model" Click="CreatePrizesBtn_Click" />
-        <Button Content="Create rounds" Click="CreateRoundsBtn_Click" />
-        <Button Content="Create tournament" Click="CreateTournamentBtn_Click" />
-        <Button Content="Cancel" IsCancel="True" Click="CancelBtn_Click" />
-        <Label Content="{Binding Error}" />
-    </StackPanel>
+
+        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Error}" />
+    </Grid>
+   
 </Window>

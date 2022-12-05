@@ -8,24 +8,24 @@ public partial class User
 {
     public int Id { get; set; }
 
-    [Required]
-    [EmailAddress]
-    [StringLength(255)]
+    [Required(ErrorMessage = "An email is required")]
+    [EmailAddress(ErrorMessage = "The email is not a valid e-mail address")]
+    [StringLength(255, ErrorMessage = "Maximum length for an email is 255 chars")]
     public string Email { get; set; } = null!;
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "A password is required")]
+    [StringLength(100, ErrorMessage = "Maximum length for a password is 100 chars")]
     public string Password { get; set; } = null!;
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "A first name is required")]
+    [StringLength(100, ErrorMessage = "Maximum length for a first name is 100 chars")]
     public string FirstName { get; set; } = null!;
 
-    [StringLength(100)]
+    [StringLength(100, ErrorMessage = "Maximum length for a second name is 100 chars")]
     public string? SecondName { get; set; }
 
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "A last name is required")]
+    [StringLength(100, ErrorMessage = "Maximum length for a last name is 100 chars")]
     public string LastName { get; set; } = null!;
 
     public int UserRoleId { get; set; }
@@ -39,6 +39,8 @@ public partial class User
     public virtual ICollection<Invitation> Invitations { get; } = new List<Invitation>();
 
     public virtual ICollection<Match> Matches { get; } = new List<Match>();
+
+    public virtual ICollection<MatchUpEntry> MatchUpEntries { get; } = new List<MatchUpEntry>();
 
     public virtual ICollection<PhoneNumber> PhoneNumbers { get; } = new List<PhoneNumber>();
 

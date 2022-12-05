@@ -27,7 +27,6 @@ namespace SnookerTournamentTracker.ConnectionLibrary
         /// </summary>
         public static Encoding MessageEncoding { get; } = Encoding.Unicode;
 
-        //private static readonly int bufferSize = 255;
 
         public static Message? ReceiveMessage(NetworkStream? stream)
         {

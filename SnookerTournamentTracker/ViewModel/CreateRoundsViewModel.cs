@@ -1,4 +1,5 @@
-﻿using SnookerTournamentTracker.Model;
+﻿using GalaSoft.MvvmLight.CommandWpf;
+using SnookerTournamentTracker.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,10 +14,6 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class CreateRoundsViewModel : INotifyPropertyChanged
     {
-        //public ObservableCollection<string>? Rounds { get; set; }
-
-        public List<RoundModel>? Rounds { get; set; }
-
         public event PropertyChangedEventHandler? PropertyChanged;
         
         private string? error = String.Empty;
@@ -31,59 +28,114 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
+        public ObservableCollection<RoundViewModel> Rounds { get; set; } = new ObservableCollection<RoundViewModel>();
+        private List<string>? roundNames;
 
-        public string? SelectedRound { get; set; }
-
+        private List<RoundModel> rounds;
+        
         public CreateRoundsViewModel(List<RoundModel>? rounds)
         {
-            if (rounds != null)
+
+            roundNames = ServerConnection.GetAllRounds();
+
+            if (roundNames == null)
             {
-                Rounds = rounds;
+                Error = ServerConnection.LastError;
             }
+
             else
             {
-                Rounds = new List<RoundModel>();
-
-                List<string>? roundNames = ConnectionClientModel.GetAllRounds();
-
-                if (roundNames == null)
+                if(rounds != null)
                 {
-                    Error = ConnectionClientModel.LastError;
+                    this.rounds = rounds;
+
+                    foreach(RoundModel round in rounds)
+                    {
+                        Rounds.Add(new RoundViewModel()
+                        {
+                            RoundName = round.Round,
+                            FrameCount = (int)round.Frames!,
+                            IsSaved = true
+                        });
+                    }
                 }
                 else
                 {
-                    foreach (string round in roundNames)
+                    this.rounds = new List<RoundModel>();
+                }
+
+                if(Rounds.Count < roundNames.Count)
+                {
+                    Rounds.Add(new RoundViewModel()
                     {
-                        Rounds.Add(new RoundModel() { Round = round });
-                    }
+                        RoundName = roundNames[Rounds.Count]
+                    });
                 }
             }
         }
 
+        private RelayCommand<object>? saveBtnCmd;
+        public RelayCommand<object> SaveBtnCmd
+        {
+            get => saveBtnCmd ?? new RelayCommand<object>((obj) =>
+            {
+                if (obj is RoundViewModel res)
+                {
+                    SaveRound(res);
+                }
+            });
+        }
 
-
-        public bool Validate()
+        public bool Validate(RoundViewModel round)
         {
             Error = String.Empty;
 
-            if(Rounds == null)
+            if (Rounds == null)
             {
                 return false;
             }
 
-            bool result = Rounds.All(round => round.Frames == null || round.Frames == 0 || round.Frames % 2 > 0);
-
-            if (!result)
+            if (round.FrameCount % 2 == 0)
             {
                 Error = "Match must consist of odd number of frames";
+                return false;
             }
 
-            return result;
+            return true;
         }
+
+        private void SaveRound(RoundViewModel round)
+        {
+            if (Validate(round))
+            {
+                rounds.Add(new RoundModel()
+                {
+                    Round = round.RoundName,
+                    Frames = round.FrameCount
+                });
+
+                if (roundNames != null && Rounds.Count < roundNames.Count)
+                {
+                    Rounds.Add(new RoundViewModel()
+                    {
+                        RoundName = roundNames[Rounds.Count]
+                    });
+                }
+
+                Error = string.Empty;
+                round.IsSaved = true;
+            }
+        }
+
 
         private void OnPropertyChanged([CallerMemberName] string name = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public List<RoundModel> GetRounds()
+        {
+            return rounds;
         }
     }
 }

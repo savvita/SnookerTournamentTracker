@@ -12,7 +12,7 @@ public partial class FrameEntity
 
     public int PlayerId { get; set; }
 
-    [Range(0, int.MaxValue)]
+    [Range(0, int.MaxValue, ErrorMessage = "A score must be grater than or equal to 0")]
     public short? Score { get; set; }
 
     public virtual Frame Frame { get; set; } = null!;

@@ -10,8 +10,8 @@ public partial class Brake
 
     public int FrameId { get; set; }
 
-    [Required]
-    [Range(0, int.MaxValue)]
+    [Required(ErrorMessage = "A score is required")]
+    [Range(0, int.MaxValue, ErrorMessage = "A score must be grater than or equal to 0")]
     public short Score { get; set; }
 
     public virtual Frame Frame { get; set; } = null!;

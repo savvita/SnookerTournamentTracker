@@ -23,7 +23,7 @@
             </DockPanel>
 
             <StackPanel Grid.Row="1" HorizontalAlignment="Right">
-                <Button Content="My tournaments" />
+                <Button Content="My tournaments" Click="MyTournamentsBtn_Click" />
                 <Button Content="Profile" Click="ProfileBtn_Click" />
             </StackPanel>
         </Grid>
@@ -46,6 +46,8 @@
 
                 </DockPanel>
 
+
+                <!--<local:ListTournamentsControl />-->
                 <DataGrid Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Single"
                   ItemsSource="{Binding Tournaments, Mode=OneWay}" 
                   SelectedItem="{Binding SelectedTournament, Mode=OneWayToSource}"
@@ -53,7 +55,8 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}"  />
                         <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay}" />
-                        <DataGridTextColumn Header="Entree fee" Binding="{Binding EntryFee, Mode=OneWay}" />
+                        <DataGridTextColumn Header="Buy-in" Binding="{Binding BuyIn, Mode=OneWay}" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status, Mode=OneWay}" />
                     </DataGrid.Columns>
                 </DataGrid>
 
@@ -83,8 +86,8 @@
                     <Label Grid.Row="1" Grid.Column="1" Content="{Binding SelectedTournament.StartDate}" />
                     <Label Grid.Row="2" Grid.Column="0" Content="Garantee" />
                     <Label Grid.Row="2" Grid.Column="1" Content="{Binding SelectedTournament.Garantee}" />
-                    <Label Grid.Row="3" Grid.Column="0" Content="Entree fee" />
-                    <Label Grid.Row="3" Grid.Column="1" Content="{Binding SelectedTournament.EntreeFee}" />
+                    <Label Grid.Row="3" Grid.Column="0" Content="Buy-in" />
+                    <Label Grid.Row="3" Grid.Column="1" Content="{Binding SelectedTournament.BuyIn}" />
                 </Grid>
             </StackPanel>
         </Grid>

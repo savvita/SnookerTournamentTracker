@@ -10,6 +10,7 @@
 
     <Window.Resources>
         <converter:PersonToStringConverter x:Key="personToStringConverter" />
+        <converter:BoolToVisibilityConverter x:Key="boolToVisibilityConverter" />
     </Window.Resources>
 
     <Grid>
@@ -32,6 +33,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
@@ -44,17 +46,20 @@
 
                 <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Private, Mode=OneTime}" IsReadOnly="True" />
 
-                <Label Grid.Row="1" Grid.Column="0" Content="Starts" />
-                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
+                <Label Grid.Row="1" Grid.Column="0" Content="Status" />
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Tournament.Status, Mode=OneTime}" IsReadOnly="True" />
+                
+                <Label Grid.Row="2" Grid.Column="0" Content="Starts" />
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
 
-                <Label Grid.Row="2" Grid.Column="0" Content="Ends" />
-                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Tournament.EndDate, Mode=OneTime}" IsReadOnly="True" />
+                <Label Grid.Row="3" Grid.Column="0" Content="Ends" />
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Tournament.EndDate, Mode=OneTime}" IsReadOnly="True" />
 
-                <Label Grid.Row="3" Grid.Column="0" Content="Entree fee" />
-                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Tournament.EntryFee, Mode=OneTime}" IsReadOnly="True" />
+                <Label Grid.Row="4" Grid.Column="0" Content="Buy-in" />
+                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Tournament.BuyIn, Mode=OneTime}" IsReadOnly="True" />
 
-                <Label Grid.Row="4" Grid.Column="0" Content="Garantee" />
-                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Tournament.Garantee, Mode=OneTime}" IsReadOnly="True" />
+                <Label Grid.Row="5" Grid.Column="0" Content="Garantee" />
+                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Tournament.Garantee, Mode=OneTime}" IsReadOnly="True" />
             </Grid>
 
             <Grid Grid.Column="1">
@@ -146,8 +151,14 @@
             </Grid>
         </Grid>
         <StackPanel Grid.Column="1">
-            <Button Content="Register" Command="{Binding RegisterCmd}" />
-            <Button Content="Unegister" Command="{Binding UnregisterCmd}" />
+            <Button Content="Register" Command="{Binding RegisterCmd}" Visibility="{Binding IsRegistrationOpened, Converter={StaticResource boolToVisibilityConverter}}" />
+            <Button Content="Unregister" Command="{Binding UnregisterCmd}" Visibility="{Binding IsRegistrationOpened, Converter={StaticResource boolToVisibilityConverter}}" />
+            <Button Content="View matches" Click="ViewMatchesBtn_Click" Visibility="{Binding IsMatchesEnabled, Converter={StaticResource boolToVisibilityConverter}}" />
+            <Button Content="Edit" Visibility="{Binding IsEditable, Converter={StaticResource boolToVisibilityConverter}}" />
+            <Button 
+                Content="Close registration"
+                Visibility="{Binding IsClosingRegistrationPossible, Converter={StaticResource boolToVisibilityConverter}}"
+                Command="{Binding CloseRegistrationCmd}" />
             <Button Content="Close" Click="CloseBtn_Click" />
         </StackPanel>
     </Grid>

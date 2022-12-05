@@ -19,6 +19,16 @@ namespace SnookerTournamentTracker.ConnectionLibrary
         CreateTournament,
         PrizesByTournamentId,
         RoundsByTournamentId,
-        UpdateProfile
+        PlayersByTournamentId,
+        MatchesByTournamentId,
+        TournamentsByAdministratorId,
+        TournamentsByPlayerId,
+        UpdateProfile,
+        RegisterAtTournament,
+        UnregisterFromTournament,
+        IsTournamentAdministrator,
+        AddTournamentRounds,
+        SaveTournamentDraw,
+        SaveFrameResult
     }
 }

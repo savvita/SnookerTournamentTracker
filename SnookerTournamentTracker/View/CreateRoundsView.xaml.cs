@@ -21,7 +21,6 @@ namespace SnookerTournamentTracker.View
     /// </summary>
     public partial class CreateRoundsView : Window
     {
-        // TODO add new round field whem prev is filled until rounds ends
         private CreateRoundsViewModel? model;
         public List<RoundModel>? Rounds { get; set; }
         public CreateRoundsView()
@@ -58,12 +57,9 @@ namespace SnookerTournamentTracker.View
                 return;
             }
 
-            if(model.Validate())
-            {
-                this.Rounds = model.Rounds;
-                this.DialogResult = true;
-                this.Close();
-            }
+            this.Rounds = model.GetRounds();
+            this.DialogResult = true;
+            this.Close();
         }
     }
 }

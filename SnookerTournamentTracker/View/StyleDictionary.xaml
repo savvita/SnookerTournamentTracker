@@ -1,0 +1,36 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--<Color x:Key="BackgroundColorDark">#FF252525</Color>
+    --><!--<SolidColorBrush  x:Key="BackgroundColorDarkBrush" Color="{StaticResource BackgroundColorDark}" />--><!--
+
+    <Style TargetType="Window">
+        <Style.Setters>
+            <Setter Property="Background" Value="{StaticResource BackgroundColorDarkBrush}" />
+        </Style.Setters>
+    </Style>-->
+
+    <Style x:Key="ValidatedInput" >
+        <Setter Property="Validation.ErrorTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <DockPanel LastChildFill="True">
+                        <TextBlock DockPanel.Dock="Right" Foreground="Red" FontSize="14" FontWeight="Bold"
+                                                                   ToolTip="{Binding ElementName=adornerPlaceholder, 
+                                                                            Path=AdornedElement.(Validation.Errors)[0].ErrorContent}"
+                                                        Text="*"/>
+                        <Border BorderBrush="Green" BorderThickness="1" >
+                            <AdornedElementPlaceholder Name="adornerPlaceholder"  />
+                        </Border>
+                    </DockPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="Control.Foreground" Value="Red"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+</ResourceDictionary>

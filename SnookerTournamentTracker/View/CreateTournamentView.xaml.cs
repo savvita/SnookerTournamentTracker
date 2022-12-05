@@ -32,7 +32,7 @@ namespace SnookerTournamentTracker.View
         {
             if(user.Id != null)
             {
-                model = new CreateTournamentViewModel((int)user.Id!);
+                model = new CreateTournamentViewModel(user);
                 this.DataContext = model;
             }
 

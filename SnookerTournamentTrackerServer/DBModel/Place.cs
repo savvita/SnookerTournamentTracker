@@ -8,8 +8,8 @@ public partial class Place
 {
     public int Id { get; set; }
 
-    [Required]
-    [StringLength(20)]
+    [Required(ErrorMessage = "A place name is required")]
+    [StringLength(20, ErrorMessage = "Maximum length for a place name is 20 chars")]
     public string PlaceName { get; set; } = null!;
 
     public virtual ICollection<Prize> Prizes { get; } = new List<Prize>();

@@ -44,13 +44,20 @@ namespace SnookerTournamentTracker.ViewModel
         public List<PrizeModel>? Prizes { get; set; }
         public List<RoundModel>? Rounds { get; set; }
 
-        private int id;
+        private PersonModel? user;
 
-        public CreateTournamentViewModel(int id)
+        public CreateTournamentViewModel(PersonModel user)
         {
-            this.id = id;
+            this.user = user;
             tournament = new TournamentModel();
-            Players = new ObservableCollection<PersonModel>(ConnectionClientModel.GetAllPlayers());
+
+            var players = ServerConnection.GetAllPlayers((int)user.Id);
+
+            if (players != null)
+            {
+                Players = new ObservableCollection<PersonModel>(players);
+            }
+
             InvitedPlayers = new ObservableCollection<PersonModel>();
         }
 
@@ -114,14 +121,14 @@ namespace SnookerTournamentTracker.ViewModel
                         Tournament.Prizes = Prizes.Where(prize => prize.PrizeAmount != null).ToList();
                     }
                     Tournament.RoundModel = Rounds.Where(round => round.Frames != null).ToList();
-                    if (ConnectionClientModel.CreateTournament(id, Tournament))
+                    if (ServerConnection.CreateTournament((int)user.Id, Tournament))
                     {
                         TournamentCreated?.Invoke();
                         return true;
                     }
                     else
                     {
-                        Error = ConnectionClientModel.LastError;
+                        Error = ServerConnection.LastError;
                         return false;
                     }
                 }

@@ -28,12 +28,21 @@ namespace SnookerTournamentTracker.View
             InitializeComponent();
         }
 
+        private TournamentViewViewModel? model;
+        private PersonModel? user; 
+
         public TournamentInfoView(PersonModel user, TournamentModel tournament) : this()
         {
-            TournamentViewViewModel model = new TournamentViewViewModel(user, tournament);
+            this.user = user;
+            model = new TournamentViewViewModel(user, tournament);
             this.Title = tournament.Name;
             model.RegisteringCompleted += (msg) => MessageBox.Show(msg, "Registration", MessageBoxButton.OK, MessageBoxImage.Information);
             model.UnregisteringCompleted += (msg) => MessageBox.Show(msg, "Unregistration", MessageBoxButton.OK, MessageBoxImage.Information);
+            model.RegistrationClosed += () =>
+            {
+                new MatchesView(user, tournament).ShowDialog();
+            };
+
             this.DataContext = model;
         }
 
@@ -42,5 +51,12 @@ namespace SnookerTournamentTracker.View
             this.Close();
         }
 
+        private void ViewMatchesBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (user != null && model != null) 
+            {
+                new MatchesView(user, model.Tournament).ShowDialog();
+            }
+        }
     }
 }

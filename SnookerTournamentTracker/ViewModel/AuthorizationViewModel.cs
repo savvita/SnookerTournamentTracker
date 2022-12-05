@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Command;
 using SnookerTournamentTracker.Model;
+using SnookerTournamentTracker.Security;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -143,15 +144,15 @@ namespace SnookerTournamentTracker.ViewModel
             {
                 if (Validate())
                 {
-                    PersonModel person = new PersonModel() { EmailAddress = Email, OpenPassword = SecureStringToString(Password) };
+                    PersonModel person = new PersonModel() { EmailAddress = Email, OpenPassword = Passwords.SecureStringToString(Password) };
 
-                    if (await ConnectionClientModel.SignIn(person))
+                    if (await ServerConnection.SignIn(person))
                     {
                         OnAuthorizated(person);
                     }
                     else
                     {
-                        Error = ConnectionClientModel.LastError;
+                        Error = ServerConnection.LastError;
                     }
 
                     if (person.OpenPassword != null)
@@ -188,10 +189,10 @@ namespace SnookerTournamentTracker.ViewModel
                         LastName = LastName,
                         EmailAddress = Email,
                         PhoneNumber = PhoneNumber,
-                        OpenPassword = SecureStringToString(Password)
+                        OpenPassword = Passwords.SecureStringToString(Password)
                     };
 
-                    if (await ConnectionClientModel.SignUp(person))
+                    if (await ServerConnection.SignUp(person))
                     {
                         Password?.Dispose();
                         PasswordConfirm?.Dispose();
@@ -199,7 +200,7 @@ namespace SnookerTournamentTracker.ViewModel
                     }
                     else
                     {
-                        Error = ConnectionClientModel.LastError;
+                        Error = ServerConnection.LastError;
                     }
                 }
             }
@@ -221,30 +222,18 @@ namespace SnookerTournamentTracker.ViewModel
 
             if(!signIn)
             {
-                if (string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName) || string.IsNullOrEmpty(Email))
+                if (string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName) || string.IsNullOrEmpty(Email) || Password == null || PasswordConfirm == null)
                 {
                     Error = "Fill all the required fields";
                     return false;
                 }
 
-                string? pass = SecureStringToString(Password);
-                string? passConf = SecureStringToString(PasswordConfirm);
-
-                if (pass != passConf)
+                if(!Passwords.ComparePasswords(Password, PasswordConfirm))
                 {
-                    Error += "Passwords do not match";
-                    pass = null;
-                    passConf = null;
+                    Error = "Passwords do not match";
                     return false;
                 }
 
-                if (pass != null)
-                {
-                    int gen = GC.GetGeneration(pass);
-                    pass = null;
-                    passConf = null;
-                    GC.Collect(gen);
-                }
             }
 
             return true;
@@ -255,25 +244,5 @@ namespace SnookerTournamentTracker.ViewModel
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
-        private string? SecureStringToString(SecureString? value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-
-            IntPtr valuePtr = IntPtr.Zero;
-            try
-            {
-                valuePtr = Marshal.SecureStringToGlobalAllocUnicode(value);
-                return Marshal.PtrToStringUni(valuePtr);
-            }
-            finally
-            {
-                Marshal.ZeroFreeGlobalAllocUnicode(valuePtr);
-            }
-        }
-
     }
 }

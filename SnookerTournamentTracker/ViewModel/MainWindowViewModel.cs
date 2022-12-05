@@ -30,7 +30,16 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        public TournamentModel? SelectedTournament { get; set; }
+        private TournamentModel? selectedTournament;
+        public TournamentModel? SelectedTournament
+        {
+            get => selectedTournament;
+            set
+            {
+                selectedTournament = value;
+                OnPropertyChanged(nameof(SelectedTournament));
+            }
+        }
 
 
         private ObservableCollection<TournamentModel>? tournaments;
@@ -67,7 +76,7 @@ namespace SnookerTournamentTracker.ViewModel
 
         internal bool UpdateProfile(PersonModel user)
         {           
-            if(ConnectionClientModel.UpdateProfile(user))
+            if(ServerConnection.UpdateProfile(user))
             {
                 return true;
             }
@@ -79,13 +88,27 @@ namespace SnookerTournamentTracker.ViewModel
 
         public void Refresh()
         {
-            Tournaments = new ObservableCollection<TournamentModel>(ConnectionClientModel.GetAllTournaments());
+            List<TournamentModel>? tournaments = ServerConnection.GetAllTournaments();
+
+            if (tournaments != null)
+            {
+                Tournaments = new ObservableCollection<TournamentModel>(tournaments);
+            }
+            else
+            {
+                Tournaments = new ObservableCollection<TournamentModel>();
+            }
             tournamentsView = CollectionViewSource.GetDefaultView(Tournaments);
             tournamentsView.Filter = (obj) =>
             {
                 if (obj is TournamentModel tournament)
                 {
-                    return !ActiveOnly || tournament.IsActive;
+                    if(tournament.Status == null)
+                    {
+                        return false;
+                    }
+                    //return !ActiveOnly || tournament.IsActive;
+                    return !ActiveOnly || !tournament.Status.Equals("Finished");
                 }
 
                 return false;
