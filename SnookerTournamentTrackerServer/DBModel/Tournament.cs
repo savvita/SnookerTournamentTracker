@@ -14,6 +14,8 @@ public partial class Tournament
 
     public int TournamentStatusId { get; set; }
 
+    public int? PaymentInfoId { get; set; }
+
     public bool? IsPrivate { get; set; }
 
     public byte? PrizeMode { get; set; }
@@ -38,7 +40,11 @@ public partial class Tournament
 
     public virtual TournamentStatus TournamentStatus { get; set; } = null!;
 
+    public virtual PaymentInfo? PaymentInfo { get; set; }
+
     public virtual ICollection<TournamentsPlayer> TournamentsPlayers { get; } = new List<TournamentsPlayer>();
 
     public virtual ICollection<TournamentsRound> TournamentsRounds { get; } = new List<TournamentsRound>();
+
+    public virtual ICollection<Payment> Payments { get; } = new List<Payment>();
 }

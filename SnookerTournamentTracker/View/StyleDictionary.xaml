@@ -2,13 +2,52 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!--<Color x:Key="BackgroundColorDark">#FF252525</Color>
-    --><!--<SolidColorBrush  x:Key="BackgroundColorDarkBrush" Color="{StaticResource BackgroundColorDark}" />--><!--
+    --><!--<SolidColorBrush  x:Key="BackgroundColorDarkBrush" Color="{StaticResource BackgroundColorDark}" />-->
 
-    <Style TargetType="Window">
+    <!--<Style TargetType="Window">
         <Style.Setters>
             <Setter Property="Background" Value="{StaticResource BackgroundColorDarkBrush}" />
         </Style.Setters>
     </Style>-->
+
+    <!--<DropShadowEffect x:Key="TextShadowDepth" BlurRadius="2" ShadowDepth="3" Direction="300" Color="#FF969696" Opacity=".42" RenderingBias="Performance" />-->
+
+
+    <Style x:Key="ContainerStyle" TargetType="Grid">
+        <Style.Setters>
+            <Setter Property="Background" Value="{DynamicResource BackgroundColorLightBrush}" />
+            <Setter Property="Margin" Value="20" />
+        </Style.Setters>
+    </Style>
+
+    <Style x:Key="DockContainerStyle" TargetType="DockPanel">
+        <Style.Setters>
+            <Setter Property="Background" Value="{DynamicResource BackgroundColorLightBrush}" />
+        </Style.Setters>
+    </Style>
+
+    <Style x:Key="TabItemStyle" TargetType="TabItem" BasedOn="{StaticResource MaterialDesignTabItem}">
+        <Style.Setters>
+            <Setter Property="Background" Value="{DynamicResource BackgroundColorLightBrush}" />
+        </Style.Setters>
+    </Style>
+
+    <Style TargetType="Image">
+        <Style.Setters>
+            <Setter Property="Margin" Value="20" />
+        </Style.Setters>
+        <!--<Setter Property="Effect" Value="{StaticResource TextShadowDepth}" />-->
+    </Style>
+
+    <Style TargetType="Label">
+        <Style.Setters>
+            <Setter Property="FontSize" Value="16" />
+        </Style.Setters>
+    </Style>
+
+
+
+
 
     <Style x:Key="ValidatedInput" >
         <Setter Property="Validation.ErrorTemplate">

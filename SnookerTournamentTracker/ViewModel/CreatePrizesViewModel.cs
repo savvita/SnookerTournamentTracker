@@ -84,12 +84,17 @@ namespace SnookerTournamentTracker.ViewModel
             }
             else
             {
-                Prizes = ServerConnection.GetAllPlaces();
-                Mode = PrizesModeEnum.Absolute;
+                LoadData();
             }
 
 
             Refresh();
+        }
+
+        private async Task LoadData()
+        {
+            Prizes = await ServerConnection.GetAllPlacesAsync();
+            Mode = PrizesModeEnum.Absolute;
         }
 
         private string error = String.Empty;
@@ -114,14 +119,14 @@ namespace SnookerTournamentTracker.ViewModel
             if(Prizes != null)
             {
                 Total = 0;
-                foreach(PrizeModel prize in Prizes)
+
+                for (int i = 0; i < Prizes.Count; i++)
                 {
-                    if (prize.PrizeAmount != null)
+                    if (Prizes[i].PrizeAmount != null)
                     {
-                        Total += (double)prize.PrizeAmount;
+                        Total += (double)Prizes[i].PrizeAmount! * Math.Pow(2, Math.Max(i - 1, 0));
                     }
                 }
-
             }
         }
 

@@ -55,7 +55,9 @@ namespace SnookerTournamentTracker.View
         {
             if (user != null && model != null) 
             {
-                new MatchesView(user, model.Tournament).ShowDialog();
+                MatchesView view = new MatchesView(user, model.Tournament);
+                view.ShowDialog();
+                model?.RefreshPlayersAsync();
             }
         }
     }

@@ -33,36 +33,42 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Grid.Column="0">
-            <ListBox ItemsSource="{Binding Prizes, Mode=TwoWay}" DisplayMemberPath="PlaceName" SelectedItem="{Binding SelectedPrize}" />
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-            <GroupBox Header="Method">
-                <StackPanel>
-                    <RadioButton GroupName="Method" Content="Absolute value" 
+            <ListBox Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Prizes, Mode=TwoWay}" DisplayMemberPath="PlaceName" SelectedItem="{Binding SelectedPrize}" />
+            <StackPanel Grid.Row="0" Grid.Column="1">
+                <GroupBox Header="Method">
+                    <StackPanel>
+                        <RadioButton GroupName="Method" Content="Absolute value" 
                              IsChecked="{Binding Path=Mode, Converter={StaticResource radioBoolToIntConverter}, ConverterParameter=0, UpdateSourceTrigger=PropertyChanged}" />
-                    <RadioButton GroupName="Method" Content="Percentage" 
+                        <RadioButton GroupName="Method" Content="Percentage" 
                              IsChecked="{Binding Path=Mode, Converter={StaticResource radioBoolToIntConverter}, ConverterParameter=1, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
-            </GroupBox>
-            <Label Content="Prize amount" />
-            <TextBox PreviewTextInput="PrizeAmountTxt_PreviewTextInput" 
+                    </StackPanel>
+                </GroupBox>
+                <Label Content="Prize amount" />
+                <TextBox PreviewTextInput="PrizeAmountTxt_PreviewTextInput" 
                  TextChanged="PrizeAmountTxt_TextChanged"
                  Text="{Binding SelectedPrize.PrizeAmount, Converter={StaticResource stringToDecimalConverter}, UpdateSourceTrigger=PropertyChanged}"  />
-            <Label Content="Total" />
-            <TextBox IsReadOnly="True" Text="{Binding Total, Mode=OneWay}" />
-            <Label Content="Rest" />
-            <TextBox IsReadOnly="True" Validation.ErrorTemplate="{StaticResource validationFailed}">
-                <TextBox.Text>
-                    <Binding Path="Rest" Mode="OneWay" NotifyOnValidationError="True">
-                        <Binding.ValidationRules>
-                            <validation:PositiveOnlyRule ValidatesOnTargetUpdated="True" />
-                            <ExceptionValidationRule/>
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
-        </StackPanel>
-
+                <Label Content="Total" />
+                <TextBox IsReadOnly="True" Text="{Binding Total, Mode=OneWay}" />
+                <Label Content="Rest" />
+                <TextBox IsReadOnly="True" Validation.ErrorTemplate="{StaticResource validationFailed}">
+                    <TextBox.Text>
+                        <Binding Path="Rest" Mode="OneWay" NotifyOnValidationError="True">
+                            <Binding.ValidationRules>
+                                <validation:PositiveOnlyRule ValidatesOnTargetUpdated="True" />
+                                <ExceptionValidationRule/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </StackPanel>
+        </Grid>
+ 
         <StackPanel Grid.Row="0" Grid.Column="1">
             <Button Content="Ok" Click="OkBtn_Click" />
             <Button Content="Cancel" Click="CancelBtn_Click" />

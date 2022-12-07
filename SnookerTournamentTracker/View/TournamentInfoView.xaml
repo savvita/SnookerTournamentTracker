@@ -11,6 +11,7 @@
     <Window.Resources>
         <converter:PersonToStringConverter x:Key="personToStringConverter" />
         <converter:BoolToVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <converter:NegativeBoolToVisibilityConverter x:Key="negativeBoolToVisibilityConverter" />
     </Window.Resources>
 
     <Grid>
@@ -26,42 +27,79 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+            <StackPanel Grid.Column="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Content="Tournament name" />
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Tournament.Name, Mode=OneTime}" IsReadOnly="True" />
+                    <Label Grid.Row="0" Grid.Column="0" Content="Tournament name" />
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Tournament.Name, Mode=OneTime}" IsReadOnly="True" />
 
-                <TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Private, Mode=OneTime}" IsReadOnly="True" />
+                    <!--<TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Private, Mode=OneTime}" IsReadOnly="True" />-->
 
-                <Label Grid.Row="1" Grid.Column="0" Content="Status" />
-                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Tournament.Status, Mode=OneTime}" IsReadOnly="True" />
-                
-                <Label Grid.Row="2" Grid.Column="0" Content="Starts" />
-                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
+                    <Label Grid.Row="1" Grid.Column="0" Content="Status" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Tournament.Status, Mode=OneTime}" IsReadOnly="True" />
 
-                <Label Grid.Row="3" Grid.Column="0" Content="Ends" />
-                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Tournament.EndDate, Mode=OneTime}" IsReadOnly="True" />
+                    <Label Grid.Row="2" Grid.Column="0" Content="Starts" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
 
-                <Label Grid.Row="4" Grid.Column="0" Content="Buy-in" />
-                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Tournament.BuyIn, Mode=OneTime}" IsReadOnly="True" />
+                    <Label Grid.Row="3" Grid.Column="0" Content="Ends" />
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Tournament.EndDate, Mode=OneTime}" IsReadOnly="True" />
 
-                <Label Grid.Row="5" Grid.Column="0" Content="Garantee" />
-                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Tournament.Garantee, Mode=OneTime}" IsReadOnly="True" />
-            </Grid>
+                    <Label Grid.Row="4" Grid.Column="0" Content="Buy-in" />
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Tournament.BuyIn, Mode=OneTime}" IsReadOnly="True" />
 
+                    <Label Grid.Row="5" Grid.Column="0" Content="Garantee" />
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Tournament.Garantee, Mode=OneTime}" IsReadOnly="True" />
+                </Grid>
+
+                <Label Content="{Binding Status}" ContentStringFormat="Registration status: {0}" />
+
+                <GroupBox Header="Payment info"
+                          Visibility="{Binding IsPaid, Converter={StaticResource boolToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="0" Grid.Column="0" Content="Card number" />
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Tournament.PaymentInfo.Card.CardNumber, Mode=OneTime}" IsReadOnly="True" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Content="Card owner" />
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Tournament.PaymentInfo.Card.Name, Mode=OneTime}" IsReadOnly="True" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Content="Sum" />
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Tournament.PaymentInfo.Sum, Mode=OneTime}" IsReadOnly="True" />
+
+                        <Label Grid.Row="3" Grid.Column="0" Content="Purpose of payment " />
+                        <TextBox Grid.Row="3" Grid.Column="1" IsReadOnly="True">
+                            <MultiBinding StringFormat="Buy-in to tournament #{0}, user #{1}">
+                                <Binding Path="Tournament.Id" />
+                                <Binding Path="User.Id" />
+                            </MultiBinding>
+                        </TextBox>
+                    </Grid>
+                </GroupBox>
+            </StackPanel>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -83,7 +121,9 @@
                         <TextBox Text="{Binding Tournament.PrizeMode, Mode=OneTime}" IsReadOnly="True" />
                     </StackPanel>
 
-                    <DataGrid Grid.Row="2" AutoGenerateColumns="False" ItemsSource="{Binding Tournament.Prizes}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+                    <DataGrid Grid.Row="2"
+                              AutoGenerateColumns="False" ItemsSource="{Binding Tournament.Prizes}" 
+                              CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn 
                     Header="Place"
@@ -113,7 +153,9 @@
 
                     <Label Grid.Row="0" Content="Rounds" />
 
-                    <DataGrid Grid.Row="1" AutoGenerateColumns="False" ItemsSource="{Binding Tournament.RoundModel}" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+                    <DataGrid Grid.Row="1" 
+                              AutoGenerateColumns="False" ItemsSource="{Binding Tournament.RoundModel}"
+                              CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTextColumn 
                     Header="Round"
@@ -134,25 +176,81 @@
 
             </Grid>
 
+
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                
-                <Label Grid.Row="0" Content="Players" />
-                <ListBox Grid.Row="1" ItemsSource="{Binding Players}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Label Content="{Binding Converter={StaticResource personToStringConverter}}" />
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Content="Players" />
+                    <DataGrid Grid.Row="1"
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding Players}"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn 
+                            Header="Player"
+                            Width="2*" 
+                            Binding="{Binding Player, Converter={StaticResource personToStringConverter}}"
+                            IsReadOnly="True" />
+                            <DataGridTextColumn 
+                            Header="Result"
+                            Width="*" 
+                            Binding="{Binding Result}"
+                            IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+
+                <Grid Grid.Row="1" Visibility="{Binding IsConfirmPossible, Converter={StaticResource boolToVisibilityConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Content="Waiting players" />
+                    <DataGrid Grid.Row="1"
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding WaitingPlayers}"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn 
+                            Header="Player"
+                            Width="2*" 
+                            Binding="{Binding Player, Converter={StaticResource personToStringConverter}}"
+                            IsReadOnly="True" />
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Confirm" 
+                                    Command="{Binding DataContext.ConfirmCmd, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                                    ClickMode="Press" CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
             </Grid>
+            
         </Grid>
         <StackPanel Grid.Column="1">
-            <Button Content="Register" Command="{Binding RegisterCmd}" Visibility="{Binding IsRegistrationOpened, Converter={StaticResource boolToVisibilityConverter}}" />
-            <Button Content="Unregister" Command="{Binding UnregisterCmd}" Visibility="{Binding IsRegistrationOpened, Converter={StaticResource boolToVisibilityConverter}}" />
+            <Button Content="Register" Command="{Binding RegisterCmd}" 
+                    Visibility="{Binding IsRegistrationOpened, Converter={StaticResource boolToVisibilityConverter}}" />
+            <Button Content="Unregister" Command="{Binding UnregisterCmd}" 
+                    Visibility="{Binding IsRegistrationOpened, Converter={StaticResource boolToVisibilityConverter}}" />
             <Button Content="View matches" Click="ViewMatchesBtn_Click" Visibility="{Binding IsMatchesEnabled, Converter={StaticResource boolToVisibilityConverter}}" />
             <Button Content="Edit" Visibility="{Binding IsEditable, Converter={StaticResource boolToVisibilityConverter}}" />
             <Button 

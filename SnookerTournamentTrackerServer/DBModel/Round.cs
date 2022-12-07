@@ -13,4 +13,6 @@ public partial class Round
     public string RoundName { get; set; } = null!;
 
     public virtual ICollection<TournamentsRound> TournamentsRounds { get; } = new List<TournamentsRound>();
+
+    public virtual ICollection<Place> Places { get; } = new List<Place>();
 }

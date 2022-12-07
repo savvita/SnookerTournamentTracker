@@ -29,6 +29,9 @@ namespace SnookerTournamentTracker.ConnectionLibrary
         IsTournamentAdministrator,
         AddTournamentRounds,
         SaveTournamentDraw,
-        SaveFrameResult
+        SaveFrameResult,
+        UserCards,
+        SaveUserCard,
+        ConfirmPlayerRegistration
     }
 }

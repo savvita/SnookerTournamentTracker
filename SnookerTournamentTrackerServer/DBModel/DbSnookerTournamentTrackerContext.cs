@@ -48,6 +48,12 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
 
     public virtual DbSet<TournamentsRound> TournamentsRounds { get; set; }
 
+    public virtual DbSet<Payment> Payments { get; set; }
+
+    public virtual DbSet<Card> Cards { get; set; }
+
+    public virtual DbSet<PaymentInfo> PaymentInfos { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserRole> UserRoles { get; set; }
@@ -80,6 +86,11 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
                 .HasForeignKey(d => d.FrameId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Brakes__FrameId__5AEE82B9");
+
+            entity.HasOne(d => d.Player).WithMany(p => p.Brakes)
+                .HasForeignKey(d => d.PlayerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Brakes__PlayerId__14270015");
         });
 
         modelBuilder.Entity<Frame>(entity =>
@@ -188,6 +199,11 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__Places__3214EC0748161CB2");
 
             entity.Property(e => e.PlaceName).HasMaxLength(20);
+
+            entity.HasOne(d => d.Round).WithMany(p => p.Places)
+                .HasForeignKey(d => d.RoundId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Places__RoundId__2BFE89A6");
         });
 
         modelBuilder.Entity<Prize>(entity =>
@@ -239,6 +255,11 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
                 .HasForeignKey(d => d.TournamentStatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Tournamen__Tourn__3F466844");
+
+            entity.HasOne(d => d.PaymentInfo).WithMany(p => p.Tournaments)
+                .HasForeignKey(d => d.PaymentInfoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Tournamen__Payme__3F115E1A");
         });
 
         modelBuilder.Entity<TournamentStatus>(entity =>
@@ -283,6 +304,51 @@ public partial class DbSnookerTournamentTrackerContext : DbContext
                 .HasForeignKey(d => d.TournamentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Tournamen__Tourn__49C3F6B7");
+        });
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.Property(e => e.Amount).HasColumnType("money");
+
+            entity.HasKey(e => e.Id).HasName("PK__Payments__3214EC073EF0FF23");
+
+            entity.HasOne(d => d.Tournament).WithMany(p => p.Payments)
+                .HasForeignKey(d => d.TournamentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Payments__Tourna__2B0A656D");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Payments)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Payments__UserId__2A164134");
+        });
+
+        modelBuilder.Entity<Card>(entity =>
+        {
+            entity.Property(e => e.Name).HasMaxLength(255);
+
+            entity.Property(e => e.CardNumber).HasMaxLength(16);
+
+            entity.HasKey(e => e.Id).HasName("PK__Cards__3214EC077AFDA19F");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Cards)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Cards__UserId__40058253");
+        });
+
+        modelBuilder.Entity<PaymentInfo>(entity =>
+        {
+            entity.ToTable("PaymentInfo");
+
+            entity.Property(e => e.Sum).HasColumnType("money");
+
+            entity.HasKey(e => e.Id).HasName("PK__PaymentI__3214EC07BC47471F");
+
+            entity.HasOne(d => d.Card).WithMany(p => p.PaymentInfos)
+                .HasForeignKey(d => d.CardId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PaymentIn__CardI__3E1D39E1");
         });
 
         modelBuilder.Entity<User>(entity =>

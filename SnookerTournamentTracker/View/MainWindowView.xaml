@@ -19,7 +19,7 @@
             </Grid.RowDefinitions>
             
             <DockPanel Grid.Row="0" LastChildFill="False">
-                <Label DockPanel.Dock="Right" Content="{Binding Name, Mode=OneTime}" />
+                <Label DockPanel.Dock="Right" Content="{Binding Name, Mode=OneWay}" />
             </DockPanel>
 
             <StackPanel Grid.Row="1" HorizontalAlignment="Right">

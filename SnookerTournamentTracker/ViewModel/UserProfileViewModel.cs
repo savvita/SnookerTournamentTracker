@@ -1,11 +1,6 @@
-﻿using GalaSoft.MvvmLight.Command;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using TournamentLibrary;
 
 namespace SnookerTournamentTracker.ViewModel
@@ -27,7 +22,15 @@ namespace SnookerTournamentTracker.ViewModel
 
         public UserProfileViewModel(PersonModel person)
         {
-            User = person;
+            User = new PersonModel()
+            {
+                Id = person.Id,
+                FirstName = person.FirstName,
+                SecondName = person.SecondName,
+                LastName = person.LastName,
+                EmailAddress = person.EmailAddress,
+                PhoneNumber = person.PhoneNumber
+            };
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

@@ -18,6 +18,8 @@ namespace TournamentLibrary
 
         public PrizesModeEnum PrizeMode { get; set; }
 
+        public PaymentInfoModel? PaymentInfo { get; set; }
+
         public List<PrizeModel>? Prizes { get; set; }
 
         public List<RoundModel> RoundModel { get; set; } = new List<RoundModel>();

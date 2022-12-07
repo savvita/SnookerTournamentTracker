@@ -6,7 +6,60 @@
         xmlns:local="clr-namespace:SnookerTournamentTrackerServer.View"
         mc:Ignorable="d"
         Title="ServerView" Height="450" Width="800">
-    <StackPanel>
 
-    </StackPanel>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <DockPanel Grid.Row="0" LastChildFill="False">
+                <Label DockPanel.Dock="Left" Content="Tournaments" />
+                <CheckBox DockPanel.Dock="Right" Grid.Row="2" Content="Active only" IsChecked="{Binding ActiveOnly}" />
+            </DockPanel>
+
+            <DataGrid Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Single"
+                  ItemsSource="{Binding Tournaments, Mode=OneWay}"
+                  CanUserAddRows="False" CanUserDeleteRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}"  />
+                    <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay}" />
+                    <DataGridTextColumn Header="Buy-in" Binding="{Binding BuyIn, Mode=OneWay}" />
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status, Mode=OneWay}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Content="Tournaments" />
+
+            <DataGrid Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Single"
+                  ItemsSource="{Binding Users, Mode=OneWay}"
+                  CanUserAddRows="False" CanUserDeleteRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="First name" Binding="{Binding FirstName, Mode=OneWay}"  />
+                    <DataGridTextColumn Header="Second name" Binding="{Binding SecondName, Mode=OneWay}"  />
+                    <DataGridTextColumn Header="Last name" Binding="{Binding LastName, Mode=OneWay}" />
+                    <DataGridTextColumn Header="Email" Binding="{Binding EmailAddress, Mode=OneWay}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <StackPanel Grid.Column="2">
+            <Button Content="Refresh" Command="{Binding RefreshCmd}" />
+            <Button Content="Close" Click="CloseBtn_Click" />
+        </StackPanel>
+    </Grid>
 </Window>

@@ -35,8 +35,48 @@ namespace SnookerTournamentTracker.ViewModel
         
         public CreateRoundsViewModel(List<RoundModel>? rounds)
         {
+            LoadData(rounds);
+            //roundNames = ServerConnection.GetAllRoundNames();
 
-            roundNames = ServerConnection.GetAllRounds();
+            //if (roundNames == null)
+            //{
+            //    Error = ServerConnection.LastError;
+            //}
+
+            //else
+            //{
+            //    if(rounds != null)
+            //    {
+            //        this.rounds = rounds;
+
+            //        foreach(RoundModel round in rounds)
+            //        {
+            //            Rounds.Add(new RoundViewModel()
+            //            {
+            //                RoundName = round.Round,
+            //                FrameCount = (int)round.Frames!,
+            //                IsSaved = true
+            //            });
+            //        }
+            //    }
+            //    else
+            //    {
+            //        this.rounds = new List<RoundModel>();
+            //    }
+
+            //    if(Rounds.Count < roundNames.Count)
+            //    {
+            //        Rounds.Add(new RoundViewModel()
+            //        {
+            //            RoundName = roundNames[Rounds.Count]
+            //        });
+            //    }
+            //}
+        }
+
+        private async Task LoadData(List<RoundModel>? rounds)
+        {
+            roundNames = await ServerConnection.GetAllRoundNamesAsync();
 
             if (roundNames == null)
             {
@@ -45,11 +85,11 @@ namespace SnookerTournamentTracker.ViewModel
 
             else
             {
-                if(rounds != null)
+                if (rounds != null)
                 {
                     this.rounds = rounds;
 
-                    foreach(RoundModel round in rounds)
+                    foreach (RoundModel round in rounds)
                     {
                         Rounds.Add(new RoundViewModel()
                         {
@@ -64,7 +104,7 @@ namespace SnookerTournamentTracker.ViewModel
                     this.rounds = new List<RoundModel>();
                 }
 
-                if(Rounds.Count < roundNames.Count)
+                if (Rounds.Count < roundNames.Count)
                 {
                     Rounds.Add(new RoundViewModel()
                     {
@@ -92,6 +132,12 @@ namespace SnookerTournamentTracker.ViewModel
 
             if (Rounds == null)
             {
+                return false;
+            }
+
+            if(round.FrameCount == null || round.FrameCount <= 0)
+            {
+                Error = "Number of frames is required";
                 return false;
             }
 

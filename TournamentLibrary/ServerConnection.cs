@@ -14,7 +14,7 @@ namespace TournamentLibrary
     public static class ServerConnection
     {
 
-        public static string? LastError = String.Empty;
+        public static string LastError = String.Empty;
 
         private static Message? GetResponse(Message request)
         {
@@ -28,9 +28,18 @@ namespace TournamentLibrary
             return response;
         }
 
-        public static async Task<bool> SignIn(PersonModel user)
+        private static async Task<Message?> GetResponseAsync(Message request)
         {
-            Message? response = GetResponse(new Message() { Code = ConnectionCode.SignIn, Content = JsonSerializer.Serialize<PersonModel>(user) });
+            return await Task.FromResult<Message?>(GetResponse(request));
+        }
+
+        public static async Task<bool> SignInAsync(PersonModel user)
+        {
+            Message? response = await GetResponseAsync(new Message() 
+            { 
+                Code = ConnectionCode.SignIn, 
+                Content = JsonSerializer.Serialize<PersonModel>(user) 
+            });
 
             if (response == null)
             {
@@ -64,9 +73,13 @@ namespace TournamentLibrary
             return true;
         }
 
-        public static async Task<bool> SignUp(PersonModel user)
+        public static async Task<bool> SignUpAsync(PersonModel user)
         {
-            Message? response = GetResponse(new Message() { Code = ConnectionCode.SignUp, Content = JsonSerializer.Serialize<PersonModel>(user) });
+            Message? response = await GetResponseAsync(new Message() 
+            { 
+                Code = ConnectionCode.SignUp, 
+                Content = JsonSerializer.Serialize<PersonModel>(user) 
+            });
 
             if (response == null)
             {
@@ -95,9 +108,29 @@ namespace TournamentLibrary
             return true;
         }
 
-        public static bool UpdateProfile(PersonModel person)
+        public static async Task<bool> UpdateProfileAsync(int senderId, PersonModel person)
         {
-            Message? response = GetResponse(new Message() { Code = ConnectionCode.UpdateProfile, Content = JsonSerializer.Serialize<PersonModel>(person) });
+            return await HandleRequestAsync<PersonModel>(ConnectionCode.UpdateProfile, senderId, person);
+        }
+
+        public static async Task<List<CardModel>?> GetUserCardsAsync(int? userId)
+        {
+            if (userId == null)
+            {
+                return null;
+            }
+
+            return await QueryRequestAsync<CardModel>(ConnectionCode.UserCards, null, JsonSerializer.Serialize<int?>(userId));
+        }
+
+        public static async Task<bool> SaveUserCard(int senderId, CardModel card)
+        {
+            Message? response = await GetResponseAsync(new Message()
+            {
+                Sender = senderId,
+                Code = ConnectionCode.SaveUserCard,
+                Content = JsonSerializer.Serialize<CardModel>(card)
+            });
 
             if (response == null)
             {
@@ -107,363 +140,143 @@ namespace TournamentLibrary
 
             if (response.Code == ConnectionCode.Error)
             {
-                LastError = response.Content ?? "Cannot update the profile";
+                LastError = response.Content ?? "Server does not response";
                 return false;
             }
+
+            if (!int.TryParse(response.Content, out int id))
+            {
+                LastError = "Server's answer is damaged";
+                return false;
+            }
+
+            card.Id = id;
 
             LastError = String.Empty;
 
             return true;
         }
 
-        public static List<TournamentModel>? GetAllTournaments(bool activeOnly = true)
+        public static async Task<List<TournamentModel>?> GetAllTournamentsAsync(bool activeOnly = true)
         {
-            //Message? response = GetResponse(new Message() { Code = ConnectionCode.AllTournaments });
-
-            //if (response == null)
-            //{
-            //    LastError = "Server does not response";
-            //    return null;
-            //}
-
-            //if (response.Code == ConnectionCode.Error || response.Content == null)
-            //{
-            //    LastError = response.Content ?? "Server does not response";
-            //    return null;
-            //}
-
-            //List<TournamentModel>? tournaments = JsonSerializer.Deserialize<List<TournamentModel>>(response.Content);
-
-            //if (tournaments == null)
-            //{
-            //    LastError = "Server answer is damages";
-            //    return null;
-            //}
-
-            //LastError = String.Empty;
-
-            //return tournaments;
-
-            return QueryRequest<TournamentModel>(ConnectionCode.AllTournaments, null);
+            return await QueryRequestAsync<TournamentModel>(ConnectionCode.AllTournaments, null, null);
         }
 
-        public static List<string>? GetAllRounds()
+        public static async Task<List<string>?> GetAllRoundNamesAsync()
         {
-            //Message? response = GetResponse(new Message() { Code = ConnectionCode.AllRounds });
-
-            //if (response == null)
-            //{
-            //    LastError = "Server does not response";
-            //    return null;
-            //}
-
-            //if (response.Code == ConnectionCode.Error || response.Content == null)
-            //{
-            //    LastError = response.Content ?? "Server does not response";
-            //    return null;
-            //}
-
-            //List<string>? rounds = JsonSerializer.Deserialize<List<string>>(response.Content);
-
-            //if (rounds == null)
-            //{
-            //    LastError = "Server answer is damages";
-            //    return null;
-            //}
-
-            //LastError = String.Empty;
-
-            //return rounds;
-
-            return QueryRequest<string>(ConnectionCode.AllRounds, null);
+            return await QueryRequestAsync<string>(ConnectionCode.AllRounds, null, null);
         }
 
-        public static List<PersonModel>? GetAllPlayers(int senderId)
+        public static async Task<List<PersonModel>?> GetAllPlayersAsync()
         {
-             return QueryRequest<PersonModel>(ConnectionCode.AllPlayers, senderId);
+             return await QueryRequestAsync<PersonModel>(ConnectionCode.AllPlayers, null, null);
         } 
 
-        public static List<PrizeModel>? GetAllPlaces()
+        public static async Task<List<PrizeModel>?> GetAllPlacesAsync()
         {
-            //Message? response = GetResponse(new Message() { Code = ConnectionCode.AllPlaces });
-
-            //if (response == null)
-            //{
-            //    LastError = "Server does not response";
-            //    return null;
-            //}
-
-            //if (response.Code == ConnectionCode.Error || response.Content == null)
-            //{
-            //    LastError = response.Content ?? "Server does not response";
-            //    return null;
-            //}
-
-            //List<PrizeModel>? places = JsonSerializer.Deserialize<List<PrizeModel>>(response.Content);
-
-            //if (places == null)
-            //{
-            //    LastError = "Server answer is damages";
-            //    return null;
-            //}
-
-            //LastError = String.Empty;
-
-            //return places;
-
-            return QueryRequest<PrizeModel>(ConnectionCode.AllPlaces, null);
+            return await QueryRequestAsync<PrizeModel>(ConnectionCode.AllPlaces, null, null);
         }
 
-        public static List<PrizeModel>? GetPrizesByTournamentId(int? id)
+        public static async Task<List<PrizeModel>?> GetPrizesByTournamentIdAsync(int? tournamentId)
         {
-            if (id == null)
+            if(tournamentId == null)
             {
                 return null;
             }
 
-            Message? response = GetResponse(new Message() 
-            { 
-                Code = ConnectionCode.PrizesByTournamentId, 
-                Content = id.ToString() 
-            });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<PrizeModel>? prizes = JsonSerializer.Deserialize<List<PrizeModel>>(response.Content);
-
-            if (prizes == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return prizes;
+            return await QueryRequestAsync<PrizeModel>(ConnectionCode.PrizesByTournamentId, null, JsonSerializer.Serialize<int?>(tournamentId)); 
         }
 
-        public static List<RoundModel>? GetRoundsByTournamentId(int? id)
+        public static async Task<List<RoundModel>?> GetRoundsByTournamentIdAsync(int? tournamentId)
         {
-            if (id == null)
+            if (tournamentId == null)
             {
                 return null;
             }
 
-            Message? response = GetResponse(new Message() { Code = ConnectionCode.RoundsByTournamentId, Content = id.ToString() });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<RoundModel>? rounds = JsonSerializer.Deserialize<List<RoundModel>>(response.Content);
-
-            if (rounds == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return rounds;
+            return await QueryRequestAsync<RoundModel>(ConnectionCode.RoundsByTournamentId, null, JsonSerializer.Serialize<int?>(tournamentId));
         }
 
-        public static List<PersonModel>? GetPlayersByTournamentId(int? id)
+        public static async Task<List<TournamentPlayer>?> GetPlayersByTournamentIdAsync(int? tournamentId)
         {
-            if (id == null)
+            if (tournamentId == null)
             {
                 return null;
             }
 
-            Message? response = GetResponse(new Message() { Code = ConnectionCode.PlayersByTournamentId, Content = id.ToString() });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<PersonModel>? players = JsonSerializer.Deserialize<List<PersonModel>>(response.Content);
-
-            if (players == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return players;
+            return await QueryRequestAsync<TournamentPlayer>(ConnectionCode.PlayersByTournamentId, null, JsonSerializer.Serialize<int?>(tournamentId));
         }
 
-        public static List<TournamentModel>? GetTournamentsByAdministrator(int? id)
+        public static async Task <List<TournamentModel>?> GetTournamentsByAdministratorIdAsync(int? userId)
         {
-            if (id == null)
+            if (userId == null)
             {
                 return null;
             }
 
-            Message? response = GetResponse(new Message() { Code = ConnectionCode.TournamentsByAdministratorId, Content = id.ToString() });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<TournamentModel>? tournaments = JsonSerializer.Deserialize<List<TournamentModel>>(response.Content);
-
-            if (tournaments == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return tournaments;
+            return await QueryRequestAsync<TournamentModel>(ConnectionCode.TournamentsByAdministratorId, null, JsonSerializer.Serialize<int?>(userId));
         }
 
-        public static List<TournamentModel>? GetTournamentsByPlayerId(int? id)
+        public static async Task<List<TournamentModel>?> GetTournamentsByPlayerIdAsync(int? userId)
         {
-            if (id == null)
+            if (userId == null)
             {
                 return null;
             }
 
-            Message? response = GetResponse(new Message() { Code = ConnectionCode.TournamentsByPlayerId, Content = id.ToString() });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            List<TournamentModel>? tournaments = JsonSerializer.Deserialize<List<TournamentModel>>(response.Content);
-
-            if (tournaments == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return tournaments;
+            return await QueryRequestAsync<TournamentModel>(ConnectionCode.TournamentsByPlayerId, null, JsonSerializer.Serialize<int?>(userId));
         }
 
-        public static List<List<MatchUpModel>>? GetMatchesByTournamentId(int? id)
+        public static async Task <List<List<MatchUpModel>>?> GetMatchesByTournamentIdAsync(int? tournamentId)
         {
-            if (id == null)
+            if (tournamentId == null)
             {
                 return null;
             }
 
-            Message? response = GetResponse(new Message() { Code = ConnectionCode.MatchesByTournamentId, Content = id.ToString() });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return null;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return null;
-            }
-
-            var matches = JsonSerializer.Deserialize<List<List<MatchUpModel>>>(response.Content);
-
-            if (matches == null)
-            {
-                LastError = "Server answer is damages";
-                return null;
-            }
-
-            LastError = String.Empty;
-
-            return matches;
+            return await QueryRequestAsync<List<MatchUpModel>>(ConnectionCode.MatchesByTournamentId, null, JsonSerializer.Serialize<int?>(tournamentId));
         }
-
-        public static bool IsTournamentAdministrator(int? userId, int? tournamentId)
+ 
+        public static async Task<bool> IsTournamentAdministratorAsync(int? userId, int? tournamentId)
         {
             if (userId == null || tournamentId == null)
             {
                 return false;
             }
 
-            Message? response = GetResponse(new Message() { Sender = userId, Code = ConnectionCode.IsTournamentAdministrator, Content = tournamentId.ToString() });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return false;
-            }
-
-            if (response.Code == ConnectionCode.Error || response.Content == null)
-            {
-                LastError = response.Content ?? "Server does not response";
-                return false;
-            }
-
-            bool? isAdmin = JsonSerializer.Deserialize<bool>(response.Content);
-
-            LastError = String.Empty;
-
-            return isAdmin ?? false;
+            return await HandleRequestAsync<int?>(ConnectionCode.IsTournamentAdministrator, (int)userId!, tournamentId);
         }
 
-        public static bool CreateTournament(int senderId, TournamentModel tournament)
+        public static async Task<bool> RegisterAtTournamentAsync(int? userId, int? tournamentId)
         {
-            //TODO add creation and creation rounds
-            //Save prizes
-            //Save rounds
-            //Save invites
-            //Save tournament
+            if (userId == null || tournamentId == null)
+            {
+                return false;
+            }
 
-            //TODO Remove this
-            //tournaments.Add(tournament);
-            //tournament.Id = tournaments.Count;
-            //
+            return await HandleRequestAsync<int?>(ConnectionCode.RegisterAtTournament, (int)userId!, tournamentId);
+        }
 
-            Message? response = GetResponse(new Message()
+        public static async Task<bool> UnregisterFromTournamentAsync(int? userId, int? tournamentId)
+        {
+            if (userId == null || tournamentId == null)
+            {
+                return false;
+            }
+
+            return await HandleRequestAsync<int?>(ConnectionCode.UnregisterFromTournament, (int)userId!, tournamentId);
+        }
+
+        public static async Task<bool> ConfirmPlayerRegistrationAsync(int senderId, TournamentPlayer player)
+        {
+            return await HandleRequestAsync<TournamentPlayer>(ConnectionCode.ConfirmPlayerRegistration, senderId, player);
+        }
+
+        public static async Task<bool> CreateTournamentAsync(int senderId, TournamentModel tournament)
+        {
+            //TODO Save invites
+
+            Message? response = await GetResponseAsync(new Message()
             {
                 Sender = senderId,
                 Code = ConnectionCode.CreateTournament,
@@ -497,115 +310,30 @@ namespace TournamentLibrary
             return true;
         }
 
-        public static bool RegisterAtTournament(PersonModel player, TournamentModel tournament)
+        
+        public static async Task<bool> AddTournamentRoundsAsync(int senderId, TournamentModel tournament)
         {
-            Message? response = GetResponse(new Message() { Code = ConnectionCode.RegisterAtTournament, Sender = player.Id, Content = tournament.Id.ToString() });
+            return await HandleRequestAsync<TournamentModel>(ConnectionCode.AddTournamentRounds, senderId, tournament);
+        }
 
-            if (response == null)
+        public static async Task<bool> SaveTournamentDrawAsync(int senderId, TournamentModel tournament)
+        {
+            return await HandleRequestAsync<TournamentModel>(ConnectionCode.SaveTournamentDraw, senderId, tournament);
+        }
+
+        public static async Task<bool> SaveFrameResultAsync(int senderId, FrameModel frame)
+        {
+            return await HandleRequestAsync<FrameModel>(ConnectionCode.SaveFrameResult, senderId, frame);
+        }
+
+
+        private static async Task<List<T>?> QueryRequestAsync<T>(ConnectionCode code, int? senderId, string? content)
+        {
+            Message? response = await GetResponseAsync(new Message()
             {
-                LastError = "Server does not response";
-                return false;
-            }
-
-            if (response.Code == ConnectionCode.Error)
-            {
-                LastError = response.Content ?? "Cannot register at the tournament";
-                return false;
-            }
-
-            LastError = String.Empty;
-
-            return true;
-        }
-
-        public static bool UnregisterFromTournament(PersonModel player, TournamentModel tournament)
-        {
-            Message? response = GetResponse(new Message() { Code = ConnectionCode.UnregisterFromTournament, Sender = player.Id, Content = tournament.Id.ToString() });
-
-            if (response == null)
-            {
-                LastError = "Server does not response";
-                return false;
-            }
-
-            if (response.Code == ConnectionCode.Error)
-            {
-                LastError = response.Content ?? "Cannot unregister from the tournament";
-                return false;
-            }
-
-            LastError = String.Empty;
-
-            return true;
-        }
-
-        public static bool AddTournamentRounds(int senderId, TournamentModel tournament)
-        {
-            //Message? response = GetResponse(new Message()
-            //{
-            //    Sender = senderId,
-            //    Code = ConnectionCode.AddTournamentRounds,
-            //    Content = JsonSerializer.Serialize<TournamentModel>(tournament)
-            //});
-
-            //if (response == null)
-            //{
-            //    LastError = "Server does not response";
-            //    return false;
-            //}
-
-            //if (response.Code == ConnectionCode.Error || response.Content == null)
-            //{
-            //    LastError = response.Content ?? "Server does not response";
-            //    return false;
-            //}
-
-            //LastError = String.Empty;
-
-            //return true;
-
-            return HandleRequest<TournamentModel>(ConnectionCode.AddTournamentRounds, senderId, tournament);
-        }
-
-        public static bool SaveTournamentDraw(int senderId, TournamentModel tournament)
-        {
-            //Message? response = GetResponse(new Message()
-            //{
-            //    Sender = senderId,
-            //    Code = ConnectionCode.SaveTournamentDraw,
-            //    Content = JsonSerializer.Serialize<TournamentModel>(tournament)
-            //});
-
-            //if (response == null)
-            //{
-            //    LastError = "Server does not response";
-            //    return false;
-            //}
-
-            //if (response.Code == ConnectionCode.Error || response.Content == null)
-            //{
-            //    LastError = response.Content ?? "Server does not response";
-            //    return false;
-            //}
-
-            //LastError = String.Empty;
-
-            //return true;
-
-            return HandleRequest<TournamentModel>(ConnectionCode.SaveTournamentDraw, senderId, tournament);
-        }
-
-        public static bool SaveFrameResult(int senderId, FrameModel frame)
-        {
-            return HandleRequest<FrameModel>(ConnectionCode.SaveFrameResult, senderId, frame);
-        }
-
-        private static List<T>? QueryRequest<T> (ConnectionCode code, int? senderId)
-        {
-            Message? response = GetResponse(new Message() 
-            { 
                 Sender = senderId,
-                Code = code 
+                Code = code,
+                Content = content
             });
 
             if (response == null)
@@ -633,9 +361,9 @@ namespace TournamentLibrary
             return result;
         }
 
-        private static bool HandleRequest<T> (ConnectionCode code, int senderId, T obj)
+        private static async Task<bool> HandleRequestAsync<T>(ConnectionCode code, int senderId, T obj)
         {
-            Message? response = GetResponse(new Message()
+            Message? response = await GetResponseAsync(new Message()
             {
                 Sender = senderId,
                 Code = code,
@@ -648,7 +376,7 @@ namespace TournamentLibrary
                 return false;
             }
 
-            if (response.Code == ConnectionCode.Error || response.Content == null)
+            if (response.Code == ConnectionCode.Error)
             {
                 LastError = response.Content ?? "Server does not response";
                 return false;

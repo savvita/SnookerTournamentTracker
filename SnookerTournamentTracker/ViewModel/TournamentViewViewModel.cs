@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using TournamentLibrary;
 
 namespace SnookerTournamentTracker.ViewModel
@@ -15,20 +16,9 @@ namespace SnookerTournamentTracker.ViewModel
     internal class TournamentViewViewModel : INotifyPropertyChanged
     {
         public TournamentModel Tournament { get; set; }
-        private PersonModel user;
+        public PersonModel User { get; }
 
-        private List<PersonModel>? players;
-        public List<PersonModel>? Players
-        {
-            get => players;
-            set
-            {
-                players = value;
-                OnPropertyChanged(nameof(Players));
-            }
-        }
-
-        public bool IsEditable { get; }
+        public bool IsEditable { get; private set; }
 
         private bool isMatchesEnabled;
         public bool IsMatchesEnabled
@@ -40,6 +30,21 @@ namespace SnookerTournamentTracker.ViewModel
                 OnPropertyChanged(nameof(IsMatchesEnabled));
             }
         }
+
+        public bool IsConfirmPossible { get; }
+
+        private bool isRegistered;
+        public bool IsRegistered
+        {
+            get => isRegistered;
+            set
+            {
+                isRegistered = value;
+                OnPropertyChanged(nameof(IsRegistered));
+            }
+        }
+
+        public bool IsPaid { get; }
 
         private bool isRegistrationOpened;
         public bool IsRegistrationOpened
@@ -72,91 +77,260 @@ namespace SnookerTournamentTracker.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
+        private ICollectionView playersView;
+        public ObservableCollection<TournamentPlayerViewModel> Players { get; set; } = new ObservableCollection<TournamentPlayerViewModel>();
+
+        public ObservableCollection<TournamentPlayerViewModel> WaitingPlayers { get; set; } = new ObservableCollection<TournamentPlayerViewModel>();
+
+        public async Task RefreshPlayersAsync()
+        {
+            var players = await ServerConnection.GetPlayersByTournamentIdAsync(Tournament.Id);
+
+            Players.Clear();
+            Tournament.Players.Clear();
+
+            if(players == null)
+            {
+                return;
+            }
+
+            foreach (var player in players)
+            {
+                if (player.Player == null)
+                {
+                    continue;
+                }
+
+                Tournament.Players.Add(new PersonModel()
+                {
+                    Id = player.Player.Id,
+                    FirstName = player.Player.FirstName,
+                    SecondName = player.Player.SecondName,
+                    LastName = player.Player.LastName,
+                });
+            }
+
+            foreach (TournamentPlayer player in players.Where(pl => pl.Status.Equals("Registered")))
+            {
+                TournamentPlayerViewModel p = new TournamentPlayerViewModel()
+                {
+                    Player = player.Player
+                };
+
+                if(player.IsFinished)
+                {
+                    if (player.Payment != null)
+                    {
+                        p.Result = $"{player.Payment.ToString()} $";
+                    }
+                    else
+                    {
+                        p.Result = "Finished";
+                    }
+                }
+
+                Players.Add(p);
+            }
+
+            WaitingPlayers.Clear();
+
+            foreach (TournamentPlayer player in players.Where(pl => pl.Status.Equals("Waiting for paying")))
+            {
+                TournamentPlayerViewModel p = new TournamentPlayerViewModel()
+                {
+                    Player = player.Player
+                };
+
+                WaitingPlayers.Add(p);
+            }
+
+            var pl= players.FirstOrDefault(p => p.Player.Id == User.Id);
+
+            if(pl != null)
+            {
+                Status = pl.Status;
+            }
+
+            if (players != null)
+            {
+                IsRegistered = players.Any(pl =>
+                {
+                    if (pl.Player == null)
+                    {
+                        return false;
+                    }
+                    return pl.Player.Id == User.Id;
+                });
+            }
+
+        }
+
+       
+
         public TournamentViewViewModel(PersonModel user, TournamentModel tournament)
         {
-            this.user = user;
+            this.User = user;
             Tournament = tournament;
 
-            var rounds = ServerConnection.GetRoundsByTournamentId(tournament.Id);
+            IsEditable = false;
+
+            //var rounds = ServerConnection.GetRoundsByTournamentId(tournament.Id);
+
+            //if (rounds != null)
+            //{
+            //    Tournament.RoundModel = rounds;
+            //}
+
+            //Tournament.Prizes = ServerConnection.GetPrizesByTournamentId(tournament.Id);
+            LoadData();
+            RefreshPlayersAsync();
+
+            //var players = ServerConnection.GetPlayersByTournamentId(tournament.Id);
+
+            //InitializePlayers(players);
+
+            //if (tournament.Status != null)
+            //{
+            //    IsEditable = ServerConnection.IsTournamentAdministrator(user.Id, tournament.Id) && !tournament.Status!.Equals("Finished");
+            //    IsRegistrationOpened = tournament.Status.Equals("Registration");
+            //}
+            //else
+            //{
+            //    IsEditable = false;
+            //    IsRegistrationOpened = false;
+            //}
+
+            IsMatchesEnabled = tournament.Status != null ? !tournament.Status.Equals("Registration") : false;
+            IsClosingRegistrationPossible = IsEditable && !IsMatchesEnabled;
+
+            IsPaid = Tournament.PaymentInfo != null;
+
+
+            playersView = CollectionViewSource.GetDefaultView(Players);
+
+            playersView.SortDescriptions.Add(new SortDescription("Result", ListSortDirection.Ascending));
+
+            IsConfirmPossible = IsPaid && IsEditable;
+
+            //if (players != null)
+            //{
+            //    IsRegistered = players.Any(pl =>
+            //    {
+            //        if (pl.Player == null)
+            //        {
+            //            return false;
+            //        }
+            //        return pl.Player.Id == user.Id;
+            //    });
+            //}
+        }
+
+        private async Task LoadData()
+        {
+            var rounds = await ServerConnection.GetRoundsByTournamentIdAsync(Tournament.Id);
 
             if (rounds != null)
             {
                 Tournament.RoundModel = rounds;
             }
 
-            Tournament.Prizes = ServerConnection.GetPrizesByTournamentId(tournament.Id);
+            Tournament.Prizes = await ServerConnection.GetPrizesByTournamentIdAsync(Tournament.Id);
 
-            var players = ServerConnection.GetPlayersByTournamentId(tournament.Id);
-
-            if (players != null)
+            if (Tournament.Status != null)
             {
-                Tournament.Players = players;
+                IsEditable = await ServerConnection.IsTournamentAdministratorAsync(User.Id, Tournament.Id) && !Tournament.Status!.Equals("Finished");
+                IsRegistrationOpened = Tournament.Status.Equals("Registration");
             }
+            else
+            {
+                IsEditable = false;
+                IsRegistrationOpened = false;
+            }
+        }
 
-            Players = Tournament.Players;
-            IsEditable = ServerConnection.IsTournamentAdministrator(user.Id, tournament.Id);
-
-            IsRegistrationOpened = tournament.Status.Equals("Registration");
-            IsMatchesEnabled = tournament.Status != null ? !tournament.Status.Equals("Registration") : false;
-            IsClosingRegistrationPossible = IsEditable && !IsMatchesEnabled;
+        private RelayCommand<object>? confirmCmd;
+        public RelayCommand<object> ConfirmCmd
+        {
+            get => confirmCmd ?? new RelayCommand<object>(async (obj) =>
+            {
+                if (obj is TournamentPlayerViewModel player)
+                {
+                    if (player.Player != null)
+                    {
+                        if(await ServerConnection.ConfirmPlayerRegistrationAsync((int)User.Id!, new TournamentPlayer()
+                        {
+                            Id = (int)player.Player.Id!,
+                            TournamentId = (int)Tournament.Id!
+                        }))
+                        {
+                            await RefreshPlayersAsync();
+                            //InitializePlayers(ServerConnection.GetPlayersByTournamentId(Tournament.Id));
+                        }
+                    }
+                }
+            });
         }
 
         private RelayCommand? registerCmd;
         
         public RelayCommand RegisterCmd
         {
-            get => registerCmd ?? new RelayCommand(Register);
+            get => registerCmd ?? new RelayCommand(async () => await Register());
         }
 
-        private void Register()
+        private async Task Register()
         {
             //TODO finish this - subscribe to event at the view and show msgbox
             //TODO do this normal
-            if(Tournament.Players.FindIndex(pl => pl.Id == user.Id) == -1 && ServerConnection.RegisterAtTournament(user, Tournament))
+            //if(Tournament.Players.FindIndex(pl => pl.Id == user.Id) == -1 && ServerConnection.RegisterAtTournament(user, Tournament))
+            if(await ServerConnection.RegisterAtTournamentAsync(User.Id, Tournament.Id))
             {
-                var players = ServerConnection.GetPlayersByTournamentId(Tournament.Id);
+                //var players = ServerConnection.GetPlayersByTournamentId(Tournament.Id);
 
-                if (players != null)
-                {
-                    Tournament.Players = players;
-                    Players = players;
-                }
+                await RefreshPlayersAsync();
 
                 RegisteringCompleted?.Invoke("You are register");
+                //IsRegistrationOpened = Tournament.Status.Equals("Registration");
+                //IsRegistrationOpened = false;
             }
             else
             {
                 //TODO add error msg for server error
-                RegisteringCompleted?.Invoke("You are already registered at this tournament");
+                //RegisteringCompleted?.Invoke("You are already registered at this tournament");
+                RegisteringCompleted?.Invoke(ServerConnection.LastError);
             }
         }
+
+        private string? status;
+        public string? Status
+        {
+            get => status;
+            set
+            {
+                status = value;
+                OnPropertyChanged(nameof(Status));
+            }
+        }
+
 
         private RelayCommand? unregisterCmd;
 
         public RelayCommand UnregisterCmd
         {
-            get => unregisterCmd ?? new RelayCommand(Unregister);
+            get => unregisterCmd ?? new RelayCommand(async () => await Unregister());
         }
 
-        private void Unregister()
+        private async Task Unregister()
         {
-            //TODO finish this - subscribe to event at the view and show msgbox
-            //TODO do this normal
-            if (ServerConnection.UnregisterFromTournament(user, Tournament))
+            if (await ServerConnection.UnregisterFromTournamentAsync(User.Id, Tournament.Id))
             {
-                var players = ServerConnection.GetPlayersByTournamentId(Tournament.Id);
 
-                if (players != null)
-                {
-                    Tournament.Players = players;
-                    Players = players;
-                }
+                await RefreshPlayersAsync();
 
                 UnregisteringCompleted?.Invoke("You are unregister");
             }
             else
             {
-                //TODO add error msg for server error
                 UnregisteringCompleted?.Invoke(ServerConnection.LastError ?? "Something happened. Try again later");
             }
         }
@@ -164,18 +338,50 @@ namespace SnookerTournamentTracker.ViewModel
         private RelayCommand? closeRegistrationCmd;
         public RelayCommand CloseRegistrationCmd
         {
-            get => closeRegistrationCmd ?? new RelayCommand(CloseRegistration);
+            get => closeRegistrationCmd ?? new RelayCommand(async () => await CloseRegistrationAsync());
         }
 
         public event Action? RegistrationClosed;
 
-        private void CloseRegistration()
+        private async Task CloseRegistrationAsync()
         {
-            ConnectionClientModel.CloseTournamentRegistration((int)user.Id, Tournament);
-            IsMatchesEnabled = true;
-            IsClosingRegistrationPossible = false;
-            IsRegistrationOpened = false;
-            RegistrationClosed?.Invoke();
+            if (await TournamentBuilder.CloseTournamentRegistrationAsync((int)User.Id!, Tournament))
+            {
+                Tournament.Rounds = await ServerConnection.GetMatchesByTournamentIdAsync(Tournament.Id) ?? new List<List<MatchUpModel>>();
+                await HandleByesAsync();
+                await RefreshPlayersAsync();
+                IsMatchesEnabled = true;
+                IsClosingRegistrationPossible = false;
+                IsRegistrationOpened = false;
+                RegistrationClosed?.Invoke();
+            }
+        }
+
+        private async Task HandleByesAsync()
+        {
+            if (Tournament.Rounds.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var match in Tournament.Rounds[0].Where(m => m.Entries.Count == 1))
+            {
+                match.Winner = match.Entries[0].Player;
+                FrameModel frame = new FrameModel()
+                {
+                    MatchId = match.Id,
+                    WinnerId = match.Entries[0].Player.Id
+                };
+
+                frame.Entries.Add(new FrameEntryModel()
+                {
+                    PlayerId = match.Entries[0].Player!.Id
+                });
+
+                await ServerConnection.SaveFrameResultAsync((int)User.Id!, frame);
+            }
+
+            //Tournament.Rounds = ServerConnection.GetMatchesByTournamentId(Tournament.Id) ?? new List<List<MatchUpModel>>();
         }
     }
 }

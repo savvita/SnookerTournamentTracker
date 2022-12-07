@@ -1,45 +1,37 @@
-﻿using SnookerTournamentTracker.ConnectionLibrary;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using TournamentLibrary;
 
-namespace SnookerTournamentTracker.Model
+namespace TournamentLibrary
 {
-    internal static class ConnectionClientModel
+    public static class TournamentBuilder
     {
-        public static void CloseTournamentRegistration(int administratorId, TournamentModel tournament)
+        public static async Task<bool> CloseTournamentRegistrationAsync(int administratorId, TournamentModel tournament)
         {
-            // TODO
-            // create other rounds
-            // save to bd
-            // send emails
+            // TODO send invitations
             var players = RandomizePlayers(tournament.Players);
             int rounds = GetNumberOfRounds(players.Count);
 
             if (rounds > tournament.RoundModel.Count)
             {
-                AddTournamentRounds(administratorId, tournament, rounds);
+                await AddTournamentRoundsAsync(administratorId, tournament, rounds);
             }
 
             int byes = GetNumberOfByes(rounds, players.Count);
 
             tournament.Rounds.Add(CreateFirstRound(players, byes, tournament.RoundModel.Last()));
+
             CreateOtherRounds(tournament, rounds);
 
-            ServerConnection.SaveTournamentDraw(administratorId, tournament);
+            return await ServerConnection.SaveTournamentDrawAsync(administratorId, tournament);
         }
 
-        private static void AddTournamentRounds(int administratorId, TournamentModel tournament, int roundCount)
+        private static async Task AddTournamentRoundsAsync(int administratorId, TournamentModel tournament, int roundCount)
         {
             RoundModel lastRound = tournament.RoundModel[tournament.RoundModel.Count - 1];
-            List<string>? rounds = ServerConnection.GetAllRounds();
+            List<string>? rounds = await ServerConnection.GetAllRoundNamesAsync();
 
             if (rounds == null)
             {
@@ -55,9 +47,8 @@ namespace SnookerTournamentTracker.Model
                 });
             }
 
-            ServerConnection.AddTournamentRounds(administratorId, tournament);
+            await ServerConnection.AddTournamentRoundsAsync(administratorId, tournament);
         }
-
 
         private static List<PersonModel> RandomizePlayers(List<PersonModel> players)
         {
@@ -107,7 +98,6 @@ namespace SnookerTournamentTracker.Model
                     curr.MatchNumber = currNumber;
                     curr.MatchUpRound = round;
                     matchups.Add(curr);
-                    curr = new MatchUpModel();
 
                     if (byes > 0)
                     {
@@ -116,6 +106,8 @@ namespace SnookerTournamentTracker.Model
                     }
 
                     currNumber++;
+
+                    curr = new MatchUpModel();
                 }
             }
 
@@ -135,9 +127,9 @@ namespace SnookerTournamentTracker.Model
             {
                 foreach (MatchUpModel match in prevRound)
                 {
-                    currMatch.Entries.Add(new MatchUpEntryModel() 
-                    { 
-                        ParentMatchUp = match,
+                    currMatch.Entries.Add(new MatchUpEntryModel()
+                    {
+                        ParentMatchUp = new MatchUpModel() { MatchNumber = match.MatchNumber },
                         Player = match.Winner
                     });
 

@@ -42,14 +42,21 @@ namespace SnookerTournamentTracker.ViewModel
         public MyTournamentsViewModel(PersonModel user)
         {
             this.user = user;
-            AdministratingTournaments = ServerConnection.GetTournamentsByAdministrator(user.Id);
-            PlayingTournaments = ServerConnection.GetTournamentsByPlayerId(user.Id);
+            RefreshAsync();
+            //AdministratingTournaments = ServerConnection.GetTournamentsByAdministrator(user.Id);
+            //PlayingTournaments = ServerConnection.GetTournamentsByPlayerId(user.Id);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public async Task RefreshAsync()
+        {
+            AdministratingTournaments = await ServerConnection.GetTournamentsByAdministratorIdAsync(user.Id);
+            PlayingTournaments = await ServerConnection.GetTournamentsByPlayerIdAsync(user.Id);
         }
     }
 }

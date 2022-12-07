@@ -7,5 +7,7 @@
         public int? WinnerId { get; set; }
 
         public int MatchId { get; set; }
+
+        public List<BreakModel> Breaks { get; set; } = new List<BreakModel>();
     }
 }

@@ -20,10 +20,18 @@ namespace SnookerTournamentTrackerServer.View
     /// </summary>
     public partial class ServerView : Window
     {
+        private ServerViewModel model;
         public ServerView()
         {
             InitializeComponent();
-            this.DataContext = new ServerViewModel();
+            model = new ServerViewModel();
+            this.DataContext = model;
+        }
+
+        private void CloseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            model.Close();
+            this.Close();
         }
     }
 }

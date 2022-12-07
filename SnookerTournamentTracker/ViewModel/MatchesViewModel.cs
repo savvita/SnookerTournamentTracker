@@ -68,24 +68,41 @@ namespace SnookerTournamentTracker.ViewModel
 
         public ObservableCollection<FrameResultModel> Results { get; set; } = new ObservableCollection<FrameResultModel>();
 
-        public MatchesViewModel(PersonModel user, TournamentModel tournament)
+        private async Task LoadData()
         {
-            this.user = user;
-            tournament.Rounds = ServerConnection.GetMatchesByTournamentId(tournament.Id) ?? new List<List<MatchUpModel>>();
-            this.tournament = tournament;
+            this.tournament.Rounds = await ServerConnection.GetMatchesByTournamentIdAsync(tournament.Id) ?? new List<List<MatchUpModel>>();
 
-            for (int i = tournament.RoundModel.Count - 1; i >= 0; i --)
+            for (int i = tournament.RoundModel.Count - 1; i >= 0; i--)
             {
                 Rounds.Add(tournament.RoundModel[i]);
             }
 
-            if(Rounds.Count > 0)
+            if (Rounds.Count > 0)
             {
                 SelectedRound = Rounds[0];
             }
 
-            isAdmin = ServerConnection.IsTournamentAdministrator(user.Id, tournament.Id);
+            isAdmin = await ServerConnection.IsTournamentAdministratorAsync(user.Id, tournament.Id);
+        }
 
+        public MatchesViewModel(PersonModel user, TournamentModel tournament)
+        {
+            this.user = user;
+            //tournament.Rounds = ServerConnection.GetMatchesByTournamentId(tournament.Id) ?? new List<List<MatchUpModel>>();
+            this.tournament = tournament;
+            LoadData();
+
+            //for (int i = tournament.RoundModel.Count - 1; i >= 0; i --)
+            //{
+            //    Rounds.Add(tournament.RoundModel[i]);
+            //}
+
+            //if(Rounds.Count > 0)
+            //{
+            //    SelectedRound = Rounds[0];
+            //}
+
+            //isAdmin = ServerConnection.IsTournamentAdministrator(user.Id, tournament.Id);
         }
 
         private void RefreshMatches()
@@ -161,11 +178,11 @@ namespace SnookerTournamentTracker.ViewModel
         private RelayCommand<object>? saveBtnCmd;
         public RelayCommand<object> SaveBtnCmd
         {
-            get => saveBtnCmd ?? new RelayCommand<object>((obj) =>
+            get => saveBtnCmd ?? new RelayCommand<object>(async (obj) =>
             {
                 if(obj is FrameResultModel res)
                 {
-                    SaveFrameResult(res);
+                    await SaveFrameResultAsync(res);
                 }
             });
         }
@@ -197,7 +214,6 @@ namespace SnookerTournamentTracker.ViewModel
 
                     Players = $"{pl1} vs {pl2}";
 
-                    //todo handle breaks
                     foreach(var frame in SelectedMatch.Frames)
                     {
                         if (frame.Entries.Count > 0)
@@ -208,6 +224,17 @@ namespace SnookerTournamentTracker.ViewModel
                                 SecondPlayerScore = frame.Entries[1].Score ?? 0,
                                 IsUnsaved = false
                             };
+
+                            var breaks = new List<string>();
+
+                            frame.Breaks.Where(x => x.PlayerId == frame.Entries[0].PlayerId).ToList().ForEach(x => breaks.Add(x.Score.ToString()!));
+                            res.FirstPlayerBrakes = String.Join(',', breaks);
+
+                            breaks.Clear();
+
+                            frame.Breaks.Where(x => x.PlayerId == frame.Entries[1].PlayerId).ToList().ForEach(x => breaks.Add(x.Score.ToString()!));
+                            res.SecondPlayerBrakes = String.Join(',', breaks);
+
 
                             Results.Add(res);
 
@@ -229,6 +256,21 @@ namespace SnookerTournamentTracker.ViewModel
                 else
                 {
                     Players = $"{pl1} (w/o)";
+                    //SelectedMatch.Winner = SelectedMatch.Entries[0].Player;
+
+                    //FrameModel frame = new FrameModel()
+                    //{
+                    //    MatchId = SelectedMatch.Id,
+                    //    WinnerId = SelectedMatch.Entries[0].Player.Id
+                    //};
+
+                    //frame.Entries.Add(new FrameEntryModel()
+                    //{
+                    //    PlayerId = SelectedMatch!.Entries[0].Player!.Id
+                    //});
+
+                    //ServerConnection.SaveFrameResult((int)user.Id!, frame);
+                    //tournament.Rounds = ServerConnection.GetMatchesByTournamentId(tournament.Id) ?? new List<List<MatchUpModel>>();
                 }
             }
         }
@@ -238,28 +280,17 @@ namespace SnookerTournamentTracker.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        private void SaveFrameResult(FrameResultModel frameResult)
+        private async Task SaveFrameResultAsync(FrameResultModel frameResult)
         {
             if (ValidateFrameResult(frameResult))
             {
-                //TODO handle breaks
-
                 FrameModel frame = SelectedMatch!.Frames.Last();
 
                 SetFrameResult(frame, frameResult);
 
-                if (SelectedMatch.Frames.Count == SelectedRound!.Frames)
-                {
-                    SetMatchWinner();
-                }
+                SetBreaks(frame, frameResult);
 
-                ServerConnection.SaveFrameResult((int)user.Id!, frame);
-
-                if (SelectedRound != null && SelectedMatch.Winner == null)
-                {
-                    SelectedMatch.Frames.Add(new FrameModel());
-                    Results.Add(new FrameResultModel());
-                }
+                await ServerConnection.SaveFrameResultAsync((int)user.Id!, frame);
 
                 frameResult.FirstPlayerMatchScore = Results.Count(r => r.FirstPlayerScore > r.SecondPlayerScore);
                 frameResult.SecondPlayerMatchScore = Results.Count(r => r.FirstPlayerScore < r.SecondPlayerScore);
@@ -269,16 +300,26 @@ namespace SnookerTournamentTracker.ViewModel
 
                 Score = $"{score1} : {score2}";
 
-                if(score1 >= SelectedMatch.MatchUpRound.Frames / 2)
+                if(score1 > SelectedMatch.MatchUpRound.Frames / 2)
                 {
                     SelectedMatch.Winner = SelectedMatch.Entries[0].Player;
                 }
-                else if (score2 >= SelectedMatch.MatchUpRound.Frames / 2)
+                else if (score2 > SelectedMatch.MatchUpRound.Frames / 2)
                 {
                     SelectedMatch.Winner = SelectedMatch.Entries[1].Player;
                 }
                 Error = string.Empty;
                 frameResult.IsUnsaved = false;
+
+                if (SelectedRound != null && SelectedMatch.Winner == null)
+                {
+                    SelectedMatch.Frames.Add(new FrameModel());
+                    Results.Add(new FrameResultModel());
+                }
+                else
+                {
+                    tournament.Rounds = await ServerConnection.GetMatchesByTournamentIdAsync(tournament.Id) ?? new List<List<MatchUpModel>>();
+                }
             }
         }
 
@@ -308,6 +349,16 @@ namespace SnookerTournamentTracker.ViewModel
                 return false;
             }
 
+            if(frameResult.FirstPlayerBrakes != null && !ValidateBreaks(frameResult.FirstPlayerScore, frameResult.FirstPlayerBrakes))
+            {
+                return false;
+            }
+
+            if (frameResult.SecondPlayerBrakes != null && !ValidateBreaks(frameResult.SecondPlayerScore, frameResult.SecondPlayerBrakes))
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -329,14 +380,88 @@ namespace SnookerTournamentTracker.ViewModel
 
             frame.WinnerId = frame.Entries[0].Score > frame.Entries[1].Score ? frame.Entries[0].PlayerId : frame.Entries[1].PlayerId;
 
+
+            //SetMatchWinner();
         }
 
-        private void SetMatchWinner()
+        private bool ValidateBreaks(int score, string breaks)
         {
-            int p1 = SelectedMatch!.Frames.Count(x => x.WinnerId == SelectedMatch.Entries[0].Player!.Id);
-            int p2 = SelectedMatch!.Frames.Count(x => x.WinnerId == SelectedMatch.Entries[1].Player!.Id);
+            var breaksArray = breaks.Split(',');
 
-            SelectedMatch.Winner = p1 > p2 ? SelectedMatch.Entries[0].Player : SelectedMatch.Entries[1].Player;
+            foreach(var br in breaksArray)
+            {
+                if(!int.TryParse(br.Trim(), out int b))
+                {
+                    Error = "Break must be a number";
+                    return false;
+                }
+
+                if(b < 50)
+                {
+                    Error = "Break cannot be less than 50";
+                    return false;
+                }
+                if (b > score)
+                {
+                    Error = "Break cannot be grater than score";
+                    return false;
+                }
+
+            }
+
+            return true;
         }
+
+        private void SetBreaks(FrameModel frame, FrameResultModel frameResult)
+        {
+          
+            if(frameResult.FirstPlayerBrakes != null)
+            {
+                var breaksArray1 = frameResult.FirstPlayerBrakes.Split(',');
+
+                foreach (var br in breaksArray1)
+                {
+                    frame.Breaks.Add(new BreakModel()
+                    {
+                        PlayerId = (int)frame.Entries[0].PlayerId!,
+                        Score = short.Parse(br)
+                    });
+                }
+            }
+            
+            if(frameResult.SecondPlayerBrakes != null)
+            {
+                var breaksArray2 = frameResult.SecondPlayerBrakes.Split(',');
+
+                foreach (var br in breaksArray2)
+                {
+                    frame.Breaks.Add(new BreakModel()
+                    {
+                        PlayerId = (int)frame.Entries[1].PlayerId!,
+                        Score = short.Parse(br)
+                    });
+                }
+            }
+        }
+
+        //private void SetMatchWinner()
+        //{
+        //    int p1 = SelectedMatch!.Frames.Count(x => x.WinnerId == SelectedMatch.Entries[0].Player!.Id);
+        //    int p2 = SelectedMatch!.Frames.Count(x => x.WinnerId == SelectedMatch.Entries[1].Player!.Id);
+
+        //    if (p1 >= SelectedRound!.Frames / 2 || p2 >= SelectedRound!.Frames / 2)
+        //    {
+
+        //        SelectedMatch.Winner = p1 > p2 ? SelectedMatch.Entries[0].Player : SelectedMatch.Entries[1].Player;
+
+        //        int currRound = Rounds.IndexOf(SelectedRound);
+        //        int currMatch = Matches.IndexOf(SelectedMatch);
+
+        //        tournament.Rounds = ServerConnection.GetMatchesByTournamentId(tournament.Id) ?? new List<List<MatchUpModel>>();
+        //        //RefreshRounds();
+        //        //SelectedRound = Rounds[currRound];
+        //        //SelectedMatch = Matches[currMatch];
+        //    }
+        //}
     }
 }

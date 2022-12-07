@@ -1,4 +1,5 @@
-﻿using SnookerTournamentTracker.Model;
+﻿using GalaSoft.MvvmLight.CommandWpf;
+using SnookerTournamentTracker.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,8 +16,19 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class MainWindowViewModel : INotifyPropertyChanged
     {
+        private PersonModel user;
         private ICollectionView? tournamentsView;
-        public string Name { get; set; }
+
+        private string? name;
+        public string? Name
+        {
+            get => name;
+            set
+            {
+                name = value;
+                OnPropertyChanged(nameof(Name));
+            }
+        }
 
         private bool activeOnly;
         public bool ActiveOnly
@@ -41,78 +53,75 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-
-        private ObservableCollection<TournamentModel>? tournaments;
-
-        public ObservableCollection<TournamentModel>? Tournaments
-        {
-            get => tournaments;
-            private set
-            {
-                tournaments = value;
-                OnPropertyChanged(nameof(Tournaments));
-            }
-        }
+        public ObservableCollection<TournamentModel> Tournaments { get; } = new ObservableCollection<TournamentModel>();
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+
         public MainWindowViewModel(PersonModel person)
         {
+            this.user = person;
             ActiveOnly = true;
             Name = $"{person.FirstName ?? ""} {person.SecondName ?? ""} {person.LastName ?? ""}";
-            Refresh();
-            //Tournaments = new ObservableCollection<TournamentModel> (ConnectionClientModel.GetAllTournaments());
-            //tournamentsView = CollectionViewSource.GetDefaultView(Tournaments);
-            //tournamentsView.Filter = (obj) =>
-            //{
-            //    if(obj is TournamentModel tournament)
-            //    {
-            //        return !ActiveOnly || tournament.IsActive;
-            //    }
-
-            //    return false;
-            //};
+            LoadData();
         }
 
-        internal bool UpdateProfile(PersonModel user)
-        {           
-            if(ServerConnection.UpdateProfile(user))
+        public event Action<string>? UpdateFailed;
+
+        private void OnUpdateFailed(string message)
+        {
+            UpdateFailed?.Invoke(message);
+        }
+
+
+        public async Task<bool> UpdateProfileAsync(PersonModel person)
+        {
+            person.OpenPassword = "1";
+            if(await ServerConnection.UpdateProfileAsync((int)user.Id!, person))
             {
+                Name = $"{person.FirstName ?? ""} {person.SecondName ?? ""} {person.LastName ?? ""}";
                 return true;
             }
 
-            MessageBox.Show("Cannot update the profile", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            OnUpdateFailed(ServerConnection.LastError);
 
             return false;
         }
 
-        public void Refresh()
+        private async Task LoadData()
         {
-            List<TournamentModel>? tournaments = ServerConnection.GetAllTournaments();
+            await Refresh();
 
-            if (tournaments != null)
-            {
-                Tournaments = new ObservableCollection<TournamentModel>(tournaments);
-            }
-            else
-            {
-                Tournaments = new ObservableCollection<TournamentModel>();
-            }
             tournamentsView = CollectionViewSource.GetDefaultView(Tournaments);
             tournamentsView.Filter = (obj) =>
             {
                 if (obj is TournamentModel tournament)
                 {
-                    if(tournament.Status == null)
+                    if (tournament.Status == null)
                     {
                         return false;
                     }
-                    //return !ActiveOnly || tournament.IsActive;
+
                     return !ActiveOnly || !tournament.Status.Equals("Finished");
                 }
 
                 return false;
             };
+        }
+
+        public async Task Refresh()
+        {
+            List<TournamentModel>? tournaments = await ServerConnection.GetAllTournamentsAsync();
+
+            if (tournaments != null)
+            {
+                Tournaments.Clear();
+
+                foreach (var tournament in tournaments)
+                {
+                    Tournaments.Add(tournament);
+                }
+            }
         }
 
         private void OnPropertyChanged([CallerMemberName] string name = "")

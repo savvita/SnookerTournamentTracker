@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace SnookerTournamentTracker.ConnectionLibrary
 {
@@ -77,25 +71,5 @@ namespace SnookerTournamentTracker.ConnectionLibrary
             writer.Write(data.Length);
             writer.Write(data);
         }
-
-
-        //public static async Task SendMessageAsync(NetworkStream? stream, Message message)
-        //{
-        //    if (stream == null)
-        //    {
-        //        return;
-        //    }
-
-        //    await JsonSerializer.SerializeAsync<Message>(stream, message);
-
-
-        //    //byte[] data = MessageEncoding.GetBytes(msg);
-
-        //    BinaryWriter writer = new BinaryWriter(stream);
-        //    writer.
-        //    //writer.Write(data.Length);
-        //    //writer.Write(data);
-        //}
-
     }
 }

@@ -5,25 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        Title="Snooker Tournament Tracker. Authorization" Height="450" Width="800"
-        WindowStartupLocation="CenterScreen">
-        <!--Background="{StaticResource BackgroundColorDarkBrush}"-->
-        
-
-    <Window.Resources>
-        <ResourceDictionary Source="StyleDictionary.xaml" />
-    </Window.Resources>
-
+        Title="Snooker Tournament Tracker. Authorization" Height="600" Width="600"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundColorDarkBrush}">
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="3*" />
         </Grid.RowDefinitions>
-        
-        <TabControl Grid.Row="1">
+
+        <Image Grid.Row="0" Source="Images/logo_h.png" />
+
+        <TabControl Grid.Row="1" Margin="50 0"
+                    materialDesign:ColorZoneAssist.Mode="PrimaryLight"
+                    Style="{StaticResource MaterialDesignFilledTabControl}">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
                     <i:InvokeCommandAction 
@@ -31,9 +30,30 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             
-            <TabItem Header="Sign in">
-                <DockPanel Name="SignIn" LastChildFill="False">
-                    <Grid DockPanel.Dock="Top">
+            <TabItem Header="Sign in" Style="{StaticResource TabItemStyle}">
+                <DockPanel Name="SignIn" LastChildFill="True" Style="{StaticResource DockContainerStyle}">
+                    <Grid DockPanel.Dock="Bottom">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button
+                            Grid.Row="0" Grid.Column="0" 
+                            Content="Sign in" 
+                            Command="{Binding SignInCommand}" 
+                            PreviewMouseDown="SignInBtn_PreviewMouseDown" />
+
+                        <Button 
+                            Grid.Row="0" Grid.Column="1"
+                            Content="Cancel" 
+                            IsCancel="True" 
+                            Click="CancelBtn_Click" />
+                    </Grid>
+
+                    <Label DockPanel.Dock="Bottom" Content="{Binding Error}" />
+
+                    <Grid DockPanel.Dock="Top"  Style="{StaticResource ContainerStyle}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -68,27 +88,7 @@
                             </local:PasswordUserControl.Password>
                         </local:PasswordUserControl>
                     </Grid>
-
-                    <Label DockPanel.Dock="Top" Content="{Binding Error}" />
-
-                    <Grid DockPanel.Dock="Bottom">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Button 
-                            Grid.Row="0" Grid.Column="0" 
-                            Content="Sign in" 
-                            Command="{Binding SignInCommand}" 
-                            PreviewMouseDown="SignInBtn_PreviewMouseDown" />
-
-                        <Button 
-                            Grid.Row="0" Grid.Column="1"
-                            Content="Cancel" 
-                            IsCancel="True" 
-                            Click="CancelBtn_Click" />
-                    </Grid>
+             
                 </DockPanel>
             </TabItem>
             

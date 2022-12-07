@@ -1,50 +1,86 @@
-﻿using SnookerTournamentTracker.ConnectionLibrary;
-using SnookerTournamentTrackerServer.Model;
-using System;
-using System.Collections.Generic;
+﻿using GalaSoft.MvvmLight.Command;
+using SnookerTournamentTrackerServer.DBAccess;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
+using TournamentLibrary;
 
 namespace SnookerTournamentTrackerServer.ViewModel
 {
     internal class ServerViewModel : INotifyPropertyChanged
     {
-        private ServerModel model = new ServerModel(); 
-        //private string? code;
-        //public string? Code
-        //{
-        //    get => code;
-        //    set
-        //    {
-        //        code = value;
-        //        OnPropertyChanged(nameof(Code));
-        //    }
-        //}
+        private Server server;
+        private ICollectionView? tournamentsView;
 
-        //private string? message;
-        //public string? Message
-        //{
-        //    get => message;
-        //    set
-        //    {
-        //        message = value;
-        //        OnPropertyChanged(nameof(Message));
-        //    }
-        //}
+        private bool activeOnly;
+        public bool ActiveOnly
+        {
+            get => activeOnly;
+            set
+            {
+                activeOnly = value;
+                tournamentsView?.Refresh();
+                OnPropertyChanged(nameof(ActiveOnly));
+            }
+        }
 
 
+        public ObservableCollection<PersonModel> Users { get; } = new ObservableCollection<PersonModel>();
+        public ObservableCollection<TournamentModel> Tournaments { get; } = new ObservableCollection<TournamentModel>();
         public ServerViewModel()
         {
-            //Connection.f2();
-            //Message? m = Connection.f();
-            //if(m != null)
-            //{
-            //    Code = m.Code.ToString();
-            //    Message = m.Content;
-            //}
+            server = new Server(new DBAccesEntity());
+            ActiveOnly = true;
+            LoadData();
+        }
+
+        private async Task LoadData()
+        {
+            Tournaments.Clear();
+            Users.Clear();
+
+            var tournaments = await ServerConnection.GetAllTournamentsAsync();
+
+            foreach(var tournament in tournaments)
+            {
+                Tournaments.Add(tournament);
+            }
+
+            tournamentsView = CollectionViewSource.GetDefaultView(Tournaments);
+            tournamentsView.Filter = (obj) =>
+            {
+                if (obj is TournamentModel tournament)
+                {
+                    if (tournament.Status == null)
+                    {
+                        return false;
+                    }
+
+                    return !ActiveOnly || !tournament.Status.Equals("Finished");
+                }
+
+                return false;
+            };
+
+            var users = await ServerConnection.GetAllPlayersAsync();
+
+            foreach (var user in users)
+            {
+                Users.Add(user);
+            }
+        }
+
+        public void Close()
+        {
+            //server.Dispose();
+        }
+
+        private RelayCommand? refreshCmd;
+        public RelayCommand RefreshCmd
+        {
+            get => refreshCmd ?? new RelayCommand(async () => await LoadData());
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

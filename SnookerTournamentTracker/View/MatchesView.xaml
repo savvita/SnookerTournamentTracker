@@ -14,71 +14,105 @@
         <converter:NegativeBoolToVisibilityConverter x:Key="negativeBoolToVisibilityConverter" />
     </Window.Resources>
 
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-    <StackPanel>
-        <ComboBox IsEditable="False" ItemsSource="{Binding Rounds}" SelectedItem="{Binding SelectedRound}">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <Label Content="{Binding Round}" />
-                    </StackPanel>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
-        <ListBox ItemsSource="{Binding Matches}" SelectedItem="{Binding SelectedMatch}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <Label Content="{Binding MatchNumber}" ContentStringFormat="Match #{0}" />
-                        <Label Content="{Binding Entries, Converter={StaticResource entriesToStringConverter}}" />
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <Label Content="{Binding Players}" HorizontalContentAlignment="Center" />
-        <Label Content="{Binding Score}" HorizontalContentAlignment="Center" />
-        <Label Content="{Binding TotalFrames}" ContentStringFormat="Best of {0}" HorizontalContentAlignment="Center" />
-        <DataGrid AutoGenerateColumns="False" SelectionMode="Single" 
+        <StackPanel Grid.Column="0">
+            <ComboBox IsEditable="False" ItemsSource="{Binding Rounds}" SelectedItem="{Binding SelectedRound}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <Label Content="{Binding Round}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <ListBox ItemsSource="{Binding Matches}" SelectedItem="{Binding SelectedMatch}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <Label Content="{Binding MatchNumber}" ContentStringFormat="Match #{0}" />
+                            <Label Content="{Binding Entries, Converter={StaticResource entriesToStringConverter}}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <Label Grid.Row="0" Content="{Binding Players}" HorizontalContentAlignment="Center" />
+            <Label Grid.Row="1" Content="{Binding Score}" HorizontalContentAlignment="Center" />
+            <Label Grid.Row="2" Content="{Binding TotalFrames}" ContentStringFormat="Best of {0}" HorizontalContentAlignment="Center" />
+            
+            <DataGrid Grid.Row="3" AutoGenerateColumns="False" SelectionMode="Single" 
                   ItemsSource="{Binding Results, Mode=OneTime}"
                   CanUserAddRows="False" CanUserDeleteRows="False"
                   CanUserReorderColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="50+" Binding="{Binding FirstPlayerBrakes}" />
+                <DataGrid.Columns>
+                    <DataGridTextColumn 
+                    Header="50+" 
+                    IsReadOnly="{Binding IsEditable}"
+                    Binding="{Binding FirstPlayerBrakes, UpdateSourceTrigger=PropertyChanged}" />
 
-                <DataGridTextColumn Header="Score" Binding="{Binding FirstPlayerScore, UpdateSourceTrigger=PropertyChanged}" />
+                    <DataGridTextColumn 
+                    Header="Score" 
+                    IsReadOnly="{Binding IsEditable}"
+                    Binding="{Binding FirstPlayerScore, UpdateSourceTrigger=PropertyChanged}" />
 
-                <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock HorizontalAlignment="Center" Visibility="{Binding IsUnsaved,Converter={StaticResource negativeBoolToVisibilityConverter}}">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0} : {1}">
-                                        <Binding Path="FirstPlayerMatchScore" />
-                                        <Binding Path="SecondPlayerMatchScore" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock 
+                                HorizontalAlignment="Center" 
+                                Visibility="{Binding IsUnsaved,Converter={StaticResource negativeBoolToVisibilityConverter}}">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} : {1}">
+                                            <Binding Path="FirstPlayerMatchScore" />
+                                            <Binding Path="SecondPlayerMatchScore" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-                <DataGridTextColumn Header="Score" Binding="{Binding SecondPlayerScore, UpdateSourceTrigger=PropertyChanged}" />
+                    <DataGridTextColumn 
+                    Header="Score" 
+                    IsReadOnly="{Binding IsEditable}"
+                    Binding="{Binding SecondPlayerScore, UpdateSourceTrigger=PropertyChanged}" />
 
-                <DataGridTextColumn Header="50+" Binding="{Binding SecondPlayerBrakes}" />
-                
-                <DataGridTemplateColumn Visibility="{Binding IsEditable, Converter={StaticResource boolToVisibilityConverter}}">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Content="Save" 
+                    <DataGridTextColumn 
+                    Header="50+" 
+                    IsReadOnly="{Binding IsEditable}"
+                    Binding="{Binding SecondPlayerBrakes, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <DataGridTemplateColumn Visibility="{Binding IsEditable, Converter={StaticResource boolToVisibilityConverter}}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Save" 
                                     Visibility="{Binding IsUnsaved,Converter={StaticResource boolToVisibilityConverter}}"
                                     Command="{Binding DataContext.SaveBtnCmd, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
                                     ClickMode="Press" CommandParameter="{Binding}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-            </DataGrid.Columns>
-        </DataGrid>
-        <Label Content="{Binding Error}" />
-    </StackPanel>
+                </DataGrid.Columns>
+            </DataGrid>
+            
+            <Label Grid.Row="4" Content="{Binding Error}" />
+        </Grid>
+    </Grid>
+
 </Window>

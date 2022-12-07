@@ -11,7 +11,9 @@
 
     <Window.Resources>
         <converter:StringToDecimalConverter x:Key="stringToDecimalConverter" />
-        
+        <converter:BoolToVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <converter:NegativeBoolToVisibilityConverter x:Key="negativeBoolToVisibilityConverter" />
+
         <Style TargetType="ListBox">
             <Style.Setters>
                 <Setter Property="ItemTemplate">
@@ -82,9 +84,51 @@
             <TextBox Grid.Row="4" Grid.Column="1" PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" 
                  Text="{Binding Tournament.Garantee, Converter={StaticResource stringToDecimalConverter}}" />
 
-            <CheckBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="Private" />
+            <GroupBox Header="Payment info" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2">
+                <StackPanel>
+                    <ComboBox IsReadOnly="True" ItemsSource="{Binding Cards}" SelectedItem="{Binding SelectedCard, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Label Content="{Binding CardNumber}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-            <Grid Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="0" Grid.Column="0" Content="Card number" />
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedCard.CardNumber, Mode=TwoWay}" 
+                                 PreviewTextInput="OnlyDigitsTxt_PreviewTextInput"
+                                 IsReadOnly="{Binding IsCardReadOnly}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Content="Card owner" />
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedCard.Name, Mode=TwoWay}" IsReadOnly="{Binding IsCardReadOnly}" />
+
+                        <Button 
+                            Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                            Content="Add new card" Command="{Binding AddCardCmd}"
+                            Visibility="{Binding IsCardReadOnly, Converter={StaticResource boolToVisibilityConverter}}"/>
+                        <Button 
+                            Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
+                            Content="Save" Command="{Binding SaveCardCmd}" 
+                            Visibility="{Binding IsCardReadOnly, Converter={StaticResource negativeBoolToVisibilityConverter}}"/>
+
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+            <!--<CheckBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="Private" />-->
+
+            <!--<Grid Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -107,7 +151,7 @@
                     <Button Content="Remove from invite list" Command="{Binding RemoveFromInvitedCommand}" />
                     <Button Content="Send invitations" />
                 </StackPanel>
-            </Grid>
+            </Grid>-->
         </Grid>
 
         <StackPanel Grid.Row="0" Grid.Column="1">
@@ -119,5 +163,5 @@
 
         <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Error}" />
     </Grid>
-   
+
 </Window>

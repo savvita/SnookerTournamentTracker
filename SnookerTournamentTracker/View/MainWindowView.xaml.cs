@@ -32,6 +32,8 @@ namespace SnookerTournamentTracker.View
         {
             this.user = user;
             model = new MainWindowViewModel(user);
+            model.UpdateFailed += (msg) => MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
             this.DataContext = model;
         }
 
@@ -49,7 +51,6 @@ namespace SnookerTournamentTracker.View
             {
                 model?.Refresh();
             }
-            //(new CreateTournamentView()).ShowDialog();
         }
 
         private void ProfileBtn_Click(object sender, RoutedEventArgs e)
@@ -59,9 +60,14 @@ namespace SnookerTournamentTracker.View
                 UserProfileView view = new UserProfileView(user);
                 view.ShowDialog();
 
-                if(view.DialogResult == true)
+                if (view.DialogResult == true && view.User != null)
                 {
-                    model?.UpdateProfile(user);
+                    user = view.User;
+                    model?.UpdateProfileAsync(user);
+                }
+                else
+                {
+                    e.Handled = true;
                 }
             }
         }
@@ -76,6 +82,7 @@ namespace SnookerTournamentTracker.View
 
             TournamentInfoView view = new TournamentInfoView(user, model.SelectedTournament);
             view.ShowDialog();
+            model?.Refresh();
         }
 
         private void MyTournamentsBtn_Click(object sender, RoutedEventArgs e)
@@ -87,6 +94,7 @@ namespace SnookerTournamentTracker.View
 
             MyTournamentsView view = new MyTournamentsView(user);
             view.ShowDialog();
+            model?.Refresh();
         }
     }
 }

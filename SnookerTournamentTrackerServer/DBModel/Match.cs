@@ -17,6 +17,8 @@ public partial class Match
 
     public int? WinnerId { get; set; }
 
+    public bool IsCompleted { get; set; } = false;
+
     public virtual ICollection<Frame> Frames { get; } = new List<Frame>();
 
     public virtual ICollection<MatchUpEntry> MatchUpEntries { get; } = new List<MatchUpEntry>();

@@ -12,5 +12,9 @@ public partial class Place
     [StringLength(20, ErrorMessage = "Maximum length for a place name is 20 chars")]
     public string PlaceName { get; set; } = null!;
 
+    public int RoundId { get; set; }
+
     public virtual ICollection<Prize> Prizes { get; } = new List<Prize>();
+
+    public virtual Round Round { get; set; } = null!;
 }

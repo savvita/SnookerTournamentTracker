@@ -14,13 +14,6 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class CreateTournamentViewModel : INotifyPropertyChanged
     {
-        //public string? Name { get; set; }
-
-        //public DateTime? StartDate { get; set; }
-        //public DateTime? EndDate { get; set; }
-        //public string? EntreeFee { get; set; }
-
-        //public decimal? Garantee { get; set; }
 
         private TournamentModel tournament;
         public TournamentModel Tournament
@@ -33,7 +26,32 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        public PersonModel? SelectedPlayer { get; set; }
+        public ObservableCollection<CardModel> Cards { get; } = new ObservableCollection<CardModel>();
+
+        private CardModel? selectedCard;
+
+        public CardModel? SelectedCard
+        {
+            get => selectedCard;
+            set
+            {
+                selectedCard = value;
+                OnPropertyChanged(nameof(SelectedCard));
+            }
+        }
+
+        private bool isCardReadOnly;
+        public bool IsCardReadOnly
+        {
+            get => isCardReadOnly;
+            set
+            {
+                isCardReadOnly = value;
+                OnPropertyChanged(nameof(IsCardReadOnly));
+            }
+        }
+
+    public PersonModel? SelectedPlayer { get; set; }
 
         public PersonModel? SelectedInvitedPlayer { get; set; }
 
@@ -51,15 +69,54 @@ namespace SnookerTournamentTracker.ViewModel
             this.user = user;
             tournament = new TournamentModel();
 
-            var players = ServerConnection.GetAllPlayers((int)user.Id);
+            LoadData();
+
+
+            InvitedPlayers = new ObservableCollection<PersonModel>();
+
+            //var cards = await ServerConnection.GetUserCardsAsync(user.Id);
+
+            //if (cards != null)
+            //{
+            //    foreach (var card in cards)
+            //    {
+            //        Cards.Add(card);
+            //    }
+
+            //    if(Cards.Count > 0)
+            //    {
+            //        SelectedCard = Cards[0];
+            //    }
+            //}
+
+            IsCardReadOnly = true;
+        }
+
+        private async Task LoadData()
+        {
+            var players = await ServerConnection.GetAllPlayersAsync();
 
             if (players != null)
             {
                 Players = new ObservableCollection<PersonModel>(players);
             }
 
-            InvitedPlayers = new ObservableCollection<PersonModel>();
+            var cards = await ServerConnection.GetUserCardsAsync(user.Id);
+
+            if (cards != null)
+            {
+                foreach (var card in cards)
+                {
+                    Cards.Add(card);
+                }
+
+                if (Cards.Count > 0)
+                {
+                    SelectedCard = Cards[0];
+                }
+            }
         }
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = "")
@@ -93,18 +150,52 @@ namespace SnookerTournamentTracker.ViewModel
             });
         }
 
-        //private RelayCommand? createTournamentCommand;
-        //public RelayCommand CreateTournamentCommand
-        //{
-        //    get => createTournamentCommand ?? new RelayCommand(() =>
-        //    {
-        //        CreateTournament();
-        //    });
-        //}
+        private RelayCommand? addCardCmd;
+        public RelayCommand AddCardCmd
+        {
+            get => addCardCmd ?? new RelayCommand(() =>
+            {
+                CardModel card = new CardModel()
+                {
+                    UserId = (int)user.Id!
+                };
+
+                Cards.Add(card);
+                SelectedCard = card;
+                IsCardReadOnly = false;
+            });
+        }
+
+        private RelayCommand? saveCardCmd;
+        public RelayCommand SaveCardCmd
+        {
+            get => saveCardCmd ?? new RelayCommand(async () =>
+            {
+                if(user == null)
+                {
+                    Error = "User is not defined";
+                    return;
+                }
+
+                if(SelectedCard == null)
+                {
+                    Error = "Card is not defined";
+                    return;
+                }
+
+                if (await ServerConnection.SaveUserCard((int)user.Id!, SelectedCard))
+                {
+                    IsCardReadOnly = true;
+                }
+
+                Error = ServerConnection.LastError;
+            });
+        }
+
 
         public event Action? TournamentCreated;
 
-        public bool CreateTournament()
+        public async Task<bool> CreateTournamentAsync()
         {
             if (Rounds == null)
             {
@@ -116,12 +207,32 @@ namespace SnookerTournamentTracker.ViewModel
             {
                 if (Validate())
                 {
+                    if(user == null)
+                    {
+                        Error = "User is not defined";
+                        return false;
+                    }
                     if (Prizes != null)
                     {
                         Tournament.Prizes = Prizes.Where(prize => prize.PrizeAmount != null).ToList();
                     }
                     Tournament.RoundModel = Rounds.Where(round => round.Frames != null).ToList();
-                    if (ServerConnection.CreateTournament((int)user.Id, Tournament))
+
+                    if(Tournament.BuyIn != null)
+                    {
+                        if(SelectedCard == null)
+                        {
+                            Error = "Card is required";
+                            return false;
+                        }
+
+                        Tournament.PaymentInfo = new PaymentInfoModel()
+                        {
+                            Card = SelectedCard,
+                            Sum = (decimal)Tournament.BuyIn
+                        };
+                    }
+                    if (await ServerConnection.CreateTournamentAsync((int)user.Id!, Tournament))
                     {
                         TournamentCreated?.Invoke();
                         return true;
@@ -157,17 +268,6 @@ namespace SnookerTournamentTracker.ViewModel
 
         private bool Validate()
         {
-            //TODO add validation
-            //if(Name == null || Name.Length == 0)
-            //{
-            //    return false;
-            //}
-
-            //if(StartDate != null && EndDate != null && StartDate > EndDate)
-            //{
-            //    return false;
-            //}
-
             Error = String.Empty;
 
             if (Tournament.Name == null || Tournament.Name.Length == 0)
@@ -185,6 +285,12 @@ namespace SnookerTournamentTracker.ViewModel
             if(Tournament.Garantee != null && Prizes == null)
             {
                 Error = "Total prizes cannot be less than garantee";
+                return false;
+            }
+
+            if (Tournament.PrizeMode == PrizesModeEnum.Percentage && Tournament.Garantee == null && Tournament.BuyIn == null)
+            {
+                Error = "Percentage prize mode requires a garantee or buy-ins";
                 return false;
             }
 

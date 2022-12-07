@@ -1,16 +1,10 @@
 ﻿using GalaSoft.MvvmLight.Command;
-using SnookerTournamentTracker.Model;
 using SnookerTournamentTracker.Security;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Security;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using TournamentLibrary;
 
 namespace SnookerTournamentTracker.ViewModel
@@ -105,11 +99,25 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
+
+        public event Action<PersonModel>? Authorizated;
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+
+        #region Commands
+
         private RelayCommand? signInCommand;
 
         public RelayCommand SignInCommand
         {
-            get => signInCommand ?? new RelayCommand(async () => await SignIn());
+            get => signInCommand ?? new RelayCommand(async () => await SignInAsync());
+        }
+
+        private RelayCommand? signUpCommand;
+
+        public RelayCommand SignUpCommand
+        {
+            get => signUpCommand ?? new RelayCommand(async () => await SignUpAsync());
         }
 
         private RelayCommand? clearCommand;
@@ -117,36 +125,22 @@ namespace SnookerTournamentTracker.ViewModel
         public RelayCommand ClearCommand
         {
             get => clearCommand ?? new RelayCommand(Clear);
-        }
+        } 
+        #endregion
 
-        private void Clear()
-        {
-            Password = null;
-            PasswordConfirm = null;
-            FirstName = null;
-            SecondName = null;
-            LastName = null;
-            Email = null;
-            PhoneNumber = null;
-            Error = String.Empty;
-        }
-
-        public event Action<PersonModel>? Authorizated;
-
-        private void OnAuthorizated(PersonModel model)
-        {
-            Authorizated?.Invoke(model);
-        }
-
-        private async Task SignIn()
+        private async Task SignInAsync()
         {
             try
             {
                 if (Validate())
                 {
-                    PersonModel person = new PersonModel() { EmailAddress = Email, OpenPassword = Passwords.SecureStringToString(Password) };
+                    PersonModel person = new PersonModel() 
+                    { 
+                        EmailAddress = Email, 
+                        OpenPassword = Passwords.SecureStringToString(Password) 
+                    };
 
-                    if (await ServerConnection.SignIn(person))
+                    if (await ServerConnection.SignInAsync(person))
                     {
                         OnAuthorizated(person);
                     }
@@ -169,14 +163,7 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        private RelayCommand? signUpCommand;
-
-        public RelayCommand SignUpCommand
-        {
-            get => signUpCommand ?? new RelayCommand(SignUp);
-        }
-
-        private async void SignUp()
+        private async Task SignUpAsync()
         {
             try
             {
@@ -192,10 +179,18 @@ namespace SnookerTournamentTracker.ViewModel
                         OpenPassword = Passwords.SecureStringToString(Password)
                     };
 
-                    if (await ServerConnection.SignUp(person))
+                    if (await ServerConnection.SignUpAsync(person))
                     {
                         Password?.Dispose();
                         PasswordConfirm?.Dispose();
+
+                        if (person.OpenPassword != null)
+                        {
+                            int gen = GC.GetGeneration(person.OpenPassword);
+                            person.OpenPassword = null;
+                            GC.Collect(gen);
+                        }
+
                         OnAuthorizated(person);
                     }
                     else
@@ -222,7 +217,8 @@ namespace SnookerTournamentTracker.ViewModel
 
             if(!signIn)
             {
-                if (string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName) || string.IsNullOrEmpty(Email) || Password == null || PasswordConfirm == null)
+                if (string.IsNullOrEmpty(FirstName) || string.IsNullOrEmpty(LastName) 
+                    || string.IsNullOrEmpty(Email) || Password == null || PasswordConfirm == null)
                 {
                     Error = "Fill all the required fields";
                     return false;
@@ -233,16 +229,32 @@ namespace SnookerTournamentTracker.ViewModel
                     Error = "Passwords do not match";
                     return false;
                 }
-
             }
 
             return true;
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        private void Clear()
+        {
+            Password = null;
+            PasswordConfirm = null;
+            FirstName = null;
+            SecondName = null;
+            LastName = null;
+            Email = null;
+            PhoneNumber = null;
+            Error = String.Empty;
+        }
+
+
         private void OnPropertyChanged([CallerMemberName] string name = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private void OnAuthorizated(PersonModel model)
+        {
+            Authorizated?.Invoke(model);
         }
     }
 }

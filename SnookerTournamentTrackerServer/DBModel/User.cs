@@ -42,9 +42,15 @@ public partial class User
 
     public virtual ICollection<MatchUpEntry> MatchUpEntries { get; } = new List<MatchUpEntry>();
 
+    public virtual ICollection<Brake> Brakes { get; } = new List<Brake>();
+
     public virtual ICollection<PhoneNumber> PhoneNumbers { get; } = new List<PhoneNumber>();
 
     public virtual ICollection<TournamentsPlayer> TournamentsPlayers { get; } = new List<TournamentsPlayer>();
+
+    public virtual ICollection<Payment> Payments { get; } = new List<Payment>();
+
+    public virtual ICollection<Card> Cards { get; } = new List<Card>();
 
     public virtual UserRole UserRole { get; set; } = null!;
 }

@@ -46,6 +46,7 @@ namespace SnookerTournamentTracker.View
 
             TournamentInfoView view = new TournamentInfoView(user, model.SelectedPlayingTournament);
             view.ShowDialog();
+            model?.RefreshAsync();
         }
 
         private void ViewAdministratingTournamentBtn_Click(object sender, RoutedEventArgs e)
@@ -58,6 +59,7 @@ namespace SnookerTournamentTracker.View
 
             TournamentInfoView view = new TournamentInfoView(user, model.SelectedAdministratingTournament);
             view.ShowDialog();
+            model?.RefreshAsync();
         }
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
