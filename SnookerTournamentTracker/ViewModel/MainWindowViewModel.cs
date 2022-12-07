@@ -1,14 +1,9 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
-using SnookerTournamentTracker.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Data;
 using TournamentLibrary;
 
@@ -56,23 +51,14 @@ namespace SnookerTournamentTracker.ViewModel
         public ObservableCollection<TournamentModel> Tournaments { get; } = new ObservableCollection<TournamentModel>();
 
         public event PropertyChangedEventHandler? PropertyChanged;
-
+        public event Action<string>? UpdateFailed;
 
         public MainWindowViewModel(PersonModel person)
         {
             this.user = person;
             ActiveOnly = true;
             Name = $"{person.FirstName ?? ""} {person.SecondName ?? ""} {person.LastName ?? ""}";
-            LoadData();
         }
-
-        public event Action<string>? UpdateFailed;
-
-        private void OnUpdateFailed(string message)
-        {
-            UpdateFailed?.Invoke(message);
-        }
-
 
         public async Task<bool> UpdateProfileAsync(PersonModel person)
         {
@@ -88,7 +74,7 @@ namespace SnookerTournamentTracker.ViewModel
             return false;
         }
 
-        private async Task LoadData()
+        public async Task LoadData()
         {
             await Refresh();
 
@@ -102,7 +88,7 @@ namespace SnookerTournamentTracker.ViewModel
                         return false;
                     }
 
-                    return !ActiveOnly || !tournament.Status.Equals("Finished");
+                    return !ActiveOnly || !(tournament.Status.Equals("Finished") || tournament.Status.Equals("Cancelled"));
                 }
 
                 return false;
@@ -127,6 +113,11 @@ namespace SnookerTournamentTracker.ViewModel
         private void OnPropertyChanged([CallerMemberName] string name = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private void OnUpdateFailed(string message)
+        {
+            UpdateFailed?.Invoke(message);
         }
     }
 }

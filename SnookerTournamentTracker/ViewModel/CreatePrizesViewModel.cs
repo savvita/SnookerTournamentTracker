@@ -1,11 +1,7 @@
-﻿using SnookerTournamentTracker.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using TournamentLibrary;
 
@@ -13,6 +9,7 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class CreatePrizesViewModel : INotifyPropertyChanged
     {
+        private decimal? garantee;
 
         private PrizesModeEnum mode;
         public PrizesModeEnum Mode
@@ -71,7 +68,16 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        private decimal? garantee;
+        private string error = String.Empty;
+        public string Error
+        {
+            get => error;
+            set
+            {
+                error = value;
+                OnPropertyChanged(nameof(Error));
+            }
+        }
 
         public CreatePrizesViewModel(TournamentModel tournament, List<PrizeModel>? prizes)
         {
@@ -87,7 +93,6 @@ namespace SnookerTournamentTracker.ViewModel
                 LoadData();
             }
 
-
             Refresh();
         }
 
@@ -97,16 +102,6 @@ namespace SnookerTournamentTracker.ViewModel
             Mode = PrizesModeEnum.Absolute;
         }
 
-        private string error = String.Empty;
-        public string Error
-        {
-            get => error;
-            set
-            {
-                error = value;
-                OnPropertyChanged(nameof(Error));
-            }
-        }
 
         public void Refresh()
         {

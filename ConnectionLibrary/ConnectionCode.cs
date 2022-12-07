@@ -32,6 +32,7 @@ namespace SnookerTournamentTracker.ConnectionLibrary
         SaveFrameResult,
         UserCards,
         SaveUserCard,
-        ConfirmPlayerRegistration
+        ConfirmPlayerRegistration,
+        CancelTournament
     }
 }

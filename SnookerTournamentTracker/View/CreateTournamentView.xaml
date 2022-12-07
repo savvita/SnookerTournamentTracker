@@ -6,8 +6,9 @@
         xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
         xmlns:converter="clr-namespace:SnookerTournamentTracker.Converter"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="CreateTournamentView" Height="550" Width="800">
+        Title="Create Tournament" Height="700" Width="800" MinHeight="700" MinWidth="800" WindowStartupLocation="CenterScreen" >
 
     <Window.Resources>
         <converter:StringToDecimalConverter x:Key="stringToDecimalConverter" />
@@ -42,24 +43,9 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="0" Grid.Column="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0">
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Label Grid.Row="0" Grid.Column="0" Content="Tournament name" />
-            <TextBox Grid.Row="0" Grid.Column="1">
+            <TextBox materialDesign:HintAssist.Hint="Tournament name" Margin="20 20 20 10">
                 <TextBox.Text>
                     <Binding Path="Tournament.Name" Mode="OneWayToSource" NotifyOnValidationError="True">
                         <Binding.ValidationRules>
@@ -70,21 +56,26 @@
                 </TextBox.Text>
             </TextBox>
 
-            <Label Grid.Row="1" Grid.Column="0" Content="Starts" />
-            <DatePicker Grid.Row="1" Grid.Column="1" SelectedDate="{Binding Tournament.StartDate}" />
+            <DatePicker SelectedDate="{Binding Tournament.StartDate}" 
+                        materialDesign:HintAssist.Hint="Starts" Margin="20 10" />
 
-            <Label Grid.Row="2" Grid.Column="0" Content="Ends" />
-            <DatePicker Grid.Row="2" Grid.Column="1" SelectedDate="{Binding Tournament.EndDate}" />
+            <DatePicker SelectedDate="{Binding Tournament.EndDate}" 
+                        materialDesign:HintAssist.Hint="Ends" Margin="20 10" />
 
-            <Label Grid.Row="3" Grid.Column="0" Content="Buy-in" />
-            <TextBox Grid.Row="3" Grid.Column="1" PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" 
-                 Text="{Binding Tournament.BuyIn, Converter={StaticResource stringToDecimalConverter}}" />
+            <TextBox PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" Margin="20 10"
+                 Text="{Binding Tournament.BuyIn, Converter={StaticResource stringToDecimalConverter}}"
+                     materialDesign:HintAssist.Hint="Buy-in" />
 
-            <Label Grid.Row="4" Grid.Column="0" Content="Garantee" />
-            <TextBox Grid.Row="4" Grid.Column="1" PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" 
-                 Text="{Binding Tournament.Garantee, Converter={StaticResource stringToDecimalConverter}}" />
+            <TextBox PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" Margin="20 10"
+                 Text="{Binding Tournament.Garantee, Converter={StaticResource stringToDecimalConverter}}"
+                     materialDesign:HintAssist.Hint="Garantee" />
 
-            <GroupBox Header="Payment info" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2">
+                <GroupBox 
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="Payment info">
                 <StackPanel>
                     <ComboBox IsReadOnly="True" ItemsSource="{Binding Cards}" SelectedItem="{Binding SelectedCard, Mode=TwoWay}">
                         <ComboBox.ItemTemplate>
@@ -93,37 +84,29 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Label Grid.Row="0" Grid.Column="0" Content="Card number" />
-                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedCard.CardNumber, Mode=TwoWay}" 
+                    <StackPanel>
+                        <TextBox Margin="0 5" Text="{Binding SelectedCard.CardNumber, Mode=TwoWay}" 
+                                 materialDesign:HintAssist.Hint="Card number"
                                  PreviewTextInput="OnlyDigitsTxt_PreviewTextInput"
                                  IsReadOnly="{Binding IsCardReadOnly}" />
 
-                        <Label Grid.Row="1" Grid.Column="0" Content="Card owner" />
-                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedCard.Name, Mode=TwoWay}" IsReadOnly="{Binding IsCardReadOnly}" />
+                        <TextBox Margin="0 5" 
+                                 Text="{Binding SelectedCard.Name, Mode=TwoWay}"
+                                 materialDesign:HintAssist.Hint="Card owner"
+                                 IsReadOnly="{Binding IsCardReadOnly}" />
 
                         <Button 
-                            Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                            Width="{StaticResource ButtonWidth}"
+                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                             Content="Add new card" Command="{Binding AddCardCmd}"
                             Visibility="{Binding IsCardReadOnly, Converter={StaticResource boolToVisibilityConverter}}"/>
                         <Button 
-                            Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
+                            Width="{StaticResource ButtonWidth}"
+                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                             Content="Save" Command="{Binding SaveCardCmd}" 
                             Visibility="{Binding IsCardReadOnly, Converter={StaticResource negativeBoolToVisibilityConverter}}"/>
 
-                    </Grid>
+                    </StackPanel>
                 </StackPanel>
             </GroupBox>
             <!--<CheckBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="Private" />-->
@@ -152,13 +135,29 @@
                     <Button Content="Send invitations" />
                 </StackPanel>
             </Grid>-->
-        </Grid>
+        </StackPanel>
 
         <StackPanel Grid.Row="0" Grid.Column="1">
-            <Button Content="Create prize model" Click="CreatePrizesBtn_Click" />
-            <Button Content="Create rounds" Click="CreateRoundsBtn_Click" />
-            <Button Content="Create tournament" Click="CreateTournamentBtn_Click" />
-            <Button Content="Cancel" IsCancel="True" Click="CancelBtn_Click" />
+            <Button 
+                Margin="5 20 5 5"
+                Width="{StaticResource ButtonWidth}"
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Content="Create prize model" Click="CreatePrizesBtn_Click" />
+            <Button 
+                Margin="5"
+                Width="{StaticResource ButtonWidth}"
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Content="Create rounds" Click="CreateRoundsBtn_Click" />
+            <Button 
+                Margin="5"
+                Width="{StaticResource ButtonWidth}"
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Content="Create tournament" Click="CreateTournamentBtn_Click" />
+            <Button 
+                Margin="5"
+                Width="{StaticResource ButtonWidth}"
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Content="Cancel" IsCancel="True" Click="CancelBtn_Click" />
         </StackPanel>
 
         <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Error}" />

@@ -244,7 +244,30 @@ namespace TournamentLibrary
                 return false;
             }
 
-            return await HandleRequestAsync<int?>(ConnectionCode.IsTournamentAdministrator, (int)userId!, tournamentId);
+            Message? response = await GetResponseAsync(new Message()
+            {
+                Sender = userId,
+                Code = ConnectionCode.IsTournamentAdministrator,
+                Content = JsonSerializer.Serialize<int?>(tournamentId)
+            });
+
+            if (response == null)
+            {
+                LastError = "Server does not response";
+                return false;
+            }
+
+            if (response.Code == ConnectionCode.Error || response.Content == null)
+            {
+                LastError = response.Content ?? "Server does not response";
+                return false;
+            }
+
+            var result = JsonSerializer.Deserialize<bool>(response.Content);
+
+            LastError = String.Empty;
+
+            return result;
         }
 
         public static async Task<bool> RegisterAtTournamentAsync(int? userId, int? tournamentId)
@@ -270,6 +293,15 @@ namespace TournamentLibrary
         public static async Task<bool> ConfirmPlayerRegistrationAsync(int senderId, TournamentPlayer player)
         {
             return await HandleRequestAsync<TournamentPlayer>(ConnectionCode.ConfirmPlayerRegistration, senderId, player);
+        }
+        public static async Task<bool> CancelTournamentAsync(int? userId, int? tournamentId)
+        {
+            if (userId == null || tournamentId == null)
+            {
+                return false;
+            }
+
+            return await HandleRequestAsync<int?>(ConnectionCode.CancelTournament, (int)userId!, tournamentId);
         }
 
         public static async Task<bool> CreateTournamentAsync(int senderId, TournamentModel tournament)

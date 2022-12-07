@@ -2,16 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using TournamentLibrary;
 
 namespace SnookerTournamentTracker.View
@@ -30,7 +22,8 @@ namespace SnookerTournamentTracker.View
 
         public CreateRoundsView(List<RoundModel>? rounds) : this()
         {
-            model = new CreateRoundsViewModel(rounds);
+            model = new CreateRoundsViewModel();
+            this.Loaded += async (obj, e) => await model.LoadData(rounds);
             this.DataContext = model;
         }
 

@@ -4,8 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTrackerServer.View"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="ServerView" Height="450" Width="800">
+        Title="Server" Height="600" Width="1200" MinHeight="600" MinWidth="960"
+         WindowStartupLocation="CenterScreen" WindowState="Maximized">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -14,52 +16,66 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <GroupBox Grid.Row="0"
+                      Margin="20"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="Tournaments">
 
-            <DockPanel Grid.Row="0" LastChildFill="False">
-                <Label DockPanel.Dock="Left" Content="Tournaments" />
-                <CheckBox DockPanel.Dock="Right" Grid.Row="2" Content="Active only" IsChecked="{Binding ActiveOnly}" />
-            </DockPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-            <DataGrid Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Single"
-                  ItemsSource="{Binding Tournaments, Mode=OneWay}"
-                  CanUserAddRows="False" CanUserDeleteRows="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}"  />
-                    <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Buy-in" Binding="{Binding BuyIn, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Status" Binding="{Binding Status, Mode=OneWay}" />
-                </DataGrid.Columns>
-            </DataGrid>
-        </Grid>
+                <StackPanel Grid.Row="0" DockPanel.Dock="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                    <ToggleButton
+                            Style="{StaticResource MaterialDesignSwitchDarkToggleButton}"
+                            IsChecked="{Binding ActiveOnly}" />
+                    <Label Content="Active only" DockPanel.Dock="Right" />
+                </StackPanel>
 
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+                <DataGrid Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Single"
+                          ItemsSource="{Binding Tournaments, Mode=OneWay}"
+                          CanUserAddRows="False" CanUserDeleteRows="False"
+                          ColumnWidth="*">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}" Width="1.5*" />
+                        <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay}" />
+                        <DataGridTextColumn Header="Buy-in" Binding="{Binding EntreeFee, Mode=OneWay}" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding TournamentStatus.Status, Mode=OneWay}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
 
-            <Label Grid.Row="0" Content="Tournaments" />
+        <GroupBox Grid.Column="1"
+                    Margin="20"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="Users">
 
-            <DataGrid Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Single"
+            <DataGrid AutoGenerateColumns="False" SelectionMode="Single"
                   ItemsSource="{Binding Users, Mode=OneWay}"
-                  CanUserAddRows="False" CanUserDeleteRows="False">
+                  CanUserAddRows="False" CanUserDeleteRows="False"
+                      ColumnWidth="*">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="First name" Binding="{Binding FirstName, Mode=OneWay}"  />
                     <DataGridTextColumn Header="Second name" Binding="{Binding SecondName, Mode=OneWay}"  />
                     <DataGridTextColumn Header="Last name" Binding="{Binding LastName, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Email" Binding="{Binding EmailAddress, Mode=OneWay}" />
+                    <DataGridTextColumn Header="Email" Binding="{Binding Email, Mode=OneWay}" Width="1.5*" />
                 </DataGrid.Columns>
             </DataGrid>
-        </Grid>
+        </GroupBox>
+
 
         <StackPanel Grid.Column="2">
-            <Button Content="Refresh" Command="{Binding RefreshCmd}" />
-            <Button Content="Close" Click="CloseBtn_Click" />
+            <Button Content="Refresh" Width="200" Margin="5 20 5 5" Command="{Binding RefreshCmd}" />
+            <Button Content="Close" Width="200" Margin="5" Click="CloseBtn_Click" />
         </StackPanel>
     </Grid>
 </Window>

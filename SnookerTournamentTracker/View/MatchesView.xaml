@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         xmlns:converter="clr-namespace:SnookerTournamentTracker.Converter"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="MatchesView" Height="450" Width="800">
+        Title="Matches" Height="450" Width="900" MinHeight="450" MinWidth="900" WindowStartupLocation="CenterScreen" >
 
     <Window.Resources>
         <converter:EntriesToStringConverter x:Key="entriesToStringConverter" />
@@ -20,99 +21,128 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0">
-            <ComboBox IsEditable="False" ItemsSource="{Binding Rounds}" SelectedItem="{Binding SelectedRound}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel>
-                            <Label Content="{Binding Round}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-            <ListBox ItemsSource="{Binding Matches}" SelectedItem="{Binding SelectedMatch}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel>
-                            <Label Content="{Binding MatchNumber}" ContentStringFormat="Match #{0}" />
-                            <Label Content="{Binding Entries, Converter={StaticResource entriesToStringConverter}}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </StackPanel>
-
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             
-            <Label Grid.Row="0" Content="{Binding Players}" HorizontalContentAlignment="Center" />
-            <Label Grid.Row="1" Content="{Binding Score}" HorizontalContentAlignment="Center" />
-            <Label Grid.Row="2" Content="{Binding TotalFrames}" ContentStringFormat="Best of {0}" HorizontalContentAlignment="Center" />
+            <DockPanel Grid.Row="0" LastChildFill="True" Margin="20 10 20 5" VerticalAlignment="Center">
+                <Label DockPanel.Dock="Left" Content="Select round" />
+                <ComboBox
+                    DockPanel.Dock="Right"
+                    IsEditable="False" 
+                    ItemsSource="{Binding Rounds}" 
+                    SelectedItem="{Binding SelectedRound}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding Round}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </DockPanel>
+
+            <GroupBox Grid.Row="1"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="Matches">
+                
+                <ListBox ItemsSource="{Binding Matches}" SelectedItem="{Binding SelectedMatch}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <Label Content="{Binding MatchNumber}" ContentStringFormat="Match #{0}" />
+                                <Label Content="{Binding Entries, Converter={StaticResource entriesToStringConverter}}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>
             
-            <DataGrid Grid.Row="3" AutoGenerateColumns="False" SelectionMode="Single" 
-                  ItemsSource="{Binding Results, Mode=OneTime}"
+        </Grid>
+
+        <GroupBox Grid.Column="1"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="Results">
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Label Grid.Row="0" Content="{Binding Players}" HorizontalContentAlignment="Center" />
+                <Label Grid.Row="1" Content="{Binding Score}" HorizontalContentAlignment="Center" />
+                <Label Grid.Row="2" Content="{Binding TotalFrames}" ContentStringFormat="Best of {0}" HorizontalContentAlignment="Center" />
+
+                <DataGrid Grid.Row="3" AutoGenerateColumns="False" SelectionMode="Single" 
+                  ItemsSource="{Binding Results, Mode=OneTime}" ColumnWidth="*"
                   CanUserAddRows="False" CanUserDeleteRows="False"
                   CanUserReorderColumns="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn 
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="*"
                     Header="50+" 
                     IsReadOnly="{Binding IsEditable}"
                     Binding="{Binding FirstPlayerBrakes, UpdateSourceTrigger=PropertyChanged}" />
 
-                    <DataGridTextColumn 
+                        <DataGridTextColumn Width="*"
                     Header="Score" 
                     IsReadOnly="{Binding IsEditable}"
                     Binding="{Binding FirstPlayerScore, UpdateSourceTrigger=PropertyChanged}" />
 
-                    <DataGridTemplateColumn>
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock 
+                        <DataGridTemplateColumn Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock 
                                 HorizontalAlignment="Center" 
                                 Visibility="{Binding IsUnsaved,Converter={StaticResource negativeBoolToVisibilityConverter}}">
-                                    <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}{0} : {1}">
-                                            <Binding Path="FirstPlayerMatchScore" />
-                                            <Binding Path="SecondPlayerMatchScore" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0} : {1}">
+                                                <Binding Path="FirstPlayerMatchScore" />
+                                                <Binding Path="SecondPlayerMatchScore" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                    <DataGridTextColumn 
+                        <DataGridTextColumn  Width="*"
                     Header="Score" 
                     IsReadOnly="{Binding IsEditable}"
                     Binding="{Binding SecondPlayerScore, UpdateSourceTrigger=PropertyChanged}" />
 
-                    <DataGridTextColumn 
-                    Header="50+" 
+                        <DataGridTextColumn 
+                    Header="50+" Width="*"
                     IsReadOnly="{Binding IsEditable}"
                     Binding="{Binding SecondPlayerBrakes, UpdateSourceTrigger=PropertyChanged}" />
 
-                    <DataGridTemplateColumn Visibility="{Binding IsEditable, Converter={StaticResource boolToVisibilityConverter}}">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="Save" 
+                        <DataGridTemplateColumn Visibility="{Binding IsEditable, Converter={StaticResource boolToVisibilityConverter}}" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Save" 
                                     Visibility="{Binding IsUnsaved,Converter={StaticResource boolToVisibilityConverter}}"
                                     Command="{Binding DataContext.SaveBtnCmd, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
                                     ClickMode="Press" CommandParameter="{Binding}" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                </DataGrid.Columns>
-            </DataGrid>
-            
-            <Label Grid.Row="4" Content="{Binding Error}" />
-        </Grid>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Label Grid.Row="4" Content="{Binding Error}" />
+            </Grid>
+        </GroupBox>
+        
     </Grid>
 
 </Window>

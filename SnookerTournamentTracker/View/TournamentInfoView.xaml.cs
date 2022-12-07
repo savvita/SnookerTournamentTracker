@@ -1,17 +1,5 @@
 ﻿using SnookerTournamentTracker.ViewModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using TournamentLibrary;
 
 namespace SnookerTournamentTracker.View
@@ -38,9 +26,12 @@ namespace SnookerTournamentTracker.View
             this.Title = tournament.Name;
             model.RegisteringCompleted += (msg) => MessageBox.Show(msg, "Registration", MessageBoxButton.OK, MessageBoxImage.Information);
             model.UnregisteringCompleted += (msg) => MessageBox.Show(msg, "Unregistration", MessageBoxButton.OK, MessageBoxImage.Information);
+            model.NeedPayback += (msg) => MessageBox.Show(msg, "Cancel tournament", MessageBoxButton.OK, MessageBoxImage.Information);
+
             model.RegistrationClosed += () =>
             {
                 new MatchesView(user, tournament).ShowDialog();
+                model?.RefreshPlayersAsync();
             };
 
             this.DataContext = model;

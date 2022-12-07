@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         xmlns:converter="clr-namespace:SnookerTournamentTracker.Converter"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Tournament Info" Height="550" Width="800" WindowStartupLocation="CenterOwner">
+        Title="Tournament Info" Height="750" Width="1200" MinHeight="750" MinWidth="900" 
+        WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <converter:PersonToStringConverter x:Key="personToStringConverter" />
@@ -27,237 +29,404 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+            <Grid Grid.Column="0">
+                <GroupBox 
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Visibility="{Binding IsPaid, Converter={StaticResource negativeBoolToVisibilityConverter}}"
+                    Header="{Binding Tournament.Name}">
 
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Tournament name"
+                            Text="{Binding Tournament.Name, Mode=OneTime}" 
+                            IsReadOnly="True" />
 
-                    <Label Grid.Row="0" Grid.Column="0" Content="Tournament name" />
-                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Tournament.Name, Mode=OneTime}" IsReadOnly="True" />
+                        <TextBox
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Status" 
+                            Text="{Binding Tournament.Status, Mode=OneTime}"
+                            IsReadOnly="True" />
 
-                    <!--<TextBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Private, Mode=OneTime}" IsReadOnly="True" />-->
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Starts"
+                            Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
 
-                    <Label Grid.Row="1" Grid.Column="0" Content="Status" />
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Tournament.Status, Mode=OneTime}" IsReadOnly="True" />
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Ends"
+                            Text="{Binding Tournament.EndDate, Mode=OneTime}" 
+                            IsReadOnly="True" />
 
-                    <Label Grid.Row="2" Grid.Column="0" Content="Starts" />
-                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Buy-in"
+                            Text="{Binding Tournament.BuyIn, Mode=OneTime, StringFormat={}{0:0.00}}"
+                            IsReadOnly="True" />
 
-                    <Label Grid.Row="3" Grid.Column="0" Content="Ends" />
-                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Tournament.EndDate, Mode=OneTime}" IsReadOnly="True" />
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Garantee"
+                            Text="{Binding Tournament.Garantee, Mode=OneTime, StringFormat={}{0:0.00}}" 
+                            IsReadOnly="True" />
 
-                    <Label Grid.Row="4" Grid.Column="0" Content="Buy-in" />
-                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Tournament.BuyIn, Mode=OneTime}" IsReadOnly="True" />
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Registration status"
+                            Text="{Binding Status, Mode=OneTime}" 
+                            IsReadOnly="True" />
 
-                    <Label Grid.Row="5" Grid.Column="0" Content="Garantee" />
-                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Tournament.Garantee, Mode=OneTime}" IsReadOnly="True" />
-                </Grid>
+                    </StackPanel>
+                </GroupBox>
 
-                <Label Content="{Binding Status}" ContentStringFormat="Registration status: {0}" />
+            </Grid>
 
-                <GroupBox Header="Payment info"
-                          Visibility="{Binding IsPaid, Converter={StaticResource boolToVisibilityConverter}}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+            <StackPanel Grid.Column="0" Visibility="{Binding IsPaid, Converter={StaticResource boolToVisibilityConverter}}">
+                <GroupBox 
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="{Binding Tournament.Name}">
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Tournament name"
+                            Text="{Binding Tournament.Name, Mode=OneTime}" 
+                            IsReadOnly="True" />
 
-                        <Label Grid.Row="0" Grid.Column="0" Content="Card number" />
-                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Tournament.PaymentInfo.Card.CardNumber, Mode=OneTime}" IsReadOnly="True" />
+                        <TextBox
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Status" 
+                            Text="{Binding TournamentStatus, Mode=OneWay}"
+                            IsReadOnly="True" />
 
-                        <Label Grid.Row="1" Grid.Column="0" Content="Card owner" />
-                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Tournament.PaymentInfo.Card.Name, Mode=OneTime}" IsReadOnly="True" />
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Starts"
+                            Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
 
-                        <Label Grid.Row="2" Grid.Column="0" Content="Sum" />
-                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Tournament.PaymentInfo.Sum, Mode=OneTime}" IsReadOnly="True" />
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Ends"
+                            Text="{Binding Tournament.EndDate, Mode=OneTime}" 
+                            IsReadOnly="True" />
 
-                        <Label Grid.Row="3" Grid.Column="0" Content="Purpose of payment " />
-                        <TextBox Grid.Row="3" Grid.Column="1" IsReadOnly="True">
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Buy-in"
+                            Text="{Binding Tournament.BuyIn, Mode=OneTime, StringFormat={}{0:0.00}}"
+                            IsReadOnly="True" />
+
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Garantee"
+                            Text="{Binding Tournament.Garantee, Mode=OneTime, StringFormat={}{0:0.00}}" 
+                            IsReadOnly="True" />
+
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Registration status"
+                            Text="{Binding Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                            IsReadOnly="True" />
+
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox 
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="Payment info"
+                    Visibility="{Binding IsPaid, Converter={StaticResource boolToVisibilityConverter}}">
+
+                    <StackPanel>
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Card number"
+                            Text="{Binding Tournament.PaymentInfo.Card.CardNumber, Mode=OneTime}" 
+                            IsReadOnly="True" />
+
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Card owner"
+                            Text="{Binding Tournament.PaymentInfo.Card.Name, Mode=OneTime}" 
+                            IsReadOnly="True" />
+
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Sum"
+                            Text="{Binding Tournament.PaymentInfo.Sum, Mode=OneTime, StringFormat={}{0:0.00}}"
+                            IsReadOnly="True" />
+
+                        <TextBox 
+                            Margin="5 1"
+                            materialDesign:HintAssist.Hint="Purpose of payment"
+                            IsReadOnly="True"
+                            TextWrapping="Wrap"
+                            VerticalAlignment="Stretch"
+                            AcceptsReturn="True"
+                            VerticalScrollBarVisibility="Auto"
+                            SpellCheck.IsEnabled="True">
                             <MultiBinding StringFormat="Buy-in to tournament #{0}, user #{1}">
                                 <Binding Path="Tournament.Id" />
                                 <Binding Path="User.Id" />
                             </MultiBinding>
                         </TextBox>
-                    </Grid>
+                    </StackPanel>
                 </GroupBox>
             </StackPanel>
+
+
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                <GroupBox Grid.Row="0"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="Prizes">
 
-                    <Label Grid.Row="0" Content="Prizes" />
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal">
-                        <Label Content="Prize mode" />
-                        <TextBox Text="{Binding Tournament.PrizeMode, Mode=OneTime}" IsReadOnly="True" />
-                    </StackPanel>
+                        <TextBox 
+                            Grid.Row="0"
+                            materialDesign:HintAssist.Hint="Prize mode"
+                            Text="{Binding Tournament.PrizeMode, Mode=OneTime}" 
+                            IsReadOnly="True" />
 
-                    <DataGrid Grid.Row="2"
-                              AutoGenerateColumns="False" ItemsSource="{Binding Tournament.Prizes}" 
-                              CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn 
-                    Header="Place"
-                    Width="3.5*" 
-                    Binding="{Binding Path=PlaceName,UpdateSourceTrigger=PropertyChanged}"
-                    IsReadOnly="True" />
+                        <DataGrid Grid.Row="1"
+                                AutoGenerateColumns="False" ItemsSource="{Binding Tournament.Prizes}" 
+                                CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                                ColumnWidth="*">
+                            
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Place" Width="2*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Label Content="{Binding Path=PlaceName,UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Header="Amount" Width="*" >
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBox Text="{Binding PrizeAmount, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" BorderThickness="0" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
+                                <DataGridTemplateColumn Header="Amount" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Label Content="{Binding PrizeAmount, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </GroupBox>
 
-                <Separator Grid.Row="1" />
-
-                <Grid Grid.Row="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-
-                    <Label Grid.Row="0" Content="Rounds" />
+                <GroupBox Grid.Row="1"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="Rounds">
 
                     <DataGrid Grid.Row="1" 
                               AutoGenerateColumns="False" ItemsSource="{Binding Tournament.RoundModel}"
-                              CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True">
+                              CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" ColumnWidth="*">
                         <DataGrid.Columns>
-                            <DataGridTextColumn 
-                    Header="Round"
-                    Width="3.5*" 
-                    Binding="{Binding Path=Round,UpdateSourceTrigger=PropertyChanged}"
-                    IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="Round" Width="2*" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Round, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
 
                             <DataGridTemplateColumn Header="Frames" Width="*" >
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBox Text="{Binding Frames, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" BorderThickness="0" />
+                                        <Label Content="{Binding Frames, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                </Grid>
-
+                </GroupBox>
             </Grid>
 
+            <Grid Grid.Column="2"  Visibility="{Binding IsConfirmPossible, Converter={StaticResource negativeBoolToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-            <Grid Grid.Column="2">
+                <GroupBox Grid.Row="0"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="Players">
+
+                    <DataGrid
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding Players}"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True" ColumnWidth="*">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Player" Width="2*" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Player, Converter={StaticResource personToStringConverter}}" BorderThickness="0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Result" Width="*" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Result}" BorderThickness="0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </GroupBox>
+            </Grid>
+
+            <Grid Grid.Column="2"  Visibility="{Binding IsConfirmPossible, Converter={StaticResource boolToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                <GroupBox Grid.Row="0"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="Players">
 
-                    <Label Grid.Row="0" Content="Players" />
-                    <DataGrid Grid.Row="1"
+                    <DataGrid
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding Players}"
                           CanUserAddRows="False"
                           CanUserDeleteRows="False"
-                          IsReadOnly="True">
+                          IsReadOnly="True" ColumnWidth="*">
                         <DataGrid.Columns>
-                            <DataGridTextColumn 
-                            Header="Player"
-                            Width="2*" 
-                            Binding="{Binding Player, Converter={StaticResource personToStringConverter}}"
-                            IsReadOnly="True" />
-                            <DataGridTextColumn 
-                            Header="Result"
-                            Width="*" 
-                            Binding="{Binding Result}"
-                            IsReadOnly="True" />
+                            <DataGridTemplateColumn Header="Player" Width="2*" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Player, Converter={StaticResource personToStringConverter}}" BorderThickness="0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Result" Width="*" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Result}" BorderThickness="0" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                </Grid>
+                </GroupBox>
 
-                <Grid Grid.Row="1" Visibility="{Binding IsConfirmPossible, Converter={StaticResource boolToVisibilityConverter}}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                <GroupBox Grid.Row="1"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Visibility="{Binding IsConfirmPossible, Converter={StaticResource boolToVisibilityConverter}}"
+                    Header="Waiting players">
 
-                    <Label Grid.Row="0" Content="Waiting players" />
-                    <DataGrid Grid.Row="1"
+                    <DataGrid 
                           AutoGenerateColumns="False"
                           ItemsSource="{Binding WaitingPlayers}"
                           CanUserAddRows="False"
                           CanUserDeleteRows="False"
                           IsReadOnly="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn 
-                            Header="Player"
-                            Width="2*" 
-                            Binding="{Binding Player, Converter={StaticResource personToStringConverter}}"
-                            IsReadOnly="True" />
-                            <DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Result" Width="*" >
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Confirm" 
-                                    Command="{Binding DataContext.ConfirmCmd, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
-                                    ClickMode="Press" CommandParameter="{Binding}" />
+                                        <Label Content="{Binding Player, Converter={StaticResource personToStringConverter}}" BorderThickness="0" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Confirm" 
+                                            Command="{Binding DataContext.ConfirmCmd, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                                            ClickMode="Press" CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                </Grid>
+
+                </GroupBox>
             </Grid>
-            
         </Grid>
+        
         <StackPanel Grid.Column="1">
-            <Button Content="Register" Command="{Binding RegisterCmd}" 
-                    Visibility="{Binding IsRegistrationOpened, Converter={StaticResource boolToVisibilityConverter}}" />
-            <Button Content="Unregister" Command="{Binding UnregisterCmd}" 
-                    Visibility="{Binding IsRegistrationOpened, Converter={StaticResource boolToVisibilityConverter}}" />
-            <Button Content="View matches" Click="ViewMatchesBtn_Click" Visibility="{Binding IsMatchesEnabled, Converter={StaticResource boolToVisibilityConverter}}" />
-            <Button Content="Edit" Visibility="{Binding IsEditable, Converter={StaticResource boolToVisibilityConverter}}" />
             <Button 
+                Margin="10 20 10 2"
+                Width="{StaticResource ButtonWidth}"
+                Content="Register" 
+                Command="{Binding RegisterCmd}" 
+                Visibility="{Binding IsRegistrationOpened, Converter={StaticResource boolToVisibilityConverter}}" />
+            
+            <Button 
+                Margin="10 2"
+                Width="{StaticResource ButtonWidth}"
+                Content="Unregister" Command="{Binding UnregisterCmd}" 
+                Visibility="{Binding IsRegistrationOpened, Converter={StaticResource boolToVisibilityConverter}}" />
+            
+            <Button 
+                Margin="10 2"
+                Width="{StaticResource ButtonWidth}"
+                Content="View matches" Click="ViewMatchesBtn_Click" 
+                Visibility="{Binding IsMatchesEnabled, Converter={StaticResource boolToVisibilityConverter}}" />
+            
+            <!--<Button 
+                Margin="10 2"
+                Width="{StaticResource ButtonWidth}"
+                Content="Edit" 
+                Visibility="{Binding IsEditable, Converter={StaticResource boolToVisibilityConverter}}" />-->
+            
+            <Button 
+                Margin="10 2"
+                Width="{StaticResource ButtonWidth}"
                 Content="Close registration"
                 Visibility="{Binding IsClosingRegistrationPossible, Converter={StaticResource boolToVisibilityConverter}}"
                 Command="{Binding CloseRegistrationCmd}" />
-            <Button Content="Close" Click="CloseBtn_Click" />
+
+            <Button 
+                Margin="10 2"
+                Width="{StaticResource ButtonWidth}"
+                Content="Cancel tournament"
+                Visibility="{Binding IsClosingRegistrationPossible, Converter={StaticResource boolToVisibilityConverter}}"
+                Command="{Binding CancelTournamentCmd}" />
+
+            <Button 
+                Margin="10 2"
+                Width="{StaticResource ButtonWidth}"
+                Content="Close" Click="CloseBtn_Click" />
         </StackPanel>
     </Grid>
     

@@ -7,12 +7,13 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <materialDesign:CustomColorTheme BaseTheme="Light" PrimaryColor="#FF381B6C" SecondaryColor="DarkGreen" />
+                <materialDesign:CustomColorTheme BaseTheme="Light" PrimaryColor="#FF252525" SecondaryColor="DarkGreen" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
                 <ResourceDictionary Source="./View/StyleDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <SolidColorBrush  x:Key="BackgroundColorDarkBrush" Color="#FF252525" />
             <SolidColorBrush  x:Key="BackgroundColorLightBrush" Color="#FFFFFF" />
+            <SolidColorBrush  x:Key="LightTextBrush" Color="#FFFFFF" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

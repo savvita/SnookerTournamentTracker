@@ -4,8 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="MyTournamentsView" Height="450" Width="800">
+        Title="My tournaments" Height="650" Width="900" MinHeight="450" MinWidth="800"
+        Background="{StaticResource BackgroundColorDarkBrush}" WindowStartupLocation="CenterScreen">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -21,19 +23,28 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Label Grid.Row="0" Content="Administrator at:" />
+            <Label 
+                Style="{StaticResource HeaderLightLabelStyle}"
+                Grid.Row="0"
+                Content="Administrator at:" />
 
-            <DataGrid Grid.Row="1"  AutoGenerateColumns="False" SelectionMode="Single"
-                  ItemsSource="{Binding AdministratingTournaments, Mode=OneWay}" 
-                  SelectedItem="{Binding SelectedAdministratingTournament, Mode=OneWayToSource}"
-                  CanUserAddRows="False" CanUserDeleteRows="False">
+            <DataGrid Grid.Row="1" 
+                    Margin="10"
+                    ColumnWidth="*"
+                    AutoGenerateColumns="False"
+                    SelectionMode="Single"
+                    ItemsSource="{Binding AdministratingTournaments, Mode=OneWay}" 
+                    SelectedItem="{Binding SelectedAdministratingTournament, Mode=OneWayToSource}"
+                    CanUserAddRows="False" CanUserDeleteRows="False">
+
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}"  />
-                    <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Buy-in" Binding="{Binding BuyIn, Mode=OneWay}" />
+                    <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}" Width="2*" />
+                    <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay, StringFormat={}{0:0.00}}" />
+                    <DataGridTextColumn Header="Buy-in" Binding="{Binding BuyIn, Mode=OneWay, StringFormat={}{0:0.00}}" />
                     <DataGridTextColumn Header="Status" Binding="{Binding Status, Mode=OneWay}" />
                 </DataGrid.Columns>
             </DataGrid>
+
             <Button Grid.Row="2" Content="View tournament" Click="ViewAdministratingTournamentBtn_Click" />
         </Grid>
 
@@ -44,24 +55,37 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Label Grid.Row="0" Content="Registered at:" />
-            <DataGrid Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Single"
-                  ItemsSource="{Binding PlayingTournaments, Mode=OneWay}" 
-                  SelectedItem="{Binding SelectedPlayingTournament, Mode=OneWayToSource}"
-                  CanUserAddRows="False" CanUserDeleteRows="False">
+            <Label 
+                Style="{StaticResource HeaderLightLabelStyle}"
+                Grid.Row="0" 
+                Content="Registered at:" />
+
+            <DataGrid Grid.Row="1" 
+                    Margin="10"
+                    ColumnWidth="*"
+                    AutoGenerateColumns="False"
+                    SelectionMode="Single"
+                    ItemsSource="{Binding PlayingTournaments, Mode=OneWay}" 
+                    SelectedItem="{Binding SelectedPlayingTournament, Mode=OneWayToSource}"
+                    CanUserAddRows="False" CanUserDeleteRows="False">
+
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}"  />
-                    <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay}" />
-                    <DataGridTextColumn Header="Buy-in" Binding="{Binding BuyIn, Mode=OneWay}" />
+                    <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}" Width="2*" />
+                    <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay, StringFormat={}{0:0.00}}" />
+                    <DataGridTextColumn Header="Buy-in" Binding="{Binding BuyIn, Mode=OneWay, StringFormat={}{0:0.00}}" />
                     <DataGridTextColumn Header="Status" Binding="{Binding Status, Mode=OneWay}" />
                 </DataGrid.Columns>
             </DataGrid>
 
-            <Button Grid.Row="2" Content="View tournament" Click="ViewPlayingTournamentBtn_Click" />
+            <Button 
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Grid.Row="2" 
+                Content="View tournament" 
+                Click="ViewPlayingTournamentBtn_Click" />
         </Grid>
-        <StackPanel Grid.Column="2">
+        <!--<StackPanel Grid.Column="2">
             <Button Content="Close" Click="CloseBtn_Click" />
-        </StackPanel>
+        </StackPanel>-->
     </Grid>
 
 </Window>

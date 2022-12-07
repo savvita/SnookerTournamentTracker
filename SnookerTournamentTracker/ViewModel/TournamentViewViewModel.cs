@@ -68,20 +68,63 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
+        private string? status;
+        public string? Status
+        {
+            get => status;
+            set
+            {
+                status = value;
+                OnPropertyChanged(nameof(Status));
+            }
+        }
+
+        private string? tournamentStatus;
+        public string? TournamentStatus
+        {
+            get => tournamentStatus;
+            set
+            {
+                tournamentStatus = value;
+                OnPropertyChanged(nameof(TournamentStatus));
+            }
+        }
+
         public event Action<string>? RegisteringCompleted;
         public event Action<string>? UnregisteringCompleted;
+        public event Action? RegistrationClosed;
+        public event Action<string>? NeedPayback;
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private void OnPropertyChanged([CallerMemberName]string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+
 
         private ICollectionView playersView;
         public ObservableCollection<TournamentPlayerViewModel> Players { get; set; } = new ObservableCollection<TournamentPlayerViewModel>();
 
         public ObservableCollection<TournamentPlayerViewModel> WaitingPlayers { get; set; } = new ObservableCollection<TournamentPlayerViewModel>();
 
+
+        public TournamentViewViewModel(PersonModel user, TournamentModel tournament)
+        {
+            this.User = user;
+            Tournament = tournament;
+
+            IsEditable = false;
+
+            LoadData();
+
+            IsMatchesEnabled = tournament.Status != null ? !tournament.Status.Equals("Registration") : false;
+            IsClosingRegistrationPossible = IsEditable && !IsMatchesEnabled;
+
+            IsPaid = Tournament.PaymentInfo != null;
+
+
+            playersView = CollectionViewSource.GetDefaultView(Players);
+
+            playersView.SortDescriptions.Add(new SortDescription("Result", ListSortDirection.Ascending));
+
+            IsConfirmPossible = IsPaid && IsEditable;
+        }
         public async Task RefreshPlayersAsync()
         {
             var players = await ServerConnection.GetPlayersByTournamentIdAsync(Tournament.Id);
@@ -89,7 +132,7 @@ namespace SnookerTournamentTracker.ViewModel
             Players.Clear();
             Tournament.Players.Clear();
 
-            if(players == null)
+            if (players == null)
             {
                 return;
             }
@@ -117,7 +160,7 @@ namespace SnookerTournamentTracker.ViewModel
                     Player = player.Player
                 };
 
-                if(player.IsFinished)
+                if (player.IsFinished)
                 {
                     if (player.Payment != null)
                     {
@@ -144,9 +187,9 @@ namespace SnookerTournamentTracker.ViewModel
                 WaitingPlayers.Add(p);
             }
 
-            var pl= players.FirstOrDefault(p => p.Player.Id == User.Id);
+            var pl = players.FirstOrDefault(p => p.Player != null ? p.Player.Id == User.Id : false);
 
-            if(pl != null)
+            if (pl != null)
             {
                 Status = pl.Status;
             }
@@ -162,70 +205,9 @@ namespace SnookerTournamentTracker.ViewModel
                     return pl.Player.Id == User.Id;
                 });
             }
-
         }
 
-       
-
-        public TournamentViewViewModel(PersonModel user, TournamentModel tournament)
-        {
-            this.User = user;
-            Tournament = tournament;
-
-            IsEditable = false;
-
-            //var rounds = ServerConnection.GetRoundsByTournamentId(tournament.Id);
-
-            //if (rounds != null)
-            //{
-            //    Tournament.RoundModel = rounds;
-            //}
-
-            //Tournament.Prizes = ServerConnection.GetPrizesByTournamentId(tournament.Id);
-            LoadData();
-            RefreshPlayersAsync();
-
-            //var players = ServerConnection.GetPlayersByTournamentId(tournament.Id);
-
-            //InitializePlayers(players);
-
-            //if (tournament.Status != null)
-            //{
-            //    IsEditable = ServerConnection.IsTournamentAdministrator(user.Id, tournament.Id) && !tournament.Status!.Equals("Finished");
-            //    IsRegistrationOpened = tournament.Status.Equals("Registration");
-            //}
-            //else
-            //{
-            //    IsEditable = false;
-            //    IsRegistrationOpened = false;
-            //}
-
-            IsMatchesEnabled = tournament.Status != null ? !tournament.Status.Equals("Registration") : false;
-            IsClosingRegistrationPossible = IsEditable && !IsMatchesEnabled;
-
-            IsPaid = Tournament.PaymentInfo != null;
-
-
-            playersView = CollectionViewSource.GetDefaultView(Players);
-
-            playersView.SortDescriptions.Add(new SortDescription("Result", ListSortDirection.Ascending));
-
-            IsConfirmPossible = IsPaid && IsEditable;
-
-            //if (players != null)
-            //{
-            //    IsRegistered = players.Any(pl =>
-            //    {
-            //        if (pl.Player == null)
-            //        {
-            //            return false;
-            //        }
-            //        return pl.Player.Id == user.Id;
-            //    });
-            //}
-        }
-
-        private async Task LoadData()
+        public async Task LoadData()
         {
             var rounds = await ServerConnection.GetRoundsByTournamentIdAsync(Tournament.Id);
 
@@ -238,6 +220,7 @@ namespace SnookerTournamentTracker.ViewModel
 
             if (Tournament.Status != null)
             {
+                TournamentStatus = Tournament.Status;
                 IsEditable = await ServerConnection.IsTournamentAdministratorAsync(User.Id, Tournament.Id) && !Tournament.Status!.Equals("Finished");
                 IsRegistrationOpened = Tournament.Status.Equals("Registration");
             }
@@ -246,8 +229,11 @@ namespace SnookerTournamentTracker.ViewModel
                 IsEditable = false;
                 IsRegistrationOpened = false;
             }
+
+            await RefreshPlayersAsync();
         }
 
+        #region Commands
         private RelayCommand<object>? confirmCmd;
         public RelayCommand<object> ConfirmCmd
         {
@@ -257,14 +243,13 @@ namespace SnookerTournamentTracker.ViewModel
                 {
                     if (player.Player != null)
                     {
-                        if(await ServerConnection.ConfirmPlayerRegistrationAsync((int)User.Id!, new TournamentPlayer()
+                        if (await ServerConnection.ConfirmPlayerRegistrationAsync((int)User.Id!, new TournamentPlayer()
                         {
                             Id = (int)player.Player.Id!,
                             TournamentId = (int)Tournament.Id!
                         }))
                         {
                             await RefreshPlayersAsync();
-                            //InitializePlayers(ServerConnection.GetPlayersByTournamentId(Tournament.Id));
                         }
                     }
                 }
@@ -272,52 +257,58 @@ namespace SnookerTournamentTracker.ViewModel
         }
 
         private RelayCommand? registerCmd;
-        
+
         public RelayCommand RegisterCmd
         {
             get => registerCmd ?? new RelayCommand(async () => await Register());
         }
-
-        private async Task Register()
-        {
-            //TODO finish this - subscribe to event at the view and show msgbox
-            //TODO do this normal
-            //if(Tournament.Players.FindIndex(pl => pl.Id == user.Id) == -1 && ServerConnection.RegisterAtTournament(user, Tournament))
-            if(await ServerConnection.RegisterAtTournamentAsync(User.Id, Tournament.Id))
-            {
-                //var players = ServerConnection.GetPlayersByTournamentId(Tournament.Id);
-
-                await RefreshPlayersAsync();
-
-                RegisteringCompleted?.Invoke("You are register");
-                //IsRegistrationOpened = Tournament.Status.Equals("Registration");
-                //IsRegistrationOpened = false;
-            }
-            else
-            {
-                //TODO add error msg for server error
-                //RegisteringCompleted?.Invoke("You are already registered at this tournament");
-                RegisteringCompleted?.Invoke(ServerConnection.LastError);
-            }
-        }
-
-        private string? status;
-        public string? Status
-        {
-            get => status;
-            set
-            {
-                status = value;
-                OnPropertyChanged(nameof(Status));
-            }
-        }
-
 
         private RelayCommand? unregisterCmd;
 
         public RelayCommand UnregisterCmd
         {
             get => unregisterCmd ?? new RelayCommand(async () => await Unregister());
+        }
+
+        private RelayCommand? closeRegistrationCmd;
+        public RelayCommand CloseRegistrationCmd
+        {
+            get => closeRegistrationCmd ?? new RelayCommand(async () => await CloseRegistrationAsync());
+        }
+
+        private RelayCommand? cancelTournamentCmd;
+        public RelayCommand CancelTournamentCmd
+        {
+            get => cancelTournamentCmd ?? new RelayCommand(async () =>
+            {
+                if (await ServerConnection.CancelTournamentAsync((int)User.Id!, Tournament.Id))
+                {
+                    TournamentStatus = "Cancelled";
+                    IsMatchesEnabled = false;
+                    IsClosingRegistrationPossible = false;
+
+                    if(Tournament.BuyIn != null)
+                    {
+                        NeedPayback?.Invoke("Don't forget return buy-ins!");
+                    }
+                }
+            });
+        }
+        #endregion
+
+        private async Task Register()
+        {
+            if(await ServerConnection.RegisterAtTournamentAsync(User.Id, Tournament.Id))
+            {
+
+                await RefreshPlayersAsync();
+
+                RegisteringCompleted?.Invoke("You are register");
+            }
+            else
+            {
+                RegisteringCompleted?.Invoke(ServerConnection.LastError);
+            }
         }
 
         private async Task Unregister()
@@ -334,14 +325,6 @@ namespace SnookerTournamentTracker.ViewModel
                 UnregisteringCompleted?.Invoke(ServerConnection.LastError ?? "Something happened. Try again later");
             }
         }
-
-        private RelayCommand? closeRegistrationCmd;
-        public RelayCommand CloseRegistrationCmd
-        {
-            get => closeRegistrationCmd ?? new RelayCommand(async () => await CloseRegistrationAsync());
-        }
-
-        public event Action? RegistrationClosed;
 
         private async Task CloseRegistrationAsync()
         {
@@ -366,11 +349,16 @@ namespace SnookerTournamentTracker.ViewModel
 
             foreach (var match in Tournament.Rounds[0].Where(m => m.Entries.Count == 1))
             {
+                if(match.Entries[0].Player == null)
+                {
+                    continue;
+                }
+
                 match.Winner = match.Entries[0].Player;
                 FrameModel frame = new FrameModel()
                 {
                     MatchId = match.Id,
-                    WinnerId = match.Entries[0].Player.Id
+                    WinnerId = match.Entries[0].Player!.Id
                 };
 
                 frame.Entries.Add(new FrameEntryModel()
@@ -380,8 +368,11 @@ namespace SnookerTournamentTracker.ViewModel
 
                 await ServerConnection.SaveFrameResultAsync((int)User.Id!, frame);
             }
+        }
 
-            //Tournament.Rounds = ServerConnection.GetMatchesByTournamentId(Tournament.Id) ?? new List<List<MatchUpModel>>();
+        private void OnPropertyChanged([CallerMemberName] string name = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

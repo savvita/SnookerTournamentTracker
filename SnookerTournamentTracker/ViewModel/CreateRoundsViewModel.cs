@@ -4,9 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using TournamentLibrary;
 
@@ -14,7 +12,9 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class CreateRoundsViewModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
+        private List<string>? roundNames;
+
+        private List<RoundModel>? rounds;
         
         private string? error = String.Empty;
 
@@ -29,52 +29,25 @@ namespace SnookerTournamentTracker.ViewModel
         }
 
         public ObservableCollection<RoundViewModel> Rounds { get; set; } = new ObservableCollection<RoundViewModel>();
-        private List<string>? roundNames;
 
-        private List<RoundModel> rounds;
+        public CreateRoundsViewModel()
+        {
+
+        }
         
         public CreateRoundsViewModel(List<RoundModel>? rounds)
         {
             LoadData(rounds);
-            //roundNames = ServerConnection.GetAllRoundNames();
-
-            //if (roundNames == null)
-            //{
-            //    Error = ServerConnection.LastError;
-            //}
-
-            //else
-            //{
-            //    if(rounds != null)
-            //    {
-            //        this.rounds = rounds;
-
-            //        foreach(RoundModel round in rounds)
-            //        {
-            //            Rounds.Add(new RoundViewModel()
-            //            {
-            //                RoundName = round.Round,
-            //                FrameCount = (int)round.Frames!,
-            //                IsSaved = true
-            //            });
-            //        }
-            //    }
-            //    else
-            //    {
-            //        this.rounds = new List<RoundModel>();
-            //    }
-
-            //    if(Rounds.Count < roundNames.Count)
-            //    {
-            //        Rounds.Add(new RoundViewModel()
-            //        {
-            //            RoundName = roundNames[Rounds.Count]
-            //        });
-            //    }
-            //}
         }
 
-        private async Task LoadData(List<RoundModel>? rounds)
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public List<RoundModel>? GetRounds()
+        {
+            return rounds;
+        }
+
+        public async Task LoadData(List<RoundModel>? rounds)
         {
             roundNames = await ServerConnection.GetAllRoundNamesAsync();
 
@@ -154,7 +127,7 @@ namespace SnookerTournamentTracker.ViewModel
         {
             if (Validate(round))
             {
-                rounds.Add(new RoundModel()
+                rounds?.Add(new RoundModel()
                 {
                     Round = round.RoundName,
                     Frames = round.FrameCount
@@ -177,11 +150,6 @@ namespace SnookerTournamentTracker.ViewModel
         private void OnPropertyChanged([CallerMemberName] string name = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        public List<RoundModel> GetRounds()
-        {
-            return rounds;
         }
     }
 }

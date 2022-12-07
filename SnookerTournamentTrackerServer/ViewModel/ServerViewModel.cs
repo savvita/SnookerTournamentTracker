@@ -1,5 +1,7 @@
 ﻿using GalaSoft.MvvmLight.Command;
+using Microsoft.EntityFrameworkCore;
 using SnookerTournamentTrackerServer.DBAccess;
+using SnookerTournamentTrackerServer.DbModel;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -27,54 +29,51 @@ namespace SnookerTournamentTrackerServer.ViewModel
         }
 
 
-        public ObservableCollection<PersonModel> Users { get; } = new ObservableCollection<PersonModel>();
-        public ObservableCollection<TournamentModel> Tournaments { get; } = new ObservableCollection<TournamentModel>();
+        public ObservableCollection<User> Users { get; } = new ObservableCollection<User>();
+        public ObservableCollection<Tournament> Tournaments { get; } = new ObservableCollection<Tournament>();
         public ServerViewModel()
         {
             server = new Server(new DBAccesEntity());
             ActiveOnly = true;
-            LoadData();
+            //LoadData();
         }
 
-        private async Task LoadData()
+        public async Task LoadData()
         {
             Tournaments.Clear();
             Users.Clear();
 
-            var tournaments = await ServerConnection.GetAllTournamentsAsync();
+            DbSnookerTournamentTrackerContext db = new DbSnookerTournamentTrackerContext();
+            
+            await db.Tournaments.Include(t => t.TournamentStatus).LoadAsync();
 
-            foreach(var tournament in tournaments)
+            foreach (var tourney in db.Tournaments)
             {
-                Tournaments.Add(tournament);
+                Tournaments.Add(tourney);
             }
 
             tournamentsView = CollectionViewSource.GetDefaultView(Tournaments);
             tournamentsView.Filter = (obj) =>
             {
-                if (obj is TournamentModel tournament)
+                if (obj is Tournament tournament)
                 {
-                    if (tournament.Status == null)
+                    if (tournament.TournamentStatus == null)
                     {
                         return false;
                     }
 
-                    return !ActiveOnly || !tournament.Status.Equals("Finished");
+                    return !ActiveOnly || !(tournament.TournamentStatus.Status.Equals("Finished") || tournament.TournamentStatus.Status.Equals("Cancelled"));
                 }
 
                 return false;
             };
 
-            var users = await ServerConnection.GetAllPlayersAsync();
+            await db.Users.LoadAsync();
 
-            foreach (var user in users)
+            foreach (var user in db.Users)
             {
                 Users.Add(user);
             }
-        }
-
-        public void Close()
-        {
-            //server.Dispose();
         }
 
         private RelayCommand? refreshCmd;

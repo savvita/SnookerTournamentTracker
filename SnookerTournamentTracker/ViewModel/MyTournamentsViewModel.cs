@@ -42,9 +42,6 @@ namespace SnookerTournamentTracker.ViewModel
         public MyTournamentsViewModel(PersonModel user)
         {
             this.user = user;
-            RefreshAsync();
-            //AdministratingTournaments = ServerConnection.GetTournamentsByAdministrator(user.Id);
-            //PlayingTournaments = ServerConnection.GetTournamentsByPlayerId(user.Id);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

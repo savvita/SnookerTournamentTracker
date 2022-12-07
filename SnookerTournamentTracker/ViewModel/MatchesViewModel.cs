@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using TournamentLibrary;
 using TournamentLibrary.Model;
@@ -30,17 +29,6 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        private string? score;
-        public string? Score
-        {
-            get => score;
-            set
-            {
-                score = value;
-                OnPropertyChanged(nameof(Score));
-            }
-        }
-
         private MatchUpModel? selectedMatch;
         public MatchUpModel? SelectedMatch
         {
@@ -54,8 +42,6 @@ namespace SnookerTournamentTracker.ViewModel
 
         private string? players;
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-
         public string? Players
         {
             get => players;
@@ -66,9 +52,63 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
+        private string? score;
+        public string? Score
+        {
+            get => score;
+            set
+            {
+                score = value;
+                OnPropertyChanged(nameof(Score));
+            }
+        }
+
+        private string? error;
+        public string? Error
+        {
+            get => error;
+            set
+            {
+                error = value;
+                OnPropertyChanged(nameof(Error));
+            }
+        }
+
+        private int totalFrames;
+        public int TotalFrames
+        {
+            get => totalFrames;
+            set
+            {
+                totalFrames = value;
+                OnPropertyChanged(nameof(TotalFrames));
+            }
+        }
+
+        private bool isAdmin;
+
+        private bool isEditable;
+        public bool IsEditable
+        {
+            get => isEditable;
+            set
+            {
+                isEditable = value;
+                OnPropertyChanged(nameof(IsEditable));
+            }
+        }
+
         public ObservableCollection<FrameResultModel> Results { get; set; } = new ObservableCollection<FrameResultModel>();
 
-        private async Task LoadData()
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public MatchesViewModel(PersonModel user, TournamentModel tournament)
+        {
+            this.user = user;
+            this.tournament = tournament;
+        }
+
+        public async Task LoadData()
         {
             this.tournament.Rounds = await ServerConnection.GetMatchesByTournamentIdAsync(tournament.Id) ?? new List<List<MatchUpModel>>();
 
@@ -85,24 +125,16 @@ namespace SnookerTournamentTracker.ViewModel
             isAdmin = await ServerConnection.IsTournamentAdministratorAsync(user.Id, tournament.Id);
         }
 
-        public MatchesViewModel(PersonModel user, TournamentModel tournament)
+        private RelayCommand<object>? saveBtnCmd;
+        public RelayCommand<object> SaveBtnCmd
         {
-            this.user = user;
-            //tournament.Rounds = ServerConnection.GetMatchesByTournamentId(tournament.Id) ?? new List<List<MatchUpModel>>();
-            this.tournament = tournament;
-            LoadData();
-
-            //for (int i = tournament.RoundModel.Count - 1; i >= 0; i --)
-            //{
-            //    Rounds.Add(tournament.RoundModel[i]);
-            //}
-
-            //if(Rounds.Count > 0)
-            //{
-            //    SelectedRound = Rounds[0];
-            //}
-
-            //isAdmin = ServerConnection.IsTournamentAdministrator(user.Id, tournament.Id);
+            get => saveBtnCmd ?? new RelayCommand<object>(async (obj) =>
+            {
+                if (obj is FrameResultModel res)
+                {
+                    await SaveFrameResultAsync(res);
+                }
+            });
         }
 
         private void RefreshMatches()
@@ -139,61 +171,13 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        private string? error;
-
-        public string? Error
-        {
-            get => error;
-            set
-            {
-                error = value;
-                OnPropertyChanged(nameof(Error));
-            }
-        }
-
-        private int totalFrames;
-        public int TotalFrames 
-        { 
-            get => totalFrames;
-            set
-            {
-                totalFrames = value;
-                OnPropertyChanged(nameof(TotalFrames));
-            }
-        }
-
-        private bool isAdmin;
-
-        private bool isEditable;
-        public bool IsEditable
-        {
-            get => isEditable;
-            set
-            {
-                isEditable = value;
-                OnPropertyChanged(nameof(IsEditable));
-            }
-        }
-
-        private RelayCommand<object>? saveBtnCmd;
-        public RelayCommand<object> SaveBtnCmd
-        {
-            get => saveBtnCmd ?? new RelayCommand<object>(async (obj) =>
-            {
-                if(obj is FrameResultModel res)
-                {
-                    await SaveFrameResultAsync(res);
-                }
-            });
-        }
-
         private void RefreshFrames()
         {
             Results.Clear();
             
-            if(SelectedMatch != null)
+            if(SelectedMatch != null && SelectedMatch.MatchUpRound != null && SelectedMatch.MatchUpRound.Frames != null)
             {
-                TotalFrames = (int)SelectedMatch.MatchUpRound.Frames;
+                TotalFrames = (int)SelectedMatch.MatchUpRound.Frames!;
 
                 if(SelectedMatch.Entries.Count < 2 || SelectedMatch.Entries[0].Player == null || SelectedMatch.Entries[1].Player == null)
                 {
@@ -256,34 +240,24 @@ namespace SnookerTournamentTracker.ViewModel
                 else
                 {
                     Players = $"{pl1} (w/o)";
-                    //SelectedMatch.Winner = SelectedMatch.Entries[0].Player;
-
-                    //FrameModel frame = new FrameModel()
-                    //{
-                    //    MatchId = SelectedMatch.Id,
-                    //    WinnerId = SelectedMatch.Entries[0].Player.Id
-                    //};
-
-                    //frame.Entries.Add(new FrameEntryModel()
-                    //{
-                    //    PlayerId = SelectedMatch!.Entries[0].Player!.Id
-                    //});
-
-                    //ServerConnection.SaveFrameResult((int)user.Id!, frame);
-                    //tournament.Rounds = ServerConnection.GetMatchesByTournamentId(tournament.Id) ?? new List<List<MatchUpModel>>();
                 }
             }
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        }  
 
         private async Task SaveFrameResultAsync(FrameResultModel frameResult)
         {
             if (ValidateFrameResult(frameResult))
             {
+                if(SelectedMatch == null)
+                {
+                    return;
+                }
+
+                if(SelectedMatch.MatchUpRound == null)
+                {
+                    return;
+                }
+
                 FrameModel frame = SelectedMatch!.Frames.Last();
 
                 SetFrameResult(frame, frameResult);
@@ -379,9 +353,6 @@ namespace SnookerTournamentTracker.ViewModel
             });
 
             frame.WinnerId = frame.Entries[0].Score > frame.Entries[1].Score ? frame.Entries[0].PlayerId : frame.Entries[1].PlayerId;
-
-
-            //SetMatchWinner();
         }
 
         private bool ValidateBreaks(int score, string breaks)
@@ -406,15 +377,13 @@ namespace SnookerTournamentTracker.ViewModel
                     Error = "Break cannot be grater than score";
                     return false;
                 }
-
             }
 
             return true;
         }
 
         private void SetBreaks(FrameModel frame, FrameResultModel frameResult)
-        {
-          
+        {     
             if(frameResult.FirstPlayerBrakes != null)
             {
                 var breaksArray1 = frameResult.FirstPlayerBrakes.Split(',');
@@ -444,24 +413,11 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        //private void SetMatchWinner()
-        //{
-        //    int p1 = SelectedMatch!.Frames.Count(x => x.WinnerId == SelectedMatch.Entries[0].Player!.Id);
-        //    int p2 = SelectedMatch!.Frames.Count(x => x.WinnerId == SelectedMatch.Entries[1].Player!.Id);
 
-        //    if (p1 >= SelectedRound!.Frames / 2 || p2 >= SelectedRound!.Frames / 2)
-        //    {
 
-        //        SelectedMatch.Winner = p1 > p2 ? SelectedMatch.Entries[0].Player : SelectedMatch.Entries[1].Player;
-
-        //        int currRound = Rounds.IndexOf(SelectedRound);
-        //        int currMatch = Matches.IndexOf(SelectedMatch);
-
-        //        tournament.Rounds = ServerConnection.GetMatchesByTournamentId(tournament.Id) ?? new List<List<MatchUpModel>>();
-        //        //RefreshRounds();
-        //        //SelectedRound = Rounds[currRound];
-        //        //SelectedMatch = Matches[currMatch];
-        //    }
-        //}
+        private void OnPropertyChanged([CallerMemberName] string name = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 }

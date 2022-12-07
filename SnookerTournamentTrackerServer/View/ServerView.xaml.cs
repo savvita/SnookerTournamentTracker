@@ -1,17 +1,5 @@
 ﻿using SnookerTournamentTrackerServer.ViewModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace SnookerTournamentTrackerServer.View
 {
@@ -26,11 +14,11 @@ namespace SnookerTournamentTrackerServer.View
             InitializeComponent();
             model = new ServerViewModel();
             this.DataContext = model;
+            this.Loaded += (async (obj, e) => await model.LoadData());
         }
 
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
         {
-            model.Close();
             this.Close();
         }
     }
