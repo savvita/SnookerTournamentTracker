@@ -154,6 +154,12 @@ namespace SnookerTournamentTracker.ViewModel
                 return false;
             }
 
+            else if (Mode == PrizesModeEnum.Percentage && garantee != null && Total < 100)
+            {
+                Error = "With garantee you need to chare all the garantee";
+                return false;
+            }
+
             else if(Mode == PrizesModeEnum.Percentage && Total > 100)
             {
                 Error = "Total prizes cannot be more than 100%";

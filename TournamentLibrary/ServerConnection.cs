@@ -304,6 +304,16 @@ namespace TournamentLibrary
             return await HandleRequestAsync<int?>(ConnectionCode.CancelTournament, (int)userId!, tournamentId);
         }
 
+        public static async Task<bool> UpdateTournamentAsync(int? userId, TournamentModel tournament)
+        {
+            if (userId == null)
+            {
+                return false;
+            }
+
+            return await HandleRequestAsync<TournamentModel>(ConnectionCode.UpdateTournament, (int)userId!, tournament);
+        }
+
         public static async Task<bool> CreateTournamentAsync(int senderId, TournamentModel tournament)
         {
             //TODO Save invites

@@ -41,6 +41,7 @@
                             Content="Sign in"
                             IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
                             Command="{Binding SignInCommand}" 
+                            IsDefault="True"
                             PreviewMouseDown="SignInBtn_PreviewMouseDown"/>
 
                         <Button 
@@ -188,7 +189,7 @@
 
                     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
                         <Label Content="{Binding Error}" />
-                        <Button 
+                        <Button IsDefault="True"
                             Margin="0 0 10 20"
                             Width="{StaticResource ButtonWidth}"
                             IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"

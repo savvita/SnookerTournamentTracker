@@ -42,42 +42,42 @@
                         <TextBox 
                             Margin="5 1"
                             materialDesign:HintAssist.Hint="Tournament name"
-                            Text="{Binding Tournament.Name, Mode=OneTime}" 
+                            Text="{Binding Tournament.Name, Mode=OneWay}" 
                             IsReadOnly="True" />
 
                         <TextBox
                             Margin="5 1"
                             materialDesign:HintAssist.Hint="Status" 
-                            Text="{Binding Tournament.Status, Mode=OneTime}"
+                            Text="{Binding Tournament.Status, Mode=OneWay}"
                             IsReadOnly="True" />
 
                         <TextBox 
                             Margin="5 1"
                             materialDesign:HintAssist.Hint="Starts"
-                            Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
+                            Text="{Binding Tournament.StartDate, Mode=OneWay}" IsReadOnly="True" />
 
                         <TextBox 
                             Margin="5 1"
                             materialDesign:HintAssist.Hint="Ends"
-                            Text="{Binding Tournament.EndDate, Mode=OneTime}" 
+                            Text="{Binding Tournament.EndDate, Mode=OneWay}" 
                             IsReadOnly="True" />
 
                         <TextBox 
                             Margin="5 1"
                             materialDesign:HintAssist.Hint="Buy-in"
-                            Text="{Binding Tournament.BuyIn, Mode=OneTime, StringFormat={}{0:0.00}}"
+                            Text="{Binding Tournament.BuyIn, Mode=OneWay, StringFormat={}{0:0.00}}"
                             IsReadOnly="True" />
 
                         <TextBox 
                             Margin="5 1"
                             materialDesign:HintAssist.Hint="Garantee"
-                            Text="{Binding Tournament.Garantee, Mode=OneTime, StringFormat={}{0:0.00}}" 
+                            Text="{Binding Tournament.Garantee, Mode=OneWay, StringFormat={}{0:0.00}}" 
                             IsReadOnly="True" />
 
                         <TextBox 
                             Margin="5 1"
                             materialDesign:HintAssist.Hint="Registration status"
-                            Text="{Binding Status, Mode=OneTime}" 
+                            Text="{Binding Status, Mode=OneWay}" 
                             IsReadOnly="True" />
 
                     </StackPanel>
@@ -97,7 +97,7 @@
                         <TextBox 
                             Margin="5 1"
                             materialDesign:HintAssist.Hint="Tournament name"
-                            Text="{Binding Tournament.Name, Mode=OneTime}" 
+                            Text="{Binding Tournament.Name, Mode=OneWay}" 
                             IsReadOnly="True" />
 
                         <TextBox
@@ -109,12 +109,12 @@
                         <TextBox 
                             Margin="5 1"
                             materialDesign:HintAssist.Hint="Starts"
-                            Text="{Binding Tournament.StartDate, Mode=OneTime}" IsReadOnly="True" />
+                            Text="{Binding Tournament.StartDate, Mode=OneWay}" IsReadOnly="True" />
 
                         <TextBox 
                             Margin="5 1"
                             materialDesign:HintAssist.Hint="Ends"
-                            Text="{Binding Tournament.EndDate, Mode=OneTime}" 
+                            Text="{Binding Tournament.EndDate, Mode=OneWay}" 
                             IsReadOnly="True" />
 
                         <TextBox 
@@ -210,7 +210,7 @@
                             IsReadOnly="True" />
 
                         <DataGrid Grid.Row="1"
-                                AutoGenerateColumns="False" ItemsSource="{Binding Tournament.Prizes}" 
+                                AutoGenerateColumns="False" ItemsSource="{Binding Prizes}" 
                                 CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
                                 ColumnWidth="*">
                             
@@ -243,7 +243,7 @@
                     Header="Rounds">
 
                     <DataGrid Grid.Row="1" 
-                              AutoGenerateColumns="False" ItemsSource="{Binding Tournament.RoundModel}"
+                              AutoGenerateColumns="False" ItemsSource="{Binding RoundModel}"
                               CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" ColumnWidth="*">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Round" Width="2*" >
@@ -403,11 +403,12 @@
                 Content="View matches" Click="ViewMatchesBtn_Click" 
                 Visibility="{Binding IsMatchesEnabled, Converter={StaticResource boolToVisibilityConverter}}" />
             
-            <!--<Button 
+            <Button 
                 Margin="10 2"
                 Width="{StaticResource ButtonWidth}"
                 Content="Edit" 
-                Visibility="{Binding IsEditable, Converter={StaticResource boolToVisibilityConverter}}" />-->
+                Visibility="{Binding IsEditable, Converter={StaticResource boolToVisibilityConverter}}"
+                Click="EditBtn_Click" />
             
             <Button 
                 Margin="10 2"

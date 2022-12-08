@@ -15,7 +15,16 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class TournamentViewViewModel : INotifyPropertyChanged
     {
-        public TournamentModel Tournament { get; set; }
+        private TournamentModel? tournament;
+        public TournamentModel Tournament
+        {
+            get => tournament;
+            set
+            {
+                tournament = value;
+                OnPropertyChanged(nameof(Tournament));
+            }
+        }
         public PersonModel User { get; }
 
         public bool IsEditable { get; private set; }
@@ -103,6 +112,9 @@ namespace SnookerTournamentTracker.ViewModel
 
         public ObservableCollection<TournamentPlayerViewModel> WaitingPlayers { get; set; } = new ObservableCollection<TournamentPlayerViewModel>();
 
+        public ObservableCollection<PrizeModel> Prizes { get; set; } = new ObservableCollection<PrizeModel>();
+
+        public ObservableCollection<RoundModel> RoundModel { get; set; } = new ObservableCollection<RoundModel>();
 
         public TournamentViewViewModel(PersonModel user, TournamentModel tournament)
         {
@@ -209,14 +221,14 @@ namespace SnookerTournamentTracker.ViewModel
 
         public async Task LoadData()
         {
-            var rounds = await ServerConnection.GetRoundsByTournamentIdAsync(Tournament.Id);
+            //var rounds = await ServerConnection.GetRoundsByTournamentIdAsync(Tournament.Id);
 
-            if (rounds != null)
-            {
-                Tournament.RoundModel = rounds;
-            }
-
-            Tournament.Prizes = await ServerConnection.GetPrizesByTournamentIdAsync(Tournament.Id);
+            //if (rounds != null)
+            //{
+            //    Tournament.RoundModel = rounds;
+            //}
+            await RefreshRoundModel();
+            await RefreshPrizes();
 
             if (Tournament.Status != null)
             {
@@ -231,6 +243,55 @@ namespace SnookerTournamentTracker.ViewModel
             }
 
             await RefreshPlayersAsync();
+        }
+
+        private async Task RefreshPrizes()
+        {
+            Tournament.Prizes = await ServerConnection.GetPrizesByTournamentIdAsync(Tournament.Id);
+
+            Prizes.Clear();
+
+            if (Tournament.Prizes != null)
+            {
+                foreach(var prize in Tournament.Prizes)
+                {
+                    Prizes.Add(prize);
+                }
+            }
+        }
+
+        private async Task RefreshRoundModel()
+        {
+            var rounds = await ServerConnection.GetRoundsByTournamentIdAsync(Tournament.Id);
+
+            if (rounds == null)
+            {
+                return;
+            }
+
+            Tournament.RoundModel = rounds;
+
+            RoundModel.Clear();
+
+            if (Tournament.RoundModel != null)
+            {
+                foreach (var round in Tournament.RoundModel)
+                {
+                    RoundModel.Add(round);
+                }
+            }
+        }
+
+        public async Task<bool> UpdateTournamentAsync(TournamentModel tournament)
+        {
+            if (await ServerConnection.UpdateTournamentAsync((int)User.Id!, tournament))
+            {
+                Tournament = tournament;
+                await LoadData();
+                return true;
+            }
+
+            return false;
         }
 
         #region Commands

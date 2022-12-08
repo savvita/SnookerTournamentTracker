@@ -52,5 +52,7 @@ namespace SnookerTournamentTrackerServer.DBAccess
 
         Message CancelTournament(Message request);
 
+        Message UpdateTournament(Message request);
+
     }
 }

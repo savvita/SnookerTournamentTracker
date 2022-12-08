@@ -11,7 +11,7 @@ namespace SnookerTournamentTracker.Converter
         {
             if(value is PersonModel person)
             {
-                return $"{person.LastName} {person.FirstName}";
+                return $"{person.FirstName} {person.LastName}";
             }
 
             return String.Empty;

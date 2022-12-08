@@ -43,7 +43,8 @@ namespace SnookerTournamentTrackerServer.ViewModel
             Tournaments.Clear();
             Users.Clear();
 
-            DbSnookerTournamentTrackerContext db = new DbSnookerTournamentTrackerContext();
+            //DbSnookerTournamentTrackerContext db = new DbSnookerTournamentTrackerContext();
+            DbSnookerTournamentTrackerSmarterContext db = new DbSnookerTournamentTrackerSmarterContext();
             
             await db.Tournaments.Include(t => t.TournamentStatus).LoadAsync();
 

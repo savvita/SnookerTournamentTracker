@@ -50,6 +50,7 @@ namespace SnookerTournamentTrackerServer
             handlers.Add(ConnectionCode.SaveUserCard, db.SaveUserCard);
             handlers.Add(ConnectionCode.ConfirmPlayerRegistration, db.ConfirmPlayerRegistration);
             handlers.Add(ConnectionCode.CancelTournament, db.CancelTournament);
+            handlers.Add(ConnectionCode.UpdateTournament, db.UpdateTournament);
         }
 
         private void Listen()

@@ -51,5 +51,24 @@ namespace SnookerTournamentTracker.View
                 model?.RefreshPlayersAsync();
             }
         }
+
+        private void EditBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (model != null && model.Tournament != null)
+            {
+                EditTournamentView view = new EditTournamentView(model.Tournament);
+                view.ShowDialog();
+
+                if (view.DialogResult == true && view.Tournament != null)
+                {
+                    model.Tournament = view.Tournament;
+                    model?.UpdateTournamentAsync(model.Tournament);
+                }
+                else
+                {
+                    e.Handled = true;
+                }
+            }
+        }
     }
 }

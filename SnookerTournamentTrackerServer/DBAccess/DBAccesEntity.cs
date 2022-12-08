@@ -15,14 +15,15 @@ namespace SnookerTournamentTrackerServer.DBAccess
 {
     internal class DBAccesEntity : IDBAccess
     {
-        private DbSnookerTournamentTrackerContext db;
+        //private DbSnookerTournamentTrackerContext db;
+        private DbSnookerTournamentTrackerSmarterContext db;
         private Dictionary<string, int> registrationStatuses;
         private Dictionary<string, int> tournamentStatuses;
         private Dictionary<string, int> roundNames;
 
         public DBAccesEntity()
         {
-            db = new DbSnookerTournamentTrackerContext();
+            db = new DbSnookerTournamentTrackerSmarterContext();
             db.Places.Load();
             db.Rounds.Load();
             db.TournamentStatuses.Load();
@@ -1019,6 +1020,56 @@ namespace SnookerTournamentTrackerServer.DBAccess
             return new Message() { Code = ConnectionCode.Ok };
         }
 
+        public Message UpdateTournament(Message request)
+        {
+            if (request.Sender == null)
+            {
+                return new Message()
+                {
+                    Code = ConnectionCode.Error,
+                    Content = "Administartor of the tournament cannot be null"
+                };
+            }
+
+            TournamentModel? tournament = GetObjectFromMessage<TournamentModel>(request, true, out Message? response);
+
+            if (tournament == null)
+            {
+                return response!;
+            }
+           
+
+            var tourney = db.Tournaments.Where(t => t.Id == tournament.Id && t.TournamentStatusId == tournamentStatuses["Registration"]).FirstOrDefault();
+
+            if (tourney == null)
+            {
+                return new Message()
+                {
+                    Code = ConnectionCode.Error,
+                    Content = "Tournament not found or is not on registration"
+                };
+            }
+
+            var admin = db.Administrators.Where(a => a.TournamentId == tournament.Id && a.UserId == request.Sender).FirstOrDefault();
+
+            if (admin == null)
+            {
+                return new Message()
+                {
+                    Code = ConnectionCode.Error,
+                    Content = "Only administrator of the tournament can edit a tournament"
+                };
+            }
+
+            tourney.Name = tournament.Name!;
+            tourney.StartDate = tournament.StartDate;
+            tourney.EndDate = tournament.EndDate;
+
+            db.SaveChanges();
+
+            return new Message() { Code = ConnectionCode.Ok };
+        }
+
         public Message CreateTournament(Message request)
         {
             if (request.Sender == null)
@@ -1431,15 +1482,16 @@ namespace SnookerTournamentTrackerServer.DBAccess
                         }
                         else
                         {
+                            decimal total = 0;
                             if (tournament.Garantee != null)
                             {
-                                payment.Amount = prize.Amount;
+                                total = prize.Amount;
                             }
                             else if (tournament.EntreeFee != null)
                             {
-                                decimal total = tournament.TournamentsPlayers.Count() * (decimal)tournament.EntreeFee;
-                                payment.Amount = prize.Amount * total / 100;
+                                total = tournament.TournamentsPlayers.Count() * (decimal)tournament.EntreeFee;
                             }
+                            payment.Amount = prize.Amount * total / 100;
                         }
 
                         db.Payments.Add(payment);
@@ -1462,15 +1514,16 @@ namespace SnookerTournamentTrackerServer.DBAccess
                             }
                             else
                             {
-                                if(tournament.Garantee != null)
+                                decimal total = 0;
+                                if (tournament.Garantee != null)
                                 {
-                                    payment.Amount = prize.Amount;
+                                    total = prize.Amount;
                                 }
-                                else if(tournament.EntreeFee != null)
+                                else if (tournament.EntreeFee != null)
                                 {
-                                    decimal total = tournament.TournamentsPlayers.Count() * (decimal)tournament.EntreeFee;
-                                    payment.Amount = prize.Amount * total / 100;
-                                } 
+                                    total = tournament.TournamentsPlayers.Count() * (decimal)tournament.EntreeFee;
+                                }
+                                payment.Amount = prize.Amount * total / 100;
                             }
 
                             db.Payments.Add(payment);

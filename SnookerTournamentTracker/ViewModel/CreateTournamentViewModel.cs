@@ -279,7 +279,7 @@ namespace SnookerTournamentTracker.ViewModel
                 return false;
             }
 
-            if (Tournament.BuyIn != null && SelectedCard == null)
+            if (Tournament.BuyIn != null && Tournament.BuyIn != 0 && SelectedCard == null)
             {
                 Error = "Card is required";
                 return false;
