@@ -3,35 +3,55 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         mc:Ignorable="d"
-        Title="Snooker Tournament Tracker" Height="450" Width="800" WindowStartupLocation="CenterScreen">
-    <Grid>
+        Title="Snooker Tournament Tracker" 
+        Height="650" Width="900" MinHeight="650" MinWidth="900" 
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundColorDarkBrush}">
+
+    <Grid Style="{StaticResource ContainerStyle}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            
-            <DockPanel Grid.Row="0" LastChildFill="False">
-                <Label DockPanel.Dock="Right" Content="{Binding Name, Mode=OneTime}" />
-            </DockPanel>
+        <Grid Grid.Row="0" Background="{StaticResource BackgroundColorDarkBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Row="1" HorizontalAlignment="Right">
-                <Button Content="My tournaments" />
-                <Button Content="Profile" Click="ProfileBtn_Click" />
+            <Image Grid.Column="0"  Source="Images/logo_h.png" />
+
+            <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Label 
+                    Content="{Binding Name, Mode=OneWay}"
+                    Margin="0 0 20 10"
+                    Style="{StaticResource LightTextLabelStyle}" 
+                    HorizontalContentAlignment="Right" />
+                <Button 
+                    Style="{StaticResource MaterialDesignPaperDarkButton}"
+                    Margin="0 0 20 10"
+                    Width="{StaticResource ButtonWidth}"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Content="My tournaments" 
+                    Click="MyTournamentsBtn_Click" />
+                <Button 
+                    Style="{StaticResource MaterialDesignPaperDarkButton}"
+                    Margin="0 0 20 10"
+                    Width="{StaticResource ButtonWidth}"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Content="Profile"
+                    Click="ProfileBtn_Click" />
             </StackPanel>
         </Grid>
- 
+
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0">
@@ -41,51 +61,80 @@
                 </Grid.RowDefinitions>
 
                 <DockPanel Grid.Row="0" LastChildFill="False">
-                    <Label DockPanel.Dock="Left" Content="Tournaments" />
-                    <CheckBox DockPanel.Dock="Right" Grid.Row="2" Content="Active only" IsChecked="{Binding ActiveOnly}" />
+                    <Label DockPanel.Dock="Left" Content="Tournaments" Style="{StaticResource HeaderLabelStyle}" />
 
+                    <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                        <ToggleButton
+                            Style="{StaticResource MaterialDesignSwitchDarkToggleButton}"
+                            IsChecked="{Binding ActiveOnly}" />
+                        <Label Content="Active only" DockPanel.Dock="Right" />
+                    </StackPanel>
                 </DockPanel>
 
-                <DataGrid Grid.Row="1" AutoGenerateColumns="False" SelectionMode="Single"
-                  ItemsSource="{Binding Tournaments, Mode=OneWay}" 
-                  SelectedItem="{Binding SelectedTournament, Mode=OneWayToSource}"
-                  CanUserAddRows="False" CanUserDeleteRows="False">
+                <DataGrid Grid.Row="1" 
+                    Margin="10"
+                    ColumnWidth="*"
+                    AutoGenerateColumns="False"
+                    SelectionMode="Single"
+                    ItemsSource="{Binding Tournaments, Mode=OneWay}" 
+                    SelectedItem="{Binding SelectedTournament, Mode=OneWayToSource}"
+                    CanUserAddRows="False" CanUserDeleteRows="False">
+                  
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}"  />
-                        <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay}" />
-                        <DataGridTextColumn Header="Entree fee" Binding="{Binding EntryFee, Mode=OneWay}" />
+                        <DataGridTextColumn Header="Tournament" Binding="{Binding Name, Mode=OneWay}" Width="2*" />
+                        <DataGridTextColumn Header="Garantee" Binding="{Binding Garantee, Mode=OneWay, StringFormat={}{0:0.00}}" />
+                        <DataGridTextColumn Header="Buy-in" Binding="{Binding BuyIn, Mode=OneWay, StringFormat={}{0:0.00}}" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status, Mode=OneWay}" />
                     </DataGrid.Columns>
                 </DataGrid>
 
             </Grid>
             <StackPanel Grid.Column="1">
 
-                <Button Content="View tournament info" Click="ViewTournamentBtn_Click" />
-                <Button Content="Create new tournament" Click="CreateTournamentBtn_Click" />
+                <Button
+                    Margin="0 10 20 10"
+                    Width="{StaticResource ButtonWidth}"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Content="View tournament info"
+                    Click="ViewTournamentBtn_Click" />
+                
+                <Button 
+                    Margin="0 0 20 10"
+                    Width="{StaticResource ButtonWidth}"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Content="Create new tournament" 
+                    Click="CreateTournamentBtn_Click" />
 
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+                <GroupBox 
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    materialDesign:ColorZoneAssist.Mode="Custom"
+                    materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                    materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                    Header="{Binding SelectedTournament.Name}"
+                    ContentStringFormat="Tournament:{0}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <!-- TODO fill this -->
-                    <Label Grid.Row="0" Grid.Column="0" Content="Name" />
-                    <Label Grid.Row="0" Grid.Column="1" Content="{Binding SelectedTournament.Name}" />
-                    <Label Grid.Row="1" Grid.Column="0" Content="Starts" />
-                    <Label Grid.Row="1" Grid.Column="1" Content="{Binding SelectedTournament.StartDate}" />
-                    <Label Grid.Row="2" Grid.Column="0" Content="Garantee" />
-                    <Label Grid.Row="2" Grid.Column="1" Content="{Binding SelectedTournament.Garantee}" />
-                    <Label Grid.Row="3" Grid.Column="0" Content="Entree fee" />
-                    <Label Grid.Row="3" Grid.Column="1" Content="{Binding SelectedTournament.EntreeFee}" />
-                </Grid>
+                        <Label Grid.Row="0" Grid.Column="0" Content="Name" />
+                        <Label Grid.Row="0" Grid.Column="1" Content="{Binding SelectedTournament.Name}" />
+                        <Label Grid.Row="1" Grid.Column="0" Content="Starts" />
+                        <Label Grid.Row="1" Grid.Column="1" Content="{Binding SelectedTournament.StartDate}" />
+                        <Label Grid.Row="2" Grid.Column="0" Content="Garantee" />
+                        <Label Grid.Row="2" Grid.Column="1" Content="{Binding SelectedTournament.Garantee}" />
+                        <Label Grid.Row="3" Grid.Column="0" Content="Buy-in" />
+                        <Label Grid.Row="3" Grid.Column="1" Content="{Binding SelectedTournament.BuyIn}" />
+                    </Grid>
+                </GroupBox>
             </StackPanel>
         </Grid>
     </Grid>

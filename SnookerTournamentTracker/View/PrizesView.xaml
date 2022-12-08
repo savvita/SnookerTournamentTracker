@@ -6,70 +6,96 @@
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
         xmlns:converter="clr-namespace:SnookerTournamentTracker.Converter"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Prizes Model" Height="450" Width="800" ResizeMode="NoResize">
+        Title="Prizes" Height="400" Width="800" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" >
+    
     <Window.Resources>
         <converter:RadioBoolToIntConverter x:Key="radioBoolToIntConverter" />
         <converter:StringToDecimalConverter x:Key="stringToDecimalConverter" />
-        <ControlTemplate x:Key="validationFailed">
-            <StackPanel Orientation="Horizontal">
-                <Border BorderBrush="Violet" BorderThickness="2">
-                    <AdornedElementPlaceholder />
-                </Border>
-                <TextBlock Foreground="Red" FontSize="26" FontWeight="Bold">!</TextBlock>
-            </StackPanel>
-        </ControlTemplate>
     </Window.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Grid.Column="0">
-            <ListBox ItemsSource="{Binding Prizes, Mode=TwoWay}" DisplayMemberPath="PlaceName" SelectedItem="{Binding SelectedPrize}" />
+        <Grid Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-            <GroupBox Header="Method">
-                <StackPanel>
-                    <RadioButton GroupName="Method" Content="Absolute value" 
-                             IsChecked="{Binding Path=Mode, Converter={StaticResource radioBoolToIntConverter}, ConverterParameter=0, UpdateSourceTrigger=PropertyChanged}" />
-                    <RadioButton GroupName="Method" Content="Percentage" 
-                             IsChecked="{Binding Path=Mode, Converter={StaticResource radioBoolToIntConverter}, ConverterParameter=1, UpdateSourceTrigger=PropertyChanged}" />
-                </StackPanel>
+            <GroupBox Grid.Row="0" Grid.Column="0" 
+                        materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                        materialDesign:ColorZoneAssist.Mode="Custom"
+                        materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                        materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                        Header="Places">
+                <ListBox 
+                     ItemsSource="{Binding Prizes, Mode=TwoWay}" 
+                     DisplayMemberPath="PlaceName" SelectedItem="{Binding SelectedPrize}" />
             </GroupBox>
-            <Label Content="Prize amount" />
-            <TextBox PreviewTextInput="PrizeAmountTxt_PreviewTextInput" 
-                 TextChanged="PrizeAmountTxt_TextChanged"
-                 Text="{Binding SelectedPrize.PrizeAmount, Converter={StaticResource stringToDecimalConverter}, UpdateSourceTrigger=PropertyChanged}"  />
-            <Label Content="Total" />
-            <TextBox IsReadOnly="True" Text="{Binding Total, Mode=OneWay}" />
-            <Label Content="Rest" />
-            <TextBox IsReadOnly="True" Validation.ErrorTemplate="{StaticResource validationFailed}">
-                <TextBox.Text>
-                    <Binding Path="Rest" Mode="OneWay" NotifyOnValidationError="True">
-                        <Binding.ValidationRules>
-                            <validation:PositiveOnlyRule ValidatesOnTargetUpdated="True" />
-                            <ExceptionValidationRule/>
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </TextBox>
+
+            <StackPanel Grid.Row="0" Grid.Column="1">
+                <GroupBox 
+                        materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                        materialDesign:ColorZoneAssist.Mode="Custom"
+                        materialDesign:ColorZoneAssist.Background="{StaticResource BackgroundColorDarkBrush}"
+                        materialDesign:ColorZoneAssist.Foreground="{StaticResource LightTextBrush}"
+                        Header="Method">
+                    <StackPanel>
+                        <RadioButton GroupName="Method" Content="Absolute value" 
+                             IsChecked="{Binding Path=Mode, Converter={StaticResource radioBoolToIntConverter}, ConverterParameter=0, UpdateSourceTrigger=PropertyChanged}" />
+                        <RadioButton GroupName="Method" Content="Percentage" 
+                             IsChecked="{Binding Path=Mode, Converter={StaticResource radioBoolToIntConverter}, ConverterParameter=1, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                </GroupBox>
+                
+                <TextBox 
+                    Margin="20 0 20 5"
+                    materialDesign:HintAssist.Hint="Prize amount"
+                    PreviewTextInput="PrizeAmountTxt_PreviewTextInput" 
+                    TextChanged="PrizeAmountTxt_TextChanged"
+                    Text="{Binding SelectedPrize.PrizeAmount, Converter={StaticResource stringToDecimalConverter}, UpdateSourceTrigger=PropertyChanged}"  />
+                
+                <TextBox 
+                    Margin="20 5"
+                    materialDesign:HintAssist.Hint="Total" 
+                    IsReadOnly="True" 
+                    Text="{Binding Total, Mode=OneWay}" />
+
+                <TextBox IsReadOnly="True" materialDesign:HintAssist.Hint="Rest" Margin="20 5">
+                    <TextBox.Text>
+                        <Binding Path="Rest" Mode="OneWay" NotifyOnValidationError="True">
+                            <Binding.ValidationRules>
+                                <validation:PositiveOnlyRule ValidatesOnTargetUpdated="True" />
+                                <ExceptionValidationRule/>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <!--<Label Content="After creating the tournament the prizes cannot be changed" />-->
+                <Label Grid.Row="2" Grid.ColumnSpan="2" Content="{Binding Error}" />
+            </StackPanel>
+            
+        </Grid>
+ 
+        <StackPanel Grid.Column="1">
+            <Button 
+                Margin="10 20 10 5"
+                Width="{StaticResource ButtonWidth}"
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Content="Ok" 
+                Click="OkBtn_Click" />
+            
+            <Button 
+                Margin="10 5"
+                Width="{StaticResource ButtonWidth}"
+                IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Content="Cancel" 
+                Click="CancelBtn_Click" />
         </StackPanel>
-
-        <StackPanel Grid.Row="0" Grid.Column="1">
-            <Button Content="Ok" Click="OkBtn_Click" />
-            <Button Content="Cancel" Click="CancelBtn_Click" />
-        </StackPanel>
-
-        <Label Grid.Row="1" Grid.ColumnSpan="2" Content="After creating the tournament the prizes cannot be changed" />
-
-        <Label Grid.Row="2" Grid.ColumnSpan="2" Content="{Binding Error}" />
     </Grid>
 </Window>

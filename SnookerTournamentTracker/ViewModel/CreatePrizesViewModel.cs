@@ -1,11 +1,7 @@
-﻿using SnookerTournamentTracker.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using TournamentLibrary;
 
@@ -13,6 +9,7 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class CreatePrizesViewModel : INotifyPropertyChanged
     {
+        private decimal? garantee;
 
         private PrizesModeEnum mode;
         public PrizesModeEnum Mode
@@ -71,7 +68,16 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        private decimal? garantee;
+        private string error = String.Empty;
+        public string Error
+        {
+            get => error;
+            set
+            {
+                error = value;
+                OnPropertyChanged(nameof(Error));
+            }
+        }
 
         public CreatePrizesViewModel(TournamentModel tournament, List<PrizeModel>? prizes)
         {
@@ -84,24 +90,18 @@ namespace SnookerTournamentTracker.ViewModel
             }
             else
             {
-                Prizes = ConnectionClientModel.GetAllPlaces();
-                Mode = PrizesModeEnum.Absolute;
+                LoadData();
             }
-
 
             Refresh();
         }
 
-        private string error = String.Empty;
-        public string Error
+        private async Task LoadData()
         {
-            get => error;
-            set
-            {
-                error = value;
-                OnPropertyChanged(nameof(Error));
-            }
+            Prizes = await ServerConnection.GetAllPlacesAsync();
+            Mode = PrizesModeEnum.Absolute;
         }
+
 
         public void Refresh()
         {
@@ -114,14 +114,14 @@ namespace SnookerTournamentTracker.ViewModel
             if(Prizes != null)
             {
                 Total = 0;
-                foreach(PrizeModel prize in Prizes)
+
+                for (int i = 0; i < Prizes.Count; i++)
                 {
-                    if (prize.PrizeAmount != null)
+                    if (Prizes[i].PrizeAmount != null)
                     {
-                        Total += (double)prize.PrizeAmount;
+                        Total += (double)Prizes[i].PrizeAmount! * Math.Pow(2, Math.Max(i - 1, 0));
                     }
                 }
-
             }
         }
 
@@ -151,6 +151,12 @@ namespace SnookerTournamentTracker.ViewModel
             if (Mode == PrizesModeEnum.Absolute && garantee != null && Rest > 0)
             {
                 Error = "Total prizes cannot be less than garantee";
+                return false;
+            }
+
+            else if (Mode == PrizesModeEnum.Percentage && garantee != null && Total < 100)
+            {
+                Error = "With garantee you need to chare all the garantee";
                 return false;
             }
 

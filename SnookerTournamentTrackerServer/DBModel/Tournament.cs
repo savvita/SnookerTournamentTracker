@@ -8,20 +8,22 @@ public partial class Tournament
 {
     public int Id { get; set; }
 
-    [Required]
-    [StringLength(50)]
+    [Required(ErrorMessage = "A tournament name is required")]
+    [StringLength(500, ErrorMessage = "Maximum length for a tournament name is 500 chars")]
     public string Name { get; set; } = null!;
 
     public int TournamentStatusId { get; set; }
+
+    public int? PaymentInfoId { get; set; }
 
     public bool? IsPrivate { get; set; }
 
     public byte? PrizeMode { get; set; }
 
-    [Range(0, double.MaxValue)]
+    [Range(0, double.MaxValue, ErrorMessage = "Entree fee must be grater than or equal to 0")]
     public decimal? EntreeFee { get; set; }
 
-    [Range(0, double.MaxValue)]
+    [Range(0, double.MaxValue, ErrorMessage = "Garantee must be grater than or equal to 0")]
     public decimal? Garantee { get; set; }
 
     public DateTime? StartDate { get; set; }
@@ -38,7 +40,11 @@ public partial class Tournament
 
     public virtual TournamentStatus TournamentStatus { get; set; } = null!;
 
+    public virtual PaymentInfo? PaymentInfo { get; set; }
+
     public virtual ICollection<TournamentsPlayer> TournamentsPlayers { get; } = new List<TournamentsPlayer>();
 
     public virtual ICollection<TournamentsRound> TournamentsRounds { get; } = new List<TournamentsRound>();
+
+    public virtual ICollection<Payment> Payments { get; } = new List<Payment>();
 }

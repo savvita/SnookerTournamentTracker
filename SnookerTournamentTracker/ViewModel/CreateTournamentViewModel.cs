@@ -1,12 +1,10 @@
 ﻿using GalaSoft.MvvmLight.Command;
-using SnookerTournamentTracker.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using TournamentLibrary;
 
@@ -14,13 +12,8 @@ namespace SnookerTournamentTracker.ViewModel
 {
     internal class CreateTournamentViewModel : INotifyPropertyChanged
     {
-        //public string? Name { get; set; }
 
-        //public DateTime? StartDate { get; set; }
-        //public DateTime? EndDate { get; set; }
-        //public string? EntreeFee { get; set; }
-
-        //public decimal? Garantee { get; set; }
+        private PersonModel? user;
 
         private TournamentModel tournament;
         public TournamentModel Tournament
@@ -33,33 +26,100 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        public PersonModel? SelectedPlayer { get; set; }
+        public ObservableCollection<CardModel> Cards { get; } = new ObservableCollection<CardModel>();
 
-        public PersonModel? SelectedInvitedPlayer { get; set; }
+        private CardModel? selectedCard;
+
+        public CardModel? SelectedCard
+        {
+            get => selectedCard;
+            set
+            {
+                selectedCard = value;
+                OnPropertyChanged(nameof(SelectedCard));
+            }
+        }
+
+        private bool isCardReadOnly;
+        public bool IsCardReadOnly
+        {
+            get => isCardReadOnly;
+            set
+            {
+                isCardReadOnly = value;
+                OnPropertyChanged(nameof(IsCardReadOnly));
+            }
+        }
+
+        private string? error = String.Empty;
+        public string? Error
+        {
+            get => error;
+            set
+            {
+                error = value;
+                OnPropertyChanged(nameof(Error));
+            }
+        }
 
         public ObservableCollection<PersonModel>? Players { get; set; }
 
         public ObservableCollection<PersonModel>? InvitedPlayers { get; set; }
+        public PersonModel? SelectedPlayer { get; set; }
+
+        public PersonModel? SelectedInvitedPlayer { get; set; }
 
         public List<PrizeModel>? Prizes { get; set; }
         public List<RoundModel>? Rounds { get; set; }
 
-        private int id;
-
-        public CreateTournamentViewModel(int id)
-        {
-            this.id = id;
-            tournament = new TournamentModel();
-            Players = new ObservableCollection<PersonModel>(ConnectionClientModel.GetAllPlayers());
-            InvitedPlayers = new ObservableCollection<PersonModel>();
-        }
-
+        public event Action? TournamentCreated;
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string name = "")
+
+        public CreateTournamentViewModel(PersonModel user)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            this.user = user;
+            tournament = new TournamentModel();
+
+            InvitedPlayers = new ObservableCollection<PersonModel>();
+
+            IsCardReadOnly = true;
         }
 
+        public async Task LoadData()
+        {
+            var players = await ServerConnection.GetAllPlayersAsync();
+
+            if (players != null)
+            {
+                Players = new ObservableCollection<PersonModel>(players);
+            }
+
+            await LoadCardsAsync();
+        }
+
+        private async Task LoadCardsAsync()
+        {
+            if (user != null)
+            {
+                var cards = await ServerConnection.GetUserCardsAsync(user.Id);
+
+                if (cards != null)
+                {
+                    foreach (var card in cards)
+                    {
+                        Cards.Add(card);
+                    }
+
+                    if (Cards.Count > 0)
+                    {
+                        SelectedCard = Cards[0];
+                    }
+                }
+            }
+        }
+
+
+        #region Commands
         private RelayCommand? addToInvitedCommand;
         public RelayCommand AddToInvitedCommand
         {
@@ -86,42 +146,84 @@ namespace SnookerTournamentTracker.ViewModel
             });
         }
 
-        //private RelayCommand? createTournamentCommand;
-        //public RelayCommand CreateTournamentCommand
-        //{
-        //    get => createTournamentCommand ?? new RelayCommand(() =>
-        //    {
-        //        CreateTournament();
-        //    });
-        //}
-
-        public event Action? TournamentCreated;
-
-        public bool CreateTournament()
+        private RelayCommand? addCardCmd;
+        public RelayCommand AddCardCmd
         {
-            if (Rounds == null)
+            get => addCardCmd ?? new RelayCommand(() =>
             {
-                Error = "Rounds are required";
-                return false;
-            }
+                if (user == null)
+                {
+                    return;
+                }
 
+                CardModel card = new CardModel()
+                {
+                    UserId = (int)user.Id!
+                };
+
+                Cards.Add(card);
+                SelectedCard = card;
+                IsCardReadOnly = false;
+            });
+        }
+
+        private RelayCommand? saveCardCmd;
+        public RelayCommand SaveCardCmd
+        {
+            get => saveCardCmd ?? new RelayCommand(async () =>
+            {
+                if (user == null)
+                {
+                    Error = "User is not defined";
+                    return;
+                }
+
+                if (SelectedCard == null)
+                {
+                    Error = "Card is not defined";
+                    return;
+                }
+
+                if (await ServerConnection.SaveUserCard((int)user.Id!, SelectedCard))
+                {
+                    IsCardReadOnly = true;
+                }
+
+                Error = ServerConnection.LastError;
+            });
+        }
+        #endregion
+
+
+        public async Task<bool> CreateTournamentAsync()
+        {
             try
             {
                 if (Validate())
-                {
+                {                   
                     if (Prizes != null)
                     {
                         Tournament.Prizes = Prizes.Where(prize => prize.PrizeAmount != null).ToList();
                     }
-                    Tournament.RoundModel = Rounds.Where(round => round.Frames != null).ToList();
-                    if (ConnectionClientModel.CreateTournament(id, Tournament))
+
+                    Tournament.RoundModel = Rounds!.Where(round => round.Frames != null).ToList();
+
+                    if(Tournament.BuyIn != null)
+                    {
+                        Tournament.PaymentInfo = new PaymentInfoModel()
+                        {
+                            Card = SelectedCard!,
+                            Sum = (decimal)Tournament.BuyIn
+                        };
+                    }
+                    if (await ServerConnection.CreateTournamentAsync((int)user!.Id!, Tournament))
                     {
                         TournamentCreated?.Invoke();
                         return true;
                     }
                     else
                     {
-                        Error = ConnectionClientModel.LastError;
+                        Error = ServerConnection.LastError;
                         return false;
                     }
                 }
@@ -137,31 +239,15 @@ namespace SnookerTournamentTracker.ViewModel
             }
         }
 
-        private string? error = String.Empty;
-        public string? Error
-        {
-            get => error;
-            set
-            {
-                error = value;
-                OnPropertyChanged(nameof(Error));
-            }
-        }
-
         private bool Validate()
         {
-            //TODO add validation
-            //if(Name == null || Name.Length == 0)
-            //{
-            //    return false;
-            //}
-
-            //if(StartDate != null && EndDate != null && StartDate > EndDate)
-            //{
-            //    return false;
-            //}
-
             Error = String.Empty;
+
+            if (user == null)
+            {
+                Error = "User is not defined";
+                return false;
+            }
 
             if (Tournament.Name == null || Tournament.Name.Length == 0)
             {
@@ -181,34 +267,30 @@ namespace SnookerTournamentTracker.ViewModel
                 return false;
             }
 
+            if (Tournament.PrizeMode == PrizesModeEnum.Percentage && Tournament.Garantee == null && Tournament.BuyIn == null)
+            {
+                Error = "Percentage prize mode requires a garantee or buy-ins";
+                return false;
+            }
+
             if (Rounds == null || Rounds.Where(round => round.Frames == null || round.Frames == 0).Count() == Rounds.Count())
             {
                 Error = "Rounds are required";
                 return false;
             }
 
-
-            //if (Tournament.Garantee != null && !decimal.TryParse(Tournament.Garantee, out decimal _))
-            //{
-            //    return false;
-            //}
-
-            //if (Tournament.EntreeFee != null && !decimal.TryParse(Tournament.EntreeFee, out decimal _))
-            //{
-            //    return false;
-            //}
-
-            //if(Garantee != null && !decimal.TryParse(Garantee, out decimal _))
-            //{
-            //    return false;
-            //}
-
-            //if (EntreeFee != null && !decimal.TryParse(EntreeFee, out decimal _))
-            //{
-            //    return false;
-            //}
+            if (Tournament.BuyIn != null && Tournament.BuyIn != 0 && SelectedCard == null)
+            {
+                Error = "Card is required";
+                return false;
+            }
 
             return true;
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string name = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

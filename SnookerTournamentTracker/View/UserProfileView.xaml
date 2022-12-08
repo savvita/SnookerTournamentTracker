@@ -5,41 +5,98 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="UserProfileView" Height="450" Width="800">
-    <StackPanel Name="UserProfile">
+        Title="Profile" Height="400" Width="800" MinHeight="400" MinWidth="600"
         
-        <Label Content="First name:" />
-        <TextBox MaxLength="100">
-            <TextBox.Text>
-                <Binding Path="User.FirstName" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
-                    <Binding.ValidationRules>
-                        <validation:NotEmptyRule />
-                        <ExceptionValidationRule/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <Label Content="Second name:" />
-        <TextBox Text="{Binding User.SecondName, UpdateSourceTrigger=PropertyChanged}" />
-        <Label Content="Last name:" />
-        <TextBox MaxLength="100">
-            <TextBox.Text>
-                <Binding Path="User.LastName" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
-                    <Binding.ValidationRules>
-                        <validation:NotEmptyRule />
-                        <ExceptionValidationRule/>
-                    </Binding.ValidationRules>
-                </Binding>
-            </TextBox.Text>
-        </TextBox>
-        <Label Content="Email:" />
-        <TextBox Text="{Binding User.EmailAddress, Mode=OneTime}" IsReadOnly="True" />
-        <Label Content="Phone number:" />
-        <TextBox Text="{Binding User.PhoneNumber, UpdateSourceTrigger=PropertyChanged}" />
-        <Button Content="Change password" />
-        <Button Content="Ok" Click="OkBtn_Click" />
-        <Button Content="Cancel" Click="CancelBtn_Click" />
-        <Label Name="Error" />
-    </StackPanel>
+        Background="{StaticResource BackgroundColorDarkBrush}" WindowStartupLocation="CenterScreen">
+    
+    <Grid Name="UserProfile">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        
+        <StackPanel Grid.Row="0" Grid.Column="0">
+            <TextBox 
+                Margin="10 20 10 10"
+                MaxLength="100" 
+                Background="{DynamicResource BackgroundColorLightBrush}"
+                materialDesign:HintAssist.Hint="First name">
+                <TextBox.Text>
+                    <Binding Path="User.FirstName" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <validation:NotEmptyRule />
+                            <ExceptionValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <TextBox 
+                materialDesign:HintAssist.Hint="Second name"
+                Background="{DynamicResource BackgroundColorLightBrush}"
+                Margin="10"
+                Text="{Binding User.SecondName, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBox 
+                materialDesign:HintAssist.Hint="Last name"
+                Background="{DynamicResource BackgroundColorLightBrush}"
+                Margin="10"
+                MaxLength="100">
+                <TextBox.Text>
+                    <Binding Path="User.LastName" Mode="TwoWay" NotifyOnValidationError="True" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <validation:NotEmptyRule />
+                            <ExceptionValidationRule/>
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <TextBox 
+                Margin="10"
+                materialDesign:HintAssist.Hint="Email"
+                Background="{DynamicResource BackgroundColorLightBrush}"
+                Text="{Binding User.EmailAddress, Mode=OneTime}" IsReadOnly="True" />
+
+            <TextBox
+                Margin="10"
+                materialDesign:HintAssist.Hint="Phone number"
+                Background="{DynamicResource BackgroundColorLightBrush}"
+                Text="{Binding User.PhoneNumber, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="1">
+            <Button 
+                Style="{StaticResource MaterialDesignPaperDarkButton}"
+                    Margin="10 20 10 5"
+                    Width="{StaticResource ButtonWidth}"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Content="Ok" 
+                Click="OkBtn_Click" />
+            
+            <Button 
+                Style="{StaticResource MaterialDesignPaperDarkButton}"
+                    Margin="10 5"
+                    Width="{StaticResource ButtonWidth}"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Content="Cancel"
+                Click="CancelBtn_Click" />
+            
+            <!--<Button 
+                Style="{StaticResource MaterialDesignPaperDarkButton}"
+                    Margin="10 5"
+                    Width="{StaticResource ButtonWidth}"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                Content="Change password" />-->
+        </StackPanel>
+        
+        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="Error" />
+    </Grid>
 </Window>

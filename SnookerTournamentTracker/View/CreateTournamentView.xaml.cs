@@ -1,17 +1,8 @@
 ﻿using SnookerTournamentTracker.ViewModel;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using TournamentLibrary;
 
 namespace SnookerTournamentTracker.View
@@ -32,7 +23,8 @@ namespace SnookerTournamentTracker.View
         {
             if(user.Id != null)
             {
-                model = new CreateTournamentViewModel((int)user.Id!);
+                model = new CreateTournamentViewModel(user);
+                this.Loaded += async (obj, e) => await model.LoadData();
                 this.DataContext = model;
             }
 
@@ -47,6 +39,14 @@ namespace SnookerTournamentTracker.View
         private void OnlyNumbersTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             if (e.Text.Any(ch => !Char.IsDigit(ch) && ch != '.'))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void OnlyDigitsTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (e.Text.Any(ch => !Char.IsDigit(ch)))
             {
                 e.Handled = true;
             }
@@ -69,19 +69,20 @@ namespace SnookerTournamentTracker.View
             }
         }
 
-        private void CreateTournamentBtn_Click(object sender, RoutedEventArgs e)
+        private async void CreateTournamentBtn_Click(object sender, RoutedEventArgs e)
         {
             if (model == null)
             {
                 return;
             }
 
-            if (model.CreateTournament())
+            if (await model.CreateTournamentAsync())
             {
                 this.DialogResult = true;
                 this.Close();
             }
         }
+
 
         private void CreateRoundsBtn_Click(object sender, RoutedEventArgs e)
         {

@@ -12,8 +12,8 @@ public partial class PhoneNumber
     public int UserId { get; set; }
 
     [Column("PhoneNumber")]
-    [Required]
-    [StringLength(20)]
+    [Required(ErrorMessage = "A phone number is required")]
+    [StringLength(20, ErrorMessage = "Maximum length for a phone number is 20 chars")]
     public string Number { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;

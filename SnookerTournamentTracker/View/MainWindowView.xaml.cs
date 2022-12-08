@@ -1,17 +1,5 @@
 ﻿using SnookerTournamentTracker.ViewModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using TournamentLibrary;
 
 namespace SnookerTournamentTracker.View
@@ -32,6 +20,10 @@ namespace SnookerTournamentTracker.View
         {
             this.user = user;
             model = new MainWindowViewModel(user);
+            model.UpdateFailed += (msg) => MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            this.Loaded += async (obj, e) => await model.LoadData();
+
             this.DataContext = model;
         }
 
@@ -49,7 +41,6 @@ namespace SnookerTournamentTracker.View
             {
                 model?.Refresh();
             }
-            //(new CreateTournamentView()).ShowDialog();
         }
 
         private void ProfileBtn_Click(object sender, RoutedEventArgs e)
@@ -59,9 +50,14 @@ namespace SnookerTournamentTracker.View
                 UserProfileView view = new UserProfileView(user);
                 view.ShowDialog();
 
-                if(view.DialogResult == true)
+                if (view.DialogResult == true && view.User != null)
                 {
-                    model?.UpdateProfile(user);
+                    user = view.User;
+                    model?.UpdateProfileAsync(user);
+                }
+                else
+                {
+                    e.Handled = true;
                 }
             }
         }
@@ -76,6 +72,19 @@ namespace SnookerTournamentTracker.View
 
             TournamentInfoView view = new TournamentInfoView(user, model.SelectedTournament);
             view.ShowDialog();
+            model?.Refresh();
+        }
+
+        private void MyTournamentsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (user == null)
+            {
+                return;
+            }
+
+            MyTournamentsView view = new MyTournamentsView(user);
+            view.ShowDialog();
+            model?.Refresh();
         }
     }
 }

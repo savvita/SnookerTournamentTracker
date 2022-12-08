@@ -12,8 +12,8 @@ public partial class Prize
 
     public int PlaceId { get; set; }
 
-    [Required]
-    [Range(0, double.MaxValue)]
+    [Required(ErrorMessage = "An amount is required")]
+    [Range(0, double.MaxValue, ErrorMessage = "An amount must be grater than or equal to 0")]
     public decimal Amount { get; set; }
 
     public virtual Place Place { get; set; } = null!;

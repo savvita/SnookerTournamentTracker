@@ -11,11 +11,11 @@ namespace TournamentLibrary
     {
         public int? Id { get; set; }
 
-        [Required]
-        [StringLength(20)]
+        [Required(ErrorMessage = "A place name is required")]
+        [StringLength(20, ErrorMessage = "Maximum length for a place name is 100 chars")]
         public string? PlaceName { get; set; }
 
-        [Range(0, double.MaxValue)]
+        [Range(0, double.MaxValue, ErrorMessage = "Prize amount must be grater than or equal to 0")]
         public double? PrizeAmount { get; set; }
     }
 }

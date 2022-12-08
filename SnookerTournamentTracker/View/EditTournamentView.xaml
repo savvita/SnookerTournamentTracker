@@ -1,0 +1,70 @@
+﻿<Window x:Class="SnookerTournamentTracker.View.EditTournamentView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Edit Tournament" Height="350" Width="800" MinHeight="350" MinWidth="800" WindowStartupLocation="CenterScreen" >
+    
+    <StackPanel>
+        <Grid Name="TourneyPanel">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Row="0" Grid.Column="0">
+                <TextBox 
+                            Margin="20 5"
+                            materialDesign:HintAssist.Hint="Tournament name"
+                            Text="{Binding Tournament.Name, Mode=TwoWay}" />
+
+
+                <DatePicker SelectedDate="{Binding Tournament.StartDate}" Margin="20 5"
+                        materialDesign:HintAssist.Hint="Starts"  />
+
+                <DatePicker SelectedDate="{Binding Tournament.EndDate}" Margin="20 5"
+                        materialDesign:HintAssist.Hint="Ends"  />
+
+                <TextBox 
+                            Margin="20 5"
+                            materialDesign:HintAssist.Hint="Buy-in (cannot be changed)"
+                            Text="{Binding Tournament.BuyIn, Mode=OneTime, StringFormat={}{0:0.00}}"
+                            IsReadOnly="True" />
+
+                <TextBox 
+                            Margin="20 5"
+                            materialDesign:HintAssist.Hint="Garantee (cannot be changed)"
+                            Text="{Binding Tournament.Garantee, Mode=OneTime, StringFormat={}{0:0.00}}" 
+                            IsReadOnly="True" />
+
+            </StackPanel>
+
+            <StackPanel Grid.Row="0" Grid.Column="1">
+                <Button 
+                        Margin="10 20 10 5"
+                        Width="{StaticResource ButtonWidth}"
+                        IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Content="Ok" 
+                    Click="OkBtn_Click" />
+
+                <Button 
+                        Margin="10 5"
+                        Width="{StaticResource ButtonWidth}"
+                        IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Content="Cancel"
+                    Click="CancelBtn_Click" />
+            </StackPanel>
+
+            <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="Error" />
+
+        </Grid>
+    </StackPanel>
+</Window>

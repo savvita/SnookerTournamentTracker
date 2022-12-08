@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using TournamentLibrary;
 
@@ -15,7 +11,7 @@ namespace SnookerTournamentTracker.Converter
         {
             if(value is PersonModel person)
             {
-                return $"{person.LastName} {person.FirstName}";
+                return $"{person.FirstName} {person.LastName}";
             }
 
             return String.Empty;

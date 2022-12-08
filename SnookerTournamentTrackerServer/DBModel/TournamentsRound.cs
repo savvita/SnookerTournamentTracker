@@ -12,8 +12,8 @@ public partial class TournamentsRound
 
     public int RoundId { get; set; }
 
-    [Required]
-    [Range(1, int.MaxValue)]
+    [Required(ErrorMessage = "A number of frames is required")]
+    [Range(1, int.MaxValue, ErrorMessage = "A number of frames must be grater than or equal to 1")]
     public int FrameCount { get; set; }
 
     public virtual ICollection<Match> Matches { get; } = new List<Match>();

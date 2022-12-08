@@ -4,10 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
+        xmlns:converter="clr-namespace:SnookerTournamentTracker.Converter"
         mc:Ignorable="d"
-        Title="Create Rounds" Height="300" Width="500"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
-    
+        Title="Create Rounds" Height="400" Width="600"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+
+    <Window.Resources>
+        <converter:NegativeBoolToVisibilityConverter x:Key="negativeBoolToVisibilityConverter" />
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -18,19 +23,32 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
       
-        <DataGrid Grid.Row="0" Grid.Column="0" AutoGenerateColumns="False" ItemsSource="{Binding Rounds}" CanUserAddRows="False">
+        <DataGrid Grid.Row="0" Grid.Column="0" AutoGenerateColumns="False" ItemsSource="{Binding Rounds}" CanUserAddRows="False" Margin="10">
             <DataGrid.Columns>
                 <DataGridTextColumn 
                     Header="Round"
-                    Width="3.5*" 
-                    Binding="{Binding Path=Round,UpdateSourceTrigger=PropertyChanged}"
+                    Width="1.5*" 
+                    Binding="{Binding Path=RoundName,UpdateSourceTrigger=PropertyChanged}"
                     IsReadOnly="True" />
 
                 <DataGridTemplateColumn Header="Frames" Width="*" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding Frames, UpdateSourceTrigger=PropertyChanged}" 
+                            <TextBox 
+                                Style="{StaticResource MaterialDesignTextBox}"
+                                Text="{Binding FrameCount, UpdateSourceTrigger=PropertyChanged}" 
                                          PreviewTextInput="OnlyNumbersTxt_PreviewTextInput" BorderThickness="0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Save" 
+                                    Visibility="{Binding IsSaved,Converter={StaticResource negativeBoolToVisibilityConverter}}"
+                                    Command="{Binding DataContext.SaveBtnCmd, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                                    ClickMode="Press" CommandParameter="{Binding}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -38,9 +56,11 @@
 
         </DataGrid>
 
-        <StackPanel Grid.Row="0" Grid.Column="1">
-            <Button Content="Ok" Click="OkBtn_Click" />
-            <Button Content="Cancel" Click="CancelBtn_Click" />
+        <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center">
+            <Button Content="Ok" Click="OkBtn_Click" Margin="5 10 5 5"
+                    Width="{StaticResource ButtonWidth}" />
+            <Button Content="Cancel" Click="CancelBtn_Click" Margin="5"
+                    Width="{StaticResource ButtonWidth}" />
         </StackPanel>
         
         <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Content="{Binding Error}" />

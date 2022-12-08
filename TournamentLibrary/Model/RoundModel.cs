@@ -11,12 +11,12 @@ namespace TournamentLibrary
     {
         public int? Id { get; set; }
 
-        [Required]
-        [StringLength(30)]
+        [Required(ErrorMessage = "A round name is required")]
+        [StringLength(30, ErrorMessage = "Maximum length for a round name is 30 chars")]
         public string? Round { get; set; }
 
-        [Required]
-        [Range(1, int.MaxValue)]
+        [Required(ErrorMessage = "The number of frames is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "The number of frames must be grater than or equal to 1")]
         public int? Frames { get; set; }
     }
 }

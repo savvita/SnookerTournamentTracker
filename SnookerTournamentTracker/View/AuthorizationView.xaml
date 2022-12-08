@@ -5,157 +5,208 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnookerTournamentTracker.View"
         xmlns:validation="clr-namespace:SnookerTournamentTracker.LocalValidation"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        Title="Authorization" Height="450" Width="800"
-        WindowStartupLocation="CenterScreen" >
-    <Window.Resources>
-        <Style x:Key="ValidatedInput" >
-            <Setter Property="Validation.ErrorTemplate">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <DockPanel LastChildFill="True">
-                            <TextBlock DockPanel.Dock="Right" Foreground="Red" FontSize="14" FontWeight="Bold"
-                                                               ToolTip="{Binding ElementName=adornerPlaceholder, 
-                                                                        Path=AdornedElement.(Validation.Errors)[0].ErrorContent}"
-                                                    Text="*"/>
-                            <Border BorderBrush="Green" BorderThickness="1" >
-                                <AdornedElementPlaceholder Name="adornerPlaceholder"  />
-                            </Border>
-                        </DockPanel>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="Validation.HasError" Value="True">
-                    <Setter Property="Control.Foreground" Value="Red"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
+        Title="Snooker Tournament Tracker. Authorization" MinHeight="820" MinWidth="600" Width="750" Height="820" 
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundColorDarkBrush}">
+
     <Grid>
-        <TabControl>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="3.5*" />
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Source="Images/logo_h.png" />
+
+        <TabControl Grid.Row="1" Margin="50 0 50 10"
+                    materialDesign:ColorZoneAssist.Mode="PrimaryLight"
+                    Style="{StaticResource MaterialDesignFilledTabControl}">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
                     <i:InvokeCommandAction 
                     Command="{Binding ClearCommand}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
-            <TabItem Header="Sign in">
-                <StackPanel Name="SignIn">
-                    <Label Content="Email" />
-                    <!--<TextBox Style="{StaticResource ValidatedInput}" MaxLength="50">
-                        <TextBox.Text>
-                            <Binding Path="Login" Mode="TwoWay" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <validation:NotEmptyRule />
-                                    <ExceptionValidationRule/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </TextBox>-->
-                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="50">
-                        <TextBox.Text>
-                            <Binding Path="Email" Mode="TwoWay" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <validation:NotEmptyRule />
-                                    <ExceptionValidationRule/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </TextBox>
-                    <Label Content="Password" />
-                    <local:PasswordUserControl Style="{StaticResource ValidatedInput}">
-                        <local:PasswordUserControl.Password>
-                            <Binding Path="Password" Mode="TwoWay" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <validation:NotEmptyRule />
-                                    <ExceptionValidationRule/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </local:PasswordUserControl.Password>
-                    </local:PasswordUserControl>
-                    <Button Content="Sign in" Command="{Binding SignInCommand}" PreviewMouseDown="SignInBtn_PreviewMouseDown" />
-                    <Button Content="Cancel" IsCancel="True" Click="CancelBtn_Click" />
-                    <Label Content="{Binding Error}" />
-                </StackPanel>
+            
+            <TabItem Header="Sign in" Style="{StaticResource TabItemStyle}">
+                <DockPanel Name="SignIn" LastChildFill="True" Style="{StaticResource DockContainerStyle}">
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Label Content="{Binding Error}" />
+                        
+                        <Button
+                            Margin="0 0 20 20"
+                            Width="{StaticResource ButtonWidth}"
+                            Content="Sign in"
+                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                            Command="{Binding SignInCommand}" 
+                            IsDefault="True"
+                            PreviewMouseDown="SignInBtn_PreviewMouseDown"/>
+
+                        <Button 
+                            Margin="0 0 20 20"
+                            Width="{StaticResource ButtonWidth}"
+                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                            Content="Cancel" 
+                            IsCancel="True" 
+                            Click="CancelBtn_Click" />
+                    </StackPanel>
+
+                    
+
+                    <Grid DockPanel.Dock="Top" Style="{StaticResource ContainerStyle}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBox
+                            Grid.Row="0"
+                            materialDesign:HintAssist.Hint="Email"
+                            MaxLength="255"
+                            VerticalAlignment="Top"
+                            TextWrapping="Wrap">
+                            <TextBox.Text>
+                                <Binding Path="Email" Mode="TwoWay" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <validation:NotEmptyRule />
+                                        <ExceptionValidationRule/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </TextBox>
+
+                        <local:PasswordUserControl Grid.Row="1"
+                            Margin="0 10"
+                            materialDesign:HintAssist.Hint="Password">
+                            <local:PasswordUserControl.Password>
+                                <Binding Path="Password" Mode="TwoWay" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <validation:NotEmptyRule />
+                                        <ExceptionValidationRule/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </local:PasswordUserControl.Password>
+                        </local:PasswordUserControl>
+                    </Grid>
+             
+                </DockPanel>
             </TabItem>
-            <TabItem Header="Sign up">
-                <StackPanel Name="SignUp">
-                    <Label Content="First name" />
-                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="100">
-                        <TextBox.Text>
-                            <Binding Path="FirstName" Mode="TwoWay" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <validation:NotEmptyRule />
-                                    <ExceptionValidationRule/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </TextBox>
-                    <Label Content="Second name" />
-                    <TextBox Text="{Binding SecondName, Mode=TwoWay}" MaxLength="100" />
-                    <Label Content="Last name" />
-                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="100">
-                        <TextBox.Text>
-                            <Binding Path="LastName" Mode="TwoWay" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <validation:NotEmptyRule />
-                                    <ExceptionValidationRule/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </TextBox>
-                    <Label Content="Email" />
-                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="255">
-                        <TextBox.Text>
-                            <Binding Path="Email" Mode="TwoWay" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <validation:NotEmptyRule />
-                                    <ExceptionValidationRule/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </TextBox>
-                    <Label Content="Phone number" />
-                    <TextBox Text="{Binding PhoneNumber, Mode=TwoWay}" MaxLength="20" />
-                    <!--<Label Content="Login" />
-                    <TextBox Style="{StaticResource ValidatedInput}" MaxLength="50">
-                        <TextBox.Text>
-                            <Binding Path="Login" Mode="TwoWay" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <validation:NotEmptyRule />
-                                    <ExceptionValidationRule/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </TextBox>-->
-                    <Label Content="Password" />
-                        <local:PasswordUserControl Style="{StaticResource ValidatedInput}">
-                        <local:PasswordUserControl.Password>
-                            <Binding Path="Password" Mode="TwoWay" NotifyOnValidationError="True">
-                                <Binding.ValidationRules>
-                                    <validation:NotEmptyRule />
-                                    <ExceptionValidationRule/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </local:PasswordUserControl.Password>
-                    </local:PasswordUserControl>
-                    <Label Content="Confirm password" />
-                        <local:PasswordUserControl Style="{StaticResource ValidatedInput}">
-                        <local:PasswordUserControl.Password>
-                            <Binding Path="PasswordConfirm" Mode="TwoWay" NotifyOnValidationError="True" >
-                                <Binding.ValidationRules>
-                                    <validation:NotEmptyRule />
-                                    <ExceptionValidationRule/>
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </local:PasswordUserControl.Password>
-                    </local:PasswordUserControl>
-                    <Button Content="Sign up" Command="{Binding SignUpCommand}" PreviewMouseDown="SignUpBtn_PreviewMouseDown" />
-                    <Button Content="Cancel" IsCancel="True" Click="CancelBtn_Click" />
-                    <Label Content="{Binding Error}" />
-                </StackPanel>
+
+            <TabItem Header="Sign up" Style="{StaticResource TabItemStyle}">
+                <DockPanel Name="SignUp" LastChildFill="False" Style="{StaticResource DockContainerStyle}">
+                    <Grid DockPanel.Dock="Top" Style="{StaticResource ContainerStyle}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBox 
+                            Grid.Row="0"
+                            materialDesign:HintAssist.Hint="First name"
+                            MaxLength="100">
+                            <TextBox.Text>
+                                <Binding Path="FirstName" Mode="TwoWay" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <validation:NotEmptyRule />
+                                        <ExceptionValidationRule/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </TextBox>
+
+                        <TextBox 
+                            Grid.Row="1"
+                            materialDesign:HintAssist.Hint="Second name"
+                            Text="{Binding SecondName, Mode=TwoWay}" 
+                            MaxLength="100" />
+
+                        <TextBox 
+                            Grid.Row="2"
+                            materialDesign:HintAssist.Hint="Last name"
+                            MaxLength="100">
+                            <TextBox.Text>
+                                <Binding Path="LastName" Mode="TwoWay" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <validation:NotEmptyRule />
+                                        <ExceptionValidationRule/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </TextBox>
+
+                        <TextBox 
+                            Grid.Row="3"
+                            materialDesign:HintAssist.Hint="Email"
+                            MaxLength="255">
+                            <TextBox.Text>
+                                <Binding Path="Email" Mode="TwoWay" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <validation:NotEmptyRule />
+                                        <ExceptionValidationRule/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </TextBox.Text>
+                        </TextBox>
+
+                        <TextBox 
+                            Grid.Row="4" Grid.Column="1" 
+                            materialDesign:HintAssist.Hint="Phone number"
+                            Text="{Binding PhoneNumber, Mode=TwoWay}" MaxLength="20" />
+
+                        <local:PasswordUserControl Grid.Row="5" Margin="0 10"
+                            materialDesign:HintAssist.Hint="Password">
+                            <local:PasswordUserControl.Password>
+                                <Binding Path="Password" Mode="TwoWay" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <validation:NotEmptyRule />
+                                        <ExceptionValidationRule/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </local:PasswordUserControl.Password>
+                        </local:PasswordUserControl>
+
+                        <local:PasswordUserControl 
+                            Margin="0 10"
+                            Grid.Row="6" 
+                            materialDesign:HintAssist.Hint="Confirm password">
+                            <local:PasswordUserControl.Password>
+                                <Binding Path="PasswordConfirm" Mode="TwoWay" NotifyOnValidationError="True" >
+                                    <Binding.ValidationRules>
+                                        <validation:NotEmptyRule />
+                                        <ExceptionValidationRule/>
+                                    </Binding.ValidationRules>
+                                </Binding>
+                            </local:PasswordUserControl.Password>
+                        </local:PasswordUserControl>
+                    </Grid>
+
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Label Content="{Binding Error}" />
+                        <Button IsDefault="True"
+                            Margin="0 0 10 20"
+                            Width="{StaticResource ButtonWidth}"
+                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                            Content="Sign up" 
+                            Command="{Binding SignUpCommand}" 
+                            PreviewMouseDown="SignUpBtn_PreviewMouseDown" />
+
+                        <Button 
+                            Margin="0 0 20 20"
+                            Width="{StaticResource ButtonWidth}"
+                            IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                            Content="Cancel" 
+                            IsCancel="True" 
+                            Click="CancelBtn_Click" />
+
+                    </StackPanel>
+                </DockPanel>
             </TabItem>
         </TabControl>
     </Grid>

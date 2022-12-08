@@ -13,6 +13,8 @@ public partial class TournamentsPlayer
 
     public int RegistrationStatusId { get; set; }
 
+    public bool? IsFinished { get; set; }
+
     public virtual RegistrationStatus RegistrationStatus { get; set; } = null!;
 
     public virtual Tournament Tournament { get; set; } = null!;
